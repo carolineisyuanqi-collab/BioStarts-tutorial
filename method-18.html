@@ -1,0 +1,259 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>机器学习在医学统计中的应用 | BioStarts</title>
+    <link rel="stylesheet" href="method-common.css" />
+  <link rel="stylesheet" href="qwen-assistant.css" />
+  <script defer src="method-quiz.js"></script>
+  <script defer src="qwen-assistant.js"></script>
+</head>
+<body class="method-legacy-chapter">
+<nav class="method-topbar" style="background:#0f2940;color:#f8fafc;padding:12px 24px;font-family:Inter,'PingFang SC','Microsoft YaHei',sans-serif;font-size:13px;display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:8px;">
+  <a href="index.html" style="color:#fff;text-decoration:none;font-weight:600;">← BioStarts</a>
+  <span style="opacity:.85;">统计医学方法 · 第18章</span>
+</nav>
+
+
+  
+<main class="container">
+<h1>第 18 章 机器学习在医学统计中的应用</h1>
+<p>
+  机器学习并不是另一门与统计学无关的“黑科技”，它更像是统计学家、计算机科学家和工程师在过去三四十年里，
+  为了解决“预测得更准”这个问题，把传统统计的工具箱扩大之后的产物。
+  本章不教你怎么调参数，而是帮助你建立临床研究者应有的判断力：什么时候该用、什么时候不该用、
+  读机器学习论文时该怎么看、审稿时该问哪些关键问题。
+</p>
+
+  <section class="toc">
+    <h2 style="margin-top:0;border-bottom:none;padding-bottom:0;">本章目录</h2>
+    <ul>
+      <li><a href="#part-18-1">18.1 机器学习与传统统计的关系</a></li>
+      <li><a href="#part-18-2">18.2 决策树（Decision Tree）</a></li>
+      <li><a href="#part-18-3">18.3 随机森林（Random Forest）</a></li>
+      <li><a href="#part-18-4">18.4 XGBoost 与梯度提升</a></li>
+      <li><a href="#part-18-5">18.5 支持向量机（SVM）</a></li>
+      <li><a href="#part-18-6">18.6 神经网络与深度学习</a></li>
+      <li><a href="#part-18-7">18.7 主成分分析（PCA）与降维</a></li>
+      <li><a href="#part-18-8">18.8 医学场景中的优点、局限与常见误区</a></li>
+      <li><a href="#summary">本章小结</a></li>
+      <li><a href="#references">延伸阅读</a></li>
+      <li><a href="#self-test">自测题（含参考答案）</a></li>
+    </ul>
+  </section>
+
+  <h2 id="part-18-1">18.1 机器学习与传统统计的关系</h2>
+  <h3>严格定义</h3>
+  <p>
+    传统统计学长期关注参数估计、假设检验、因果推断和不确定性量化；机器学习更关注从数据中学习函数 <code>f(x)</code>，
+    使其在新样本上有更好的预测表现。两者在数学上有大量重叠，区别更多体现在“研究问法”和“目标函数”上。
+  </p>
+  <h3>通俗说法</h3>
+  <p><strong>传统统计更爱问“为什么”，机器学习更爱问“能不能更准”。</strong></p>
+  <div class="box example">
+    <strong>toy example：</strong>住院患者 30 天再入院研究中，若目标是解释危险因素，常以 Logistic 回归报告 OR 与 95%CI；
+    若目标是建立临床风险预测工具，随机森林或 XGBoost 可能更合适。现实中常常两者并行：解释模型回答“为什么”，预测模型回答“准不准”。
+  </div>
+  <div class="box">
+    <strong>实操建议：</strong>先写清楚临床问题、结局定义与数据质量，再选择算法。样本量小且事件数少时，复杂模型通常不比经典模型更可靠。
+  </div>
+
+  <h2 id="part-18-2">18.2 决策树（Decision Tree）</h2>
+  <h3>严格定义</h3>
+  <p>
+    决策树是一种递归划分方法。每一步选择变量和切分点，使子节点在结局上更“纯”，直到达到停止条件（如节点样本太少或树深受限）。
+  </p>
+  <h3>通俗说法</h3>
+  <p>决策树像临床流程图：如果 A，则看 B；如果不是 A，再看 C。可解释性强，但单棵树稳定性较差。</p>
+  <div class="box example">
+    <strong>toy example：</strong>急诊分诊中可用体温、血氧、WBC、意识状态构建高危识别规则，便于床旁快速执行。
+  </div>
+  <div class="box warning">
+    <strong>实操建议：</strong>决策树更适合数据探索或可解释性优先场景，不适合单独用于追求极致预测性能的模型。
+  </div>
+
+  <h2 id="part-18-3">18.3 随机森林（Random Forest）</h2>
+  <h3>严格定义</h3>
+  <p>
+    随机森林是基于 bagging 的集成学习方法：每棵树使用 bootstrap 样本训练，分裂时随机抽取候选变量，最终通过投票（分类）或平均（回归）得到预测。
+  </p>
+  <h3>通俗说法</h3>
+  <p>一棵树不稳定，就“种一片森林”共同决策。通常比单棵树更稳、泛化更好，且在医学表格数据上常有较高性价比。</p>
+  <div class="box example">
+    <strong>toy example：</strong>使用 ICU 生命体征、实验室指标、用药信息预测 AKI 风险时，随机森林可自动学习非线性与交互关系。
+  </div>
+  <div class="box warning">
+    <strong>关键提醒：</strong>变量重要性反映“预测贡献”，不等于“因果贡献”。
+  </div>
+
+  <h2 id="part-18-4">18.4 XGBoost 与梯度提升</h2>
+  <h3>严格定义</h3>
+  <p>
+    XGBoost 属于梯度提升树（GBDT）家族。模型按序训练新树，每棵树重点拟合前序模型未解释好的误差项；并通过正则化和工程优化提升稳定性与效率。
+  </p>
+  <h3>通俗说法</h3>
+  <p>随机森林像“并行投票”，XGBoost 像“接力复盘”：后一棵树专门补前面模型的短板。</p>
+  <div class="box example">
+    <strong>toy example：</strong>ICU 死亡风险预测中，XGBoost 在内部验证可能表现很高，但外部医院常出现性能回落，说明外部验证与校准评估不可省略。
+  </div>
+  <div class="box">
+    <strong>实操建议：</strong>重点调参可围绕 <code>max_depth</code>、<code>learning_rate</code>、<code>n_estimators</code>、
+    <code>min_child_weight</code>、<code>subsample</code>、<code>colsample_bytree</code>，并配合 early stopping 与交叉验证。
+  </div>
+
+  <h2 id="part-18-5">18.5 支持向量机（SVM）</h2>
+  <h3>严格定义</h3>
+  <p>
+    SVM 通过寻找最大间隔超平面进行分类；借助核函数可将线性不可分问题映射到高维空间求解。
+  </p>
+  <h3>通俗说法</h3>
+  <p>SVM 试图画出一条“最安全的分界线”，让两类样本离边界都尽可能远。</p>
+  <div class="box example">
+    <strong>toy example：</strong>在高维小样本组学分类任务（<code>p &gt;&gt; n</code>）中，SVM 常作为有效候选模型。
+  </div>
+  <div class="box warning">
+    <strong>实操建议：</strong>若样本较大且变量是常规表格结构，SVM 通常不是首选；随机森林或 XGBoost 往往更易落地。
+  </div>
+
+  <h2 id="part-18-6">18.6 神经网络与深度学习</h2>
+  <h3>严格定义</h3>
+  <p>
+    神经网络由多层神经元与非线性激活函数组成，通过反向传播优化参数；多层结构通常称为深度学习。CNN 常用于影像，Transformer 常用于文本与序列。
+  </p>
+  <h3>通俗说法</h3>
+  <p>神经网络像多层自动特征提取流水线，尤其擅长处理图像、文本、波形等非结构化数据。</p>
+  <div class="box example">
+    <strong>toy example：</strong>胸部影像、眼底图像筛查、ECG 波形识别等任务中，深度学习常显著优于传统手工特征方法。
+  </div>
+  <div class="box warning">
+    <strong>实操建议：</strong>表格数据不要默认上深度学习；先用树模型建立基线。深度学习更适合非结构化数据与有充分算力支持的场景。
+  </div>
+
+  <h2 id="part-18-7">18.7 主成分分析（PCA）与降维</h2>
+  <h3>严格定义</h3>
+  <p>
+    PCA 通过特征分解或 SVD 构造正交主成分，使前几个主成分尽可能保留原始数据方差信息，从而实现降维、去相关与可视化。
+  </p>
+  <h3>通俗说法</h3>
+  <p>当变量非常多时，PCA 用少量“综合指标”压缩信息，缓解维度灾难。</p>
+  <div class="box example">
+    <strong>toy example：</strong>组学分析中，先看 PC1/PC2 散点图识别病例对照分离、批次效应与离群样本，再进入后续建模。
+  </div>
+  <div class="box warning">
+    <strong>常见坑：</strong>PCA 前需标准化；PCA 线性降维可能损失可解释性；建模时必须在训练集拟合 PCA 后再应用到验证/测试集，避免数据泄漏。
+  </div>
+
+  <h2 id="part-18-8">18.8 医学场景中的优点、局限与常见误区</h2>
+  <h3>优点</h3>
+  <ul>
+    <li>能处理高维、复杂、非线性关系；</li>
+    <li>能自动学习交互和复杂模式；</li>
+    <li>在影像、文本、波形等非结构化数据上具有优势。</li>
+  </ul>
+  <h3>局限</h3>
+  <ul>
+    <li>容易过拟合，尤其是小样本低事件率场景；</li>
+    <li>可解释性与可追溯性不足；</li>
+    <li>可能学习并放大历史偏倚；</li>
+    <li>高 AUROC 不等于临床可用。</li>
+  </ul>
+  <h3>五大常见误区</h3>
+  <ul>
+    <li>误区 1：机器学习一定比 Logistic 回归好；</li>
+    <li>误区 2：内部验证好就能临床落地；</li>
+    <li>误区 3：变量重要性就是因果重要性；</li>
+    <li>误区 4：只看准确率或 AUROC 就足够；</li>
+    <li>误区 5：忽视公平性与可推广性。</li>
+  </ul>
+  <div class="box warning">
+    <strong>最重要的一句话：</strong>
+    在医学里，模型是否可信不取决于算法名字，而取决于数据质量、偏倚控制、外部验证、校准评估和临床效用。
+  </div>
+
+  <h2 id="summary">本章小结</h2>
+  <ol>
+    <li>机器学习与统计学并非对立，而是服务于不同目标的互补工具箱。</li>
+    <li>算法没有“天然最好”，选择取决于数据结构、样本量和研究目标。</li>
+    <li>表格数据常以树模型为主，非结构化数据常以深度学习为主。</li>
+    <li>医学机器学习的核心质量标准是外部验证、校准、临床效用和子群体稳健性。</li>
+    <li>对初学者而言，数据清洗、严格验证与完整报告比“炫算法”更重要。</li>
+  </ol>
+
+  <h2 id="references">延伸阅读</h2>
+  <ol class="ref">
+    <li>Collins GS, et al. <em>TRIPOD+AI statement: updated guidance for reporting clinical prediction models that use regression or machine learning methods</em>. BMJ. 2024.</li>
+    <li>Moons KGM, et al. <em>PROBAST+AI: an updated quality, risk of bias, and applicability assessment tool for prediction models using regression or artificial intelligence methods</em>. BMJ. 2025.</li>
+    <li>Mateussi N, et al. <em>Clinical Applications of Machine Learning</em>. 2024.</li>
+    <li>An Q, et al. <em>A Comprehensive Review on Machine Learning in Healthcare Industry</em>. 2023.</li>
+    <li>Andrès E, et al. <em>Machine Learning and Artificial Intelligence in Clinical Medicine</em>. 2025.</li>
+    <li><em>Artificial intelligence, machine learning, and deep learning for clinical outcome prediction</em>. 2021.</li>
+    <li>Hastie T, Tibshirani R, Friedman J. <em>The Elements of Statistical Learning</em>.</li>
+    <li>James G, Witten D, Hastie T, Tibshirani R. <em>An Introduction to Statistical Learning</em>.</li>
+  </ol>
+
+  <section id="self-test" class="card">
+    <h2>自测题（含参考答案）</h2>
+
+    <div class="quiz-item">
+      <p class="question">1. 机器学习与传统统计最核心的区别，更多体现在研究目标上还是数学基础上？</p>
+      <p class="answer"><strong>参考答案：</strong>更多体现在研究目标。两者数学基础高度重叠，但传统统计更偏向解释与因果，机器学习更偏向预测性能。</p>
+    </div>
+
+    <div class="quiz-item">
+      <p class="question">2. 为什么说机器学习不是“替代统计学”，而是“扩展统计学”？</p>
+      <p class="answer"><strong>参考答案：</strong>机器学习强化了预测能力，但无法替代因果推断、参数估计与不确定性量化。医学研究常常需要解释模型与预测模型并行。</p>
+    </div>
+
+    <div class="quiz-item">
+      <p class="question">3. 决策树的核心思想、最大优点和典型缺点分别是什么？</p>
+      <p class="answer"><strong>参考答案：</strong>核心是递归划分。优点是可解释性强、贴近临床决策流程；缺点是单棵树稳定性差，容易受样本波动影响。</p>
+    </div>
+
+    <div class="quiz-item">
+      <p class="question">4. 随机森林为何通常比单棵树更稳定？</p>
+      <p class="answer"><strong>参考答案：</strong>通过 bootstrap 抽样与特征随机化训练多棵树，再做投票/平均，降低方差并提升泛化能力。</p>
+    </div>
+
+    <div class="quiz-item">
+      <p class="question">5. XGBoost 与随机森林在建树思路上的核心区别是什么？</p>
+      <p class="answer"><strong>参考答案：</strong>随机森林是并行 bagging，XGBoost 是串行 boosting，后者逐步拟合前序模型误差。</p>
+    </div>
+
+    <div class="quiz-item">
+      <p class="question">6. SVM 的“最大间隔”是什么意思？为什么有助于泛化？</p>
+      <p class="answer"><strong>参考答案：</strong>最大间隔是让分类边界尽量远离两类样本的最近点，使模型对扰动更鲁棒，通常有更好的泛化表现。</p>
+    </div>
+
+    <div class="quiz-item">
+      <p class="question">7. 神经网络在医学影像上为什么常有优势？</p>
+      <p class="answer"><strong>参考答案：</strong>它能自动学习分层特征，不依赖手工提取，在图像、波形等非结构化数据任务中表现突出。</p>
+    </div>
+
+    <div class="quiz-item">
+      <p class="question">8. PCA 的主要用途是什么？为什么可能降低可解释性？</p>
+      <p class="answer"><strong>参考答案：</strong>PCA 用于降维、可视化与去相关；但主成分是变量线性组合，往往难直接对应明确临床意义。</p>
+    </div>
+
+    <div class="quiz-item">
+      <p class="question">9. 为什么高 AUROC 不等于模型可临床应用？</p>
+      <p class="answer"><strong>参考答案：</strong>AUROC 主要反映排序能力，不代表校准和临床收益。还必须评估外部验证、校准、阈值决策表现和临床可实施性。</p>
+    </div>
+
+    <div class="quiz-item">
+      <p class="question">10. 医学机器学习研究中，除性能指标外还应重点报告什么？</p>
+      <p class="answer"><strong>参考答案：</strong>外部验证、校准分析、临床效用（如 DCA）、子群体公平性、偏倚风险评估，以及 TRIPOD+AI / PROBAST+AI 规范报告。</p>
+    </div>
+  </section>
+
+  <section class="card">
+    <h2>本章最后想说的话</h2>
+    <p>
+      对医学研究者来说，最重要的从来不是“会不会调参”，而是“能不能判断一个模型是否可信、是否可用”。
+      当你开始主动追问外部验证、校准、子群体表现和临床效用时，就真正迈进了医学机器学习的门槛。
+    </p>
+  </section>
+</main>
+
+</body>
+</html>

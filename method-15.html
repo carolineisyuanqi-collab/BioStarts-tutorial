@@ -1,0 +1,330 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>观察性研究与因果推断 | BioStarts</title>
+    <link rel="stylesheet" href="method-common.css" />
+  <link rel="stylesheet" href="qwen-assistant.css" />
+  <script defer src="method-quiz.js"></script>
+  <script defer src="qwen-assistant.js"></script>
+</head>
+<body class="method-legacy-chapter">
+<nav class="method-topbar" style="background:#0f2940;color:#f8fafc;padding:12px 24px;font-family:Inter,'PingFang SC','Microsoft YaHei',sans-serif;font-size:13px;display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:8px;">
+  <a href="index.html" style="color:#fff;text-decoration:none;font-weight:600;">← BioStarts</a>
+  <span style="opacity:.85;">统计医学方法 · 第15章</span>
+</nav>
+
+
+  
+<main class="container">
+<h1>15. 观察性研究与因果推断</h1>
+
+  <section class="toc">
+    <h2 style="margin-top:0;border-bottom:none;padding-bottom:0;">本节目录</h2>
+    <ul>
+      <li><a href="#part-15-1">15.1 观察性研究中的混杂与偏倚</a></li>
+      <li><a href="#part-15-2">15.2 倾向评分的基本思想</a></li>
+      <li><a href="#part-15-3">15.3 倾向评分匹配 PSM</a></li>
+      <li><a href="#part-15-4">15.4 倾向评分加权 IPTW</a></li>
+      <li><a href="#part-15-5">15.5 分层与协变量平衡</a></li>
+      <li><a href="#summary">本节小结</a></li>
+      <li><a href="#references">延伸阅读参考文献</a></li>
+      <li><a href="#self-test">自测小题</a></li>
+    </ul>
+  </section>
+
+  <h2 id="part-15-1">15.1 观察性研究中的混杂与偏倚</h2>
+
+  <h3>严格定义</h3>
+  <p>
+    观察性研究中，研究者不随机分配暴露或治疗，因此暴露组与非暴露组往往在基线特征上存在系统差异。
+    混杂是指某个变量同时与暴露和结局相关，且不位于暴露到结局的因果通路上，从而使观察到的关联偏离真实因果效应。
+    偏倚则是更广义的系统误差，还包括选择偏倚、信息偏倚等。
+  </p>
+
+  <h3>通俗解释</h3>
+  <p>
+    在观察性研究里，谁接受治疗往往不是随机的。
+    因此两组患者本来就可能不一样，结局差异不一定都是治疗造成的。
+  </p>
+
+  <div class="box example">
+    <strong>医学 toy example：</strong>
+    研究激素治疗是否降低某病住院风险时，病情更重的患者更可能被开激素。
+    如果直接比较住院率，就可能把“病情更重”误当成“药物效果差”。
+  </div>
+
+  <h3>参考文献</h3>
+  <ol class="ref">
+    <li>Varga AN, et al. Dealing with confounding in observational studies. 2022.</li>
+    <li>Shi AX, et al. A comprehensive review and tutorial on confounding adjustment approaches. 2024.</li>
+  </ol>
+
+  <h2 id="part-15-2">15.2 倾向评分的基本思想</h2>
+
+  <h3>严格定义</h3>
+  <p>
+    倾向评分（propensity score, PS）是给定一组已观测协变量后，个体接受处理的条件概率。
+  </p>
+
+  <div class="formula">
+    e(X) = P(Z = 1 | X)
+  </div>
+
+  <h3>通俗解释</h3>
+  <p>
+    倾向评分可以理解成“一个人有多大概率会接受治疗”。
+    它把很多基线特征压缩成一个数，用来帮助寻找更可比的处理组和对照组。
+  </p>
+
+  <div class="box warning">
+    <strong>核心思想：</strong>
+    倾向评分平衡的是已观测基线协变量，而不是结局本身。
+    它不能自动消除未测混杂。
+  </div>
+
+  <div class="box example">
+    <strong>医学 toy example：</strong>
+    研究疫苗是否降低住院风险时，可用年龄、慢病、既往住院史等变量估计每个人的接种倾向，
+    再用匹配、加权或分层使接种组与未接种组更可比。
+  </div>
+
+  <h3>参考文献</h3>
+  <ol class="ref">
+    <li>Rosenbaum PR, Rubin DB. The central role of the propensity score. 1983.</li>
+    <li>Austin PC. Introduction to propensity score methods. 2011.</li>
+  </ol>
+
+  <h2 id="part-15-3">15.3 倾向评分匹配 PSM</h2>
+
+  <h3>严格定义</h3>
+  <p>
+    倾向评分匹配（PSM）是根据个体的倾向评分，把处理组个体与倾向评分接近的对照组个体配对，
+    在匹配样本中比较结局的方法。
+  </p>
+
+  <h3>通俗解释</h3>
+  <p>
+    PSM 的思路是：给每个治疗组患者找一个“本来也很可能接受治疗”的对照组患者来比较。
+    这样可减少“苹果和橘子”式比较。
+  </p>
+
+  <h3>方法学提醒</h3>
+  <ul>
+    <li>匹配后重点应看协变量平衡是否改善；</li>
+    <li>常用标准化差异（SMD）评价平衡，而不是只看 P 值；</li>
+    <li>有些个体会因找不到合适匹配对象而被剔除。</li>
+  </ul>
+
+  <div class="box example">
+    <strong>医学 toy example：</strong>
+    比较腹腔镜与开腹手术时，可先用年龄、BMI、ASA 分级、肿瘤分期等估计 PS，
+    再做 1:1 匹配，使两组术前情况更接近后再比较术后并发症。
+  </div>
+
+  <h3>参考文献</h3>
+  <ol class="ref">
+    <li>Austin PC. A tutorial and case study in propensity score analysis. 2011.</li>
+    <li>Lee B. Propensity score matching for comparative studies. 2024.</li>
+  </ol>
+
+  <h2 id="part-15-4">15.4 倾向评分加权 IPTW</h2>
+
+  <h3>严格定义</h3>
+  <p>
+    IPTW（inverse probability of treatment weighting）通过对个体赋予与其接受当前处理概率倒数相关的权重，
+    构造一个加权伪总体，使处理组和对照组在已观测协变量上更平衡。
+  </p>
+
+  <div class="formula">
+    处理组权重 = 1 / e(X)
+  </div>
+  <div class="formula">
+    对照组权重 = 1 / (1 - e(X))
+  </div>
+
+  <h3>通俗解释</h3>
+  <p>
+    IPTW 不是删掉人，而是给不同患者不同权重，
+    让整个样本在加权后更像一个“处理分配接近随机”的虚拟总体。
+  </p>
+
+  <div class="box warning">
+    <strong>注意：</strong>
+    若倾向评分非常接近 0 或 1，会出现极端权重，导致估计不稳定。
+    因此常需检查重叠性，并考虑稳定权重或权重截断。
+  </div>
+
+  <div class="box example">
+    <strong>医学 toy example：</strong>
+    研究抗凝药是否降低卒中风险时，IPTW 可在保留大部分样本的同时，
+    尽量校正治疗组与对照组在年龄、合并症和既往病史上的差异。
+  </div>
+
+  <h3>参考文献</h3>
+  <ol class="ref">
+    <li>Austin PC. 2011.</li>
+    <li>Chang TH, et al. Propensity score methods for observational studies. 2022.</li>
+  </ol>
+
+  <h2 id="part-15-5">15.5 分层与协变量平衡</h2>
+
+  <h3>严格定义</h3>
+  <p>
+    倾向评分分层是将个体按倾向评分分为若干层，在每一层内比较处理组和对照组结局，
+    再合并层内效应的方法。其目标也是改善协变量平衡。
+  </p>
+
+  <h3>通俗解释</h3>
+  <p>
+    分层可以理解为：先把“接受治疗倾向差不多的人”归到同一档，再在这一档里比较治疗和未治疗。
+  </p>
+
+  <h3>协变量平衡是什么</h3>
+  <p>
+    无论是 PSM、IPTW 还是分层，最终目标都不是“算出倾向评分”本身，
+    而是让处理组与对照组在基线协变量分布上更接近，这就叫协变量平衡。
+  </p>
+
+  <h3>如何检查平衡</h3>
+  <ul>
+    <li>最常用标准化差异（SMD）；</li>
+    <li>经验上 |SMD| &lt; 0.1 常认为平衡较好；</li>
+    <li>也常配合 Love plot 展示平衡前后变化。</li>
+  </ul>
+
+  <div class="box example">
+    <strong>医学 toy example：</strong>
+    在比较两种降压药的真实世界研究中，研究者可先估计 PS，
+    再按五分位分层。如果各层内年龄、糖尿病史、肾功能等差异明显缩小，
+    说明分层起到了平衡作用。
+  </div>
+
+  <div class="box warning">
+    <strong>最重要的一句：</strong>
+    倾向评分分析做完后，先看协变量平衡，再看最终效应估计。
+  </div>
+
+  <h3>参考文献</h3>
+  <ol class="ref">
+    <li>Austin PC. 2011.</li>
+    <li>Valojerdi AE, et al. A brief guide to propensity score analysis. 2018.</li>
+  </ol>
+
+  <h2 id="summary">本节小结</h2>
+  <div class="summary">
+    <p>
+      观察性研究的难点在于处理组和对照组通常并不天然可比，因此混杂和偏倚会影响因果解释。
+      倾向评分方法的核心任务，是在已观测协变量层面改善这种可比性。
+    </p>
+    <p>
+      PSM、IPTW 和分层虽然形式不同，但本质都在做同一件事：
+      让处理组和对照组在基线特征上更接近，从而使后续结局比较更接近公平比较。
+    </p>
+    <p>
+      对医学生来说，最重要的实践认识是：
+      倾向评分控制的是已测混杂；用了 PS 方法后应先检查协变量平衡；
+      若关键混杂未测或重叠很差，则因果结论仍需谨慎解释。
+    </p>
+  </div>
+
+  <h2 id="references">延伸阅读参考文献</h2>
+  <ol class="ref">
+    <li>Rosenbaum PR, Rubin DB. The central role of the propensity score. 1983.</li>
+    <li>Austin PC. An introduction to propensity score methods. 2011.</li>
+    <li>Austin PC. A tutorial and case study in propensity score analysis. 2011.</li>
+    <li>Austin PC. Relative ability of different propensity score methods. 2009.</li>
+    <li>Varga AN, et al. Dealing with confounding in observational studies. 2022.</li>
+    <li>Chang TH, et al. Propensity score methods for observational studies. 2022.</li>
+    <li>Valojerdi AE, et al. A brief guide to propensity score analysis. 2018.</li>
+    <li>Yao XI, et al. Reporting and guidelines in propensity score analysis. 2017.</li>
+    <li>Shi AX, et al. Confounding adjustment approaches. 2024.</li>
+    <li>Lee B. Propensity score matching for comparative studies. 2024.</li>
+  </ol>
+
+  <section id="self-test" class="card">
+    <h2>自测小题</h2>
+    <p style="margin-top:0;font-size:0.9em;opacity:.85;">以下为倾向评分与混杂相关思考题；每题附「参考答案」全文。先写要点，再点击「提交并显示参考答案」对照。</p>
+
+    <div class="quiz-item">
+      <p class="question">1. 为什么观察性研究中的“组间差异”不能直接解释为“因果效应”？</p>
+      <div class="answer">
+        <p><strong>参考答案：</strong>因为观察性研究中，研究对象并不是随机分配到暴露组和对照组的，组间往往在基线特征、疾病严重程度、社会经济因素、就医行为等方面本来就不同。这样观察到的结局差异，可能既包含暴露本身的作用，也包含这些原有差异的影响，所以不能把“相关”直接当成“因果”。</p>
+      </div>
+    </div>
+    <div class="quiz-item">
+      <p class="question">2. 什么是混杂？它与一般偏倚是什么关系？</p>
+      <div class="answer">
+        <p><strong>参考答案：</strong>混杂是指某个因素同时与“暴露”和“结局”相关，并且不在暴露到结局的因果路径上，从而使暴露与结局之间的关联被扭曲。</p>
+        <p>它属于偏倚的一种来源。更广义的偏倚还包括选择偏倚、信息偏倚、测量误差等。也就是说，混杂是偏倚中的一个重要类别，但不是偏倚的全部。</p>
+      </div>
+    </div>
+    <div class="quiz-item">
+      <p class="question">3. 倾向评分的定义是什么？</p>
+      <div class="answer">
+        <p><strong>参考答案：</strong>倾向评分是指：在给定个体已测量基线协变量的条件下，该个体接受某种暴露或治疗的概率。</p>
+        <p>通常记作：</p>
+        <div class="formula">e(X) = P(A = 1 | X)</div>
+        <p>其中 <em>A</em> 表示是否接受处理，<em>X</em> 表示基线协变量。</p>
+      </div>
+    </div>
+    <div class="quiz-item">
+      <p class="question">4. 倾向评分方法平衡的是结局，还是基线协变量？</p>
+      <div class="answer">
+        <p><strong>参考答案：</strong>倾向评分方法主要平衡的是<strong>基线协变量</strong>，不是结局。</p>
+        <p>它的目标是让处理组和对照组在“治疗前特征”上尽可能相似，从而减少混杂。结局是后续观察到的结果，不是 PS 直接拿来平衡的对象。</p>
+      </div>
+    </div>
+    <div class="quiz-item">
+      <p class="question">5. 为什么倾向评分不能自动解决未测混杂？</p>
+      <div class="answer">
+        <p><strong>参考答案：</strong>因为倾向评分只能基于<strong>已经测量并纳入模型的协变量</strong>来建模。</p>
+        <p>如果某个重要混杂因素根本没有被测量，或者虽被测量但测量质量很差，那么它就无法被 PS 调整掉。因此，PS 能处理的是“已测混杂”，不能自动消除“未测混杂”。</p>
+      </div>
+    </div>
+    <div class="quiz-item">
+      <p class="question">6. PSM 和 IPTW 在思路上最大的区别是什么？</p>
+      <div class="answer">
+        <p><strong>参考答案：</strong>PSM（倾向评分匹配）的核心思路是：<strong>给处理组和对照组找相似个体进行配对比较</strong>，相当于“挑出一批可比的人来比”。</p>
+        <p>IPTW（逆概率加权）的核心思路是：<strong>按接受当前暴露的概率倒数给予权重，重建一个伪总体</strong>，让加权后两组在基线特征上更接近。</p>
+        <p>所以，最大区别在于：</p>
+        <ul>
+          <li>PSM 是“匹配样本”；</li>
+          <li>IPTW 是“加权总体”。</li>
+        </ul>
+      </div>
+    </div>
+    <div class="quiz-item">
+      <p class="question">7. 为什么做完 PS 分析后应先看协变量平衡？</p>
+      <div class="answer">
+        <p><strong>参考答案：</strong>因为 PS 方法的首要目标不是直接给出效应值，而是先让两组在基线特征上达到可比。</p>
+        <p>如果做完匹配或加权后，协变量仍明显不平衡，说明混杂控制可能失败，此时后续估计出的处理效应就不可靠。所以应先检查平衡，再解释效应结果。</p>
+      </div>
+    </div>
+    <div class="quiz-item">
+      <p class="question">8. 标准化差异（SMD）主要用来做什么？</p>
+      <div class="answer">
+        <p><strong>参考答案：</strong>SMD 主要用于<strong>评估处理组和对照组在基线协变量上的平衡程度</strong>。</p>
+        <p>它不依赖样本量，不像显著性检验那样容易因样本过大或过小而误导，因此在 PS 匹配、加权前后比较协变量分布时非常常用。一般来说，绝对值较小的 SMD 说明平衡较好。</p>
+      </div>
+    </div>
+    <div class="quiz-item">
+      <p class="question">9. 什么叫重叠性（overlap）？为什么重要？</p>
+      <div class="answer">
+        <p><strong>参考答案：</strong>重叠性是指：对于给定协变量水平的人群，既有可能进入处理组，也有可能进入对照组。换句话说，两组在倾向评分分布上要有足够重叠。</p>
+        <p>它很重要，因为如果某些人几乎必然接受治疗，另一些人几乎必然不接受治疗，那么两组之间就缺少可比对象，因果效应只能依赖外推，结果会很不稳定，也容易产生极端权重和偏差。</p>
+      </div>
+    </div>
+    <div class="quiz-item">
+      <p class="question">10. 如果关键临床严重程度变量没有测量，你会如何评价研究的因果解释强度？</p>
+      <div class="answer">
+        <p><strong>参考答案：</strong>我会认为该研究的因果解释强度<strong>明显减弱，甚至只能提供有限的因果暗示</strong>。</p>
+        <p>因为临床严重程度通常既影响治疗选择，也影响预后，是典型的重要混杂因素。如果它没有被测量和调整，那么即使用了 PS、回归或加权等方法，也仍可能存在较强的残余混杂。此时更稳妥的表述应是“观察到关联”或“结果支持某种可能的因果方向”，而不宜作出很强的因果结论。</p>
+      </div>
+    </div>
+  </section>
+</main>
+
+</body>
+</html>

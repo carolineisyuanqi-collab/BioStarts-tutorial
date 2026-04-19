@@ -1,0 +1,486 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>纵向数据与重复测量 | BioStarts</title>
+    <link rel="stylesheet" href="method-common.css" />
+  <link rel="stylesheet" href="qwen-assistant.css" />
+  <script defer src="method-quiz.js"></script>
+  <script defer src="qwen-assistant.js"></script>
+</head>
+<body class="method-legacy-chapter">
+<nav class="method-topbar" style="background:#0f2940;color:#f8fafc;padding:12px 24px;font-family:Inter,'PingFang SC','Microsoft YaHei',sans-serif;font-size:13px;display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:8px;">
+  <a href="index.html" style="color:#fff;text-decoration:none;font-weight:600;">← BioStarts</a>
+  <span style="opacity:.85;">统计医学方法 · 第11章</span>
+</nav>
+
+
+  
+<main class="container">
+<h1>11. 纵向数据与重复测量</h1>
+
+  <section class="toc">
+    <h2 style="margin-top:0;border-bottom:none;padding-bottom:0;">本节目录</h2>
+    <ul>
+      <li><a href="#part-11-1">11.1 重复测量数据的特点</a></li>
+      <li><a href="#part-11-2">11.2 个体内相关性</a></li>
+      <li><a href="#part-11-3">11.3 混合效应模型</a></li>
+      <li><a href="#part-11-4">11.4 重复测量混合模型 MMRM</a></li>
+      <li><a href="#part-11-5">11.5 聚类数据与多中心研究</a></li>
+      <li><a href="#summary">本节小结</a></li>
+      <li><a href="#references">延伸阅读参考文献</a></li>
+      <li><a href="#self-test">自测小题</a></li>
+    </ul>
+  </section>
+
+  <h2 id="part-11-1">11.1 重复测量数据的特点</h2>
+
+  <h3>严格定义</h3>
+  <p>
+    重复测量数据（repeated measures data）是指对同一个研究对象在多个时间点或多个条件下反复测得的结局变量所形成的数据。
+    如果这些测量主要沿时间顺序展开，尤其是在随访研究、队列研究或临床试验中反复记录同一受试者的结局，
+    则通常也属于纵向数据（longitudinal data）的范畴。重复测量可以看作纵向数据的一种典型形式。
+  </p>
+
+  <h3>通俗解释</h3>
+  <p>
+    最关键的一点是：这些数据不是彼此独立的。因为“今天测的这个血压”和“下个月测的这个血压”都来自同一个患者，
+    所以它们往往会比两个陌生患者之间的血压更相似。
+  </p>
+
+  <h3>常见特征</h3>
+  <ul>
+    <li>同一个体被重复观察，例如 0、4、8、12 周测量一次 HbA1c；</li>
+    <li>观测值之间存在相关性；</li>
+    <li>时间信息重要，不仅关心差异，也关心变化趋势；</li>
+    <li>容易出现缺失值，如失访、漏访、提前停药；</li>
+    <li>数据常常不平衡，即不同患者随访次数不完全一致。</li>
+  </ul>
+
+  <div class="box example">
+    <strong>医学 toy example：</strong>
+    在一项降糖药试验中，研究者测量 100 名 2 型糖尿病患者在基线、4 周、12 周、24 周的 HbA1c。
+    这里的结局变量是 HbA1c，重复测量单位是同一位患者，时间因素是 4 个随访时点。
+    这就是典型的重复测量/纵向数据。
+  </div>
+
+  <div class="box warning">
+    <strong>初学者提醒：</strong>
+    不能把每个时间点的数据都当成彼此独立，然后分别做普通 t 检验或普通线性回归。
+  </div>
+
+  <h3>参考文献</h3>
+  <ol class="ref">
+    <li>Schober P, Vetter TR. Repeated Measures Designs and Analysis of Longitudinal Data. Anesth Analg. 2018.</li>
+    <li>da Silveira LTY, et al. Mixed-effects model: a useful statistical tool for longitudinal data analysis. Braz Oral Res. 2023.</li>
+  </ol>
+
+  <h2 id="part-11-2">11.2 个体内相关性</h2>
+
+  <h3>严格定义</h3>
+  <p>
+    个体内相关性（within-subject correlation）是指同一受试者在不同时间点上的观测值之间存在统计相关。
+    若记第 i 个受试者在第 j 次测量的结果为 Y<sub>ij</sub>，则同一 i 下不同 j 的观测值通常不是独立的。
+  </p>
+
+  <h3>通俗解释</h3>
+  <p>
+    同一个人的身体状况有“个人底色”。有的人基线血压就偏高，有的人不论在哪个时间点血糖都偏高一点。
+    所以同一个人的多次测量结果往往更接近彼此。
+  </p>
+
+  <h3>为什么重要</h3>
+  <ul>
+    <li>忽略个体内相关性会导致标准误估计错误；</li>
+    <li>显著性检验可能失真；</li>
+    <li>可能夸大研究结果的统计学意义。</li>
+  </ul>
+
+  <h3>相关结构的直观理解</h3>
+  <ul>
+    <li><strong>复合对称（CS）</strong>：同一人的任意两个时间点相关性差不多；</li>
+    <li><strong>AR(1)</strong>：时间越近，相关越强；</li>
+    <li><strong>非结构化（UN）</strong>：不预设固定模式，让数据自己决定不同时间点的相关结构。</li>
+  </ul>
+
+  <div class="box example">
+    <strong>医学 toy example：</strong>
+    某高血压患者三次随访收缩压分别为 148、146、150 mmHg；
+    另一位患者分别为 126、128、125 mmHg。
+    显然，同一患者内部的三次结果更相似，这就是个体内相关性。
+  </div>
+
+  <h3>参考文献</h3>
+  <ol class="ref">
+    <li>Schober P, Vetter TR. 2018.</li>
+    <li>Wang X, et al. Introduction to linear mixed-effects models in repeated measures. 2022.</li>
+  </ol>
+
+  <h2 id="part-11-3">11.3 混合效应模型</h2>
+
+  <h3>严格定义</h3>
+  <p>
+    混合效应模型（mixed-effects model）是同时包含固定效应（fixed effects）和随机效应（random effects）的一类回归模型。
+    固定效应用于描述总体平均规律，随机效应用于描述个体、中心、医生等聚类单位之间的随机差异。
+  </p>
+
+  <div class="box">
+    <strong>典型线性混合模型：</strong><br>
+    Y<sub>ij</sub> = β<sub>0</sub> + β<sub>1</sub>time<sub>ij</sub> + β<sub>2</sub>group<sub>i</sub> + β<sub>3</sub>(time × group)<sub>ij</sub> + b<sub>0i</sub> + ε<sub>ij</sub>
+  </div>
+
+  <h3>通俗解释</h3>
+  <p>
+    固定效应回答“总体上治疗有没有效果”，随机效应回答“不同患者本身起点不一样，变化速度也可能不一样”。
+  </p>
+
+  <h3>常见随机效应</h3>
+  <ul>
+    <li>随机截距模型：允许每个患者有不同基线；</li>
+    <li>随机斜率模型：允许每个患者变化速度不同；</li>
+    <li>随机截距 + 随机斜率模型：更灵活，但更复杂。</li>
+  </ul>
+
+  <div class="box example">
+    <strong>医学 toy example：</strong>
+    在骨密度研究中，患者于基线、6 个月、12 个月各测一次骨密度。
+    固定效应可包括治疗组、时间、组别×时间；随机效应可包括患者随机截距。
+  </div>
+
+  <h3>优点</h3>
+  <ul>
+    <li>处理个体内相关性；</li>
+    <li>适用于不平衡随访数据；</li>
+    <li>可以纳入时间效应、治疗效应和交互作用；</li>
+    <li>更贴近真实临床数据结构。</li>
+  </ul>
+
+  <h3>参考文献</h3>
+  <ol class="ref">
+    <li>da Silveira LTY, et al. 2023.</li>
+    <li>Wang X, et al. 2022.</li>
+  </ol>
+
+  <h2 id="part-11-4">11.4 重复测量混合模型 MMRM</h2>
+
+  <h3>严格定义</h3>
+  <p>
+    MMRM（mixed model for repeated measures）通常用于连续型纵向结局分析。
+    它常将时间点视为分类变量，把治疗、时间、治疗×时间、基线值等作为固定效应，
+    并通过受试者内协方差结构来刻画重复测量之间的相关性。
+  </p>
+
+  <h3>通俗解释</h3>
+  <p>
+    MMRM 更关注“每个随访时点两组平均值分别是多少、差多少”，而不是强行要求所有人的变化趋势都服从同一条直线。
+  </p>
+
+  <h3>为什么临床试验中常用</h3>
+  <ul>
+    <li>可以直接比较各随访时间点的组间差异；</li>
+    <li>比传统重复测量方差分析更灵活；</li>
+    <li>在缺失可近似视为 MAR 时，可利用所有已观测数据。</li>
+  </ul>
+
+  <div class="box warning">
+    <strong>注意：</strong>
+    MMRM 对缺失值机制有假设要求。若 MAR 假设不成立，则结果可能有偏，因此临床试验中通常还需要敏感性分析。
+  </div>
+
+  <div class="box example">
+    <strong>医学 toy example：</strong>
+    某抗抑郁药随机对照试验中，HAMD 评分在基线、2 周、4 周、6 周测量。
+    研究者希望比较第 6 周两组差异，并考察两组随时间变化的模式是否不同，这时可采用 MMRM。
+  </div>
+
+  <h3>参考文献</h3>
+  <ol class="ref">
+    <li>Ashbeck EL, Bell ML. 2016.</li>
+    <li>Pugh SL, et al. Missing repeated measures data in clinical trials. 2021.</li>
+  </ol>
+
+  <h2 id="part-11-5">11.5 聚类数据与多中心研究</h2>
+
+  <h3>严格定义</h3>
+  <p>
+    聚类数据（clustered data）是指观察单位被自然分组到某些簇中，同一簇内观测值可能更相似。
+    多中心研究（multicenter study）则是指同一研究在多个中心开展，因此患者不仅可能有个体内重复测量相关，
+    还可能存在同中心患者间的聚类相关。
+  </p>
+
+  <h3>通俗解释</h3>
+  <p>
+    来自同一家医院的患者，可能因为医生习惯、设备、诊疗流程、病人来源相似，而比来自不同医院的患者更像。
+    这就是中心效应或聚类效应。
+  </p>
+
+  <h3>ICC 的概念</h3>
+  <p>
+    ICC（组内相关系数）用于描述同一簇内个体的相似程度。ICC 越大，说明同一中心内患者越相似，
+    实际可提供的独立信息就越少。
+  </p>
+
+  <h3>为什么更复杂</h3>
+  <ul>
+    <li>同一患者不同时间点之间相关；</li>
+    <li>同一中心不同患者之间也可能相关；</li>
+    <li>因此常需考虑层级结构：时间点嵌套于患者，患者嵌套于中心。</li>
+  </ul>
+
+  <div class="box example">
+    <strong>医学 toy example：</strong>
+    一个肿瘤研究在 15 家医院进行，每位患者在基线、3 月、6 月、12 月测量生活质量评分。
+    这时既有患者内重复测量相关，也可能有中心层面的聚类相关。
+  </div>
+
+  <h3>常见处理方式</h3>
+  <ul>
+    <li>在模型中加入中心固定效应；</li>
+    <li>把中心作为随机效应；</li>
+    <li>对于聚类随机试验，使用适合聚类结构的混合模型。</li>
+  </ul>
+
+  <h3>参考文献</h3>
+  <ol class="ref">
+    <li>Wynants L, et al. Screening for data clustering in multicenter studies. 2013.</li>
+    <li>Islam S, et al. Accounting for center-level effects in multicenter randomized clinical trials. 2024.</li>
+  </ol>
+
+  <h2 id="summary">本节小结</h2>
+  <div class="summary">
+    <p>
+      纵向数据与重复测量分析的核心在于：同一患者的多次观测不是独立的。
+      因此，医学研究中只要出现基线与随访、多次测量、多中心等设计，就应优先考虑相关性与层级结构。
+    </p>
+    <p>
+      混合效应模型是处理这类数据的核心工具。固定效应用于解释总体平均规律，随机效应用于刻画个体或中心差异。
+      MMRM 则是临床试验中分析连续型重复测量结局的常用方法，尤其适合比较不同随访时点的组间差异。
+    </p>
+    <p>
+      在多中心研究中，还需进一步考虑中心效应和 ICC。阅读医学论文时，一旦看到“同一患者反复测量”或“多中心”，
+      就要意识到不能把所有观测简单看成独立样本。
+    </p>
+  </div>
+
+  <h2 id="references">延伸阅读参考文献</h2>
+  <ol class="ref">
+    <li>Schober P, Vetter TR. Repeated Measures Designs and Analysis of Longitudinal Data. Anesth Analg. 2018.</li>
+    <li>Muhammad LN, et al. Guidelines for repeated measures statistical analysis approaches with basic science data. 2023.</li>
+    <li>da Silveira LTY, et al. Mixed-effects model in longitudinal data analysis. 2023.</li>
+    <li>Wang X, et al. Introduction to linear mixed-effects models. 2022.</li>
+    <li>Cheng J, et al. Real Longitudinal Data Analysis for Real People. Stat Med. 2010.</li>
+    <li>Ashbeck EL, Bell ML. 2016.</li>
+    <li>Pugh SL, et al. Missing repeated measures data in clinical trials. 2021.</li>
+    <li>Bell ML, et al. MMRM for cluster randomized trials. 2020.</li>
+    <li>Wynants L, et al. Screening for data clustering in multicenter studies. 2013.</li>
+    <li>Islam S, et al. Accounting for center-level effects in multicenter randomized clinical trials. 2024.</li>
+  </ol>
+
+  <section id="self-test" class="card">
+    <h2>自测小题</h2>
+    <p class="muted" style="margin-top:0;font-size:0.9em;opacity:.85;">先写出要点，点击「提交并显示参考答案」后对照全文。</p>
+
+    <div class="quiz-item">
+      <p class="question">1. 什么叫重复测量数据？它与一般横断面数据最本质的区别是什么？</p>
+      <div class="answer">
+        <p><strong>参考答案：</strong></p>
+        <p><strong>重复测量数据（Repeated Measures Data）</strong>是指在同一研究对象（如同一患者）身上，在多个时间点或多种条件下反复测量同一指标所获得的数据。</p>
+        <p><strong>与横断面数据最本质的区别</strong>在于数据的<strong>独立性假设</strong>：</p>
+        <ul>
+          <li>横断面数据：每个观测值来自不同个体，观测之间相互独立。</li>
+          <li>重复测量数据：来自同一个体的多次观测存在<strong>个体内相关性（within-subject correlation）</strong>，即观测值之间不独立。</li>
+        </ul>
+        <p>这一本质区别决定了两者不能采用相同的统计方法——重复测量数据必须使用能够处理相关数据结构的模型。</p>
+      </div>
+    </div>
+
+    <div class="quiz-item">
+      <p class="question">2. 为什么同一个患者在多个时间点的测量值通常不是独立的？</p>
+      <div class="answer">
+        <p><strong>参考答案：</strong></p>
+        <p>同一患者多次测量值不独立的原因主要有：</p>
+        <p>（1）<strong>个体特征的稳定性</strong>：每个患者有自身稳定的生理、遗传、生活方式等基础特征，这些因素会持续影响其各次测量结果，使得同一个体的测量值在整体水平上趋于相似。</p>
+        <p>（2）<strong>基线水平差异</strong>：基线值高的患者后续测量值通常也较高，基线值低的患者后续测量值也较低，呈现“高者恒高、低者恒低”的趋势。</p>
+        <p>（3）<strong>测量时间的邻近性</strong>：时间间隔越近的两次测量，其相关性往往越强（自相关结构）。</p>
+        <p>（4）<strong>共同的未观测因素</strong>：如遗传背景、长期生活环境等不可测因素对同一个体的所有观测都有影响。</p>
+        <p>因此，同一患者的多次测量在统计上应视为<strong>相关观测</strong>，而非独立观测。</p>
+      </div>
+    </div>
+
+    <div class="quiz-item">
+      <p class="question">3. 如果忽略个体内相关性，统计推断可能会出现什么问题？</p>
+      <div class="answer">
+        <p><strong>参考答案：</strong></p>
+        <p>忽略个体内相关性（即错误地将相关数据当作独立数据分析）会导致以下严重问题：</p>
+        <p>（1）<strong>标准误估计错误</strong>：通常会<strong>低估</strong>组间比较（时间效应）的标准误，<strong>高估</strong>个体间效应（如分组效应）的标准误。</p>
+        <p>（2）<strong>I 类错误率失控</strong>：P 值偏小，假阳性率升高，容易得出“有统计学显著性”的错误结论。</p>
+        <p>（3）<strong>置信区间错误</strong>：置信区间过窄，覆盖率低于名义水平（如 95%），导致推断不可靠。</p>
+        <p>（4）<strong>统计效能受影响</strong>：对于组间比较可能高估效能，对于个体内变化可能低估效能。</p>
+        <p>（5）<strong>参数估计有效性降低</strong>：虽然点估计可能仍是无偏的，但不再是最有效（方差最小）的估计。</p>
+        <p>因此，在重复测量研究中必须采用能正确处理相关结构的模型（如混合效应模型、GEE 等）。</p>
+      </div>
+    </div>
+
+    <div class="quiz-item">
+      <p class="question">4. 固定效应和随机效应分别代表什么含义？</p>
+      <div class="answer">
+        <p><strong>参考答案：</strong></p>
+        <p><strong>固定效应（Fixed Effects）：</strong></p>
+        <ul>
+          <li>表示研究者<strong>关心且希望估计其具体数值</strong>的效应。</li>
+          <li>其水平是<strong>有限、可枚举、可重复</strong>的，研究结论仅推广到这些特定水平。</li>
+          <li>例如：治疗组 vs 对照组、性别（男/女）、特定的随访时间点、年龄等协变量。</li>
+          <li>估计的是<strong>总体平均效应</strong>。</li>
+        </ul>
+        <p><strong>随机效应（Random Effects）：</strong></p>
+        <ul>
+          <li>表示研究者<strong>不关心其具体数值，但需要考虑其变异</strong>的效应。</li>
+          <li>其水平被视为<strong>从某个总体中随机抽取的样本</strong>，结论要推广到整个总体。</li>
+          <li>例如：患者个体（从患者总体中抽样）、研究中心、随机抽样的教师/学校等。</li>
+          <li>估计的是<strong>方差成分</strong>（variance component），反映这些单位之间的变异程度。</li>
+        </ul>
+        <p><strong>判断标准</strong>：若一个因子的水平可以重复试验且研究者关心各水平差异，通常是固定效应；若水平是随机抽样且研究者关心变异来源，则是随机效应。</p>
+      </div>
+    </div>
+
+    <div class="quiz-item">
+      <p class="question">5. 什么是随机截距模型？它在医学上通常对应哪种现实情况？</p>
+      <div class="answer">
+        <p><strong>参考答案：</strong></p>
+        <p><strong>随机截距模型（Random Intercept Model）</strong>是最简单也最常用的线性混合效应模型，其基本形式为：</p>
+        <div class="formula">Y<sub>ij</sub> = β<sub>0</sub> + β<sub>1</sub>X<sub>ij</sub> + u<sub>i</sub> + ε<sub>ij</sub></div>
+        <p>其中 u<sub>i</sub> ~ N(0, σ<sub>u</sub><sup>2</sup>) 是个体 i 的随机截距，ε<sub>ij</sub> ~ N(0, σ<sub>ε</sub><sup>2</sup>) 是残差，两者独立。</p>
+        <p><strong>核心特征：</strong></p>
+        <ul>
+          <li>每个个体都有自己独特的<strong>基线水平（截距）</strong>，该截距在总体均值附近随机波动。</li>
+          <li>所有个体被假定具有<strong>相同的斜率</strong>（对协变量的反应相同）。</li>
+          <li>同一个体各次观测之间具有相同的相关系数（复合对称结构）。</li>
+        </ul>
+        <p><strong>医学上对应的现实情况：</strong></p>
+        <p>（1）<strong>患者基线水平存在异质性</strong>：如血压、血糖、胆固醇等指标，每个患者有自己的“基础设定点”，但对治疗或时间的反应趋势基本一致。</p>
+        <p>（2）<strong>多中心研究中医院/中心间的差异</strong>：不同医院患者人群的平均水平不同，但治疗效应在各中心是相似的。</p>
+        <p>（3）<strong>家系研究</strong>：同一家庭成员共享基线水平（遗传、环境），但个体对干预的反应一致。</p>
+        <p>（4）<strong>纵向随访</strong>：每位患者有各自的起点，但整体变化趋势（如疗效、病情进展）相似。</p>
+      </div>
+    </div>
+
+    <div class="quiz-item">
+      <p class="question">6. MMRM 与一般混合效应模型是什么关系？</p>
+      <div class="answer">
+        <p><strong>参考答案：</strong></p>
+        <p><strong>MMRM（Mixed Model for Repeated Measures，重复测量混合效应模型）</strong>是<strong>线性混合效应模型（LMM）的一个特殊形式</strong>，属于 LMM 框架下的一种常用建模策略。</p>
+        <table class="mini-table">
+          <thead>
+            <tr><th>比较维度</th><th>一般线性混合效应模型（LMM）</th><th>MMRM</th></tr>
+          </thead>
+          <tbody>
+            <tr><td>模型框架</td><td>广义、灵活</td><td>LMM 的特定实现</td></tr>
+            <tr><td>时间变量</td><td>可连续也可分类</td><td>通常将时间作为<strong>分类变量</strong></td></tr>
+            <tr><td>随机效应</td><td>随机截距、随机斜率等多种</td><td><strong>通常不设随机效应</strong>，或仅保留最简结构</td></tr>
+            <tr><td>相关结构</td><td>通过随机效应隐含设定</td><td>直接对<strong>残差协方差矩阵</strong>建模（如 UN、AR(1)、CS 等）</td></tr>
+            <tr><td>应用场景</td><td>广泛（纵向、多层、交叉设计等）</td><td>主要用于<strong>临床试验</strong>中的重复测量分析</td></tr>
+          </tbody>
+        </table>
+        <p><strong>关键区别：</strong></p>
+        <ul>
+          <li>一般 LMM 常通过<strong>随机效应</strong>（如随机截距、随机斜率）来建模个体内相关性。</li>
+          <li>MMRM 则更倾向于<strong>直接建模残差协方差矩阵</strong>，最常用<strong>非结构化协方差（Unstructured, UN）</strong>，从而允许任意两个时间点之间有独立的相关系数和方差。</li>
+        </ul>
+        <p><strong>一句话概括</strong>：MMRM 是混合效应模型家族中专为临床试验固定随访时间点的重复测量数据设计的“定制版”模型。</p>
+      </div>
+    </div>
+
+    <div class="quiz-item">
+      <p class="question">7. 为什么 MMRM 在临床试验中常用于分析连续型重复测量结局？</p>
+      <div class="answer">
+        <p><strong>参考答案：</strong></p>
+        <p>MMRM 成为临床试验分析连续型重复测量结局的<strong>首选方法</strong>（尤其被 FDA、EMA 等监管机构广泛接受），原因如下：</p>
+        <p>（1）<strong>合理处理缺失数据</strong>：MMRM 基于<strong>极大似然估计（ML/REML）</strong>，在<strong>随机缺失（MAR）</strong>假设下可得到无偏估计，避免了传统 LOCF（末次观测结转）的偏倚问题。</p>
+        <p>（2）<strong>利用全部可用数据</strong>：即使某位患者缺失部分时间点，其已观测的数据仍可纳入分析，不必剔除整个个体，提高了统计效能。</p>
+        <p>（3）<strong>灵活的协方差结构</strong>：通过设定非结构化协方差矩阵（UN），可以对不同时间点之间的相关性和方差不做限制性假设，更符合实际数据特征。</p>
+        <p>（4）<strong>直接估计各时间点的治疗效应</strong>：将时间视为分类变量并设置 treatment × time 交互项，可以直接估计<strong>每个随访时间点</strong>的组间差异，便于报告和解释。</p>
+        <p>（5）<strong>统计推断稳健</strong>：提供正确的标准误和置信区间，控制 I 类错误率。</p>
+        <p>（6）<strong>无需插补</strong>：避免了多重插补的复杂性和假设依赖。</p>
+        <p>（7）<strong>国际权威指南推荐</strong>：ICH E9(R1)、FDA 等对 MMRM 的应用有明确规范，方法学成熟可信。</p>
+      </div>
+    </div>
+
+    <div class="quiz-item">
+      <p class="question">8. MMRM 对缺失值处理依赖哪类常见假设？</p>
+      <div class="answer">
+        <p><strong>参考答案：</strong></p>
+        <p>MMRM 处理缺失值主要依赖<strong>随机缺失（Missing at Random, MAR）</strong>假设。</p>
+        <p><strong>三类缺失机制（Rubin 分类）：</strong></p>
+        <p>（1）<strong>完全随机缺失（MCAR）</strong>：缺失与任何观测或未观测变量都无关。这是最严格的假设。</p>
+        <p>（2）<strong>随机缺失（MAR）</strong>：给定已观测数据，缺失与未观测值独立。缺失概率可由已观测数据解释。<strong>MMRM 的有效性依赖此假设</strong>。</p>
+        <p>（3）<strong>非随机缺失（MNAR）</strong>：缺失与未观测值本身相关（如病情恶化而退出导致数据缺失）。此时 MMRM 会产生偏倚。</p>
+        <p><strong>MMRM 的优势：</strong></p>
+        <ul>
+          <li>在 MAR 假设下，基于极大似然的 MMRM 能给出<strong>无偏估计</strong>。</li>
+          <li>比要求更严格的 MCAR 假设（如简单完整病例分析、LOCF）更现实、更宽松。</li>
+        </ul>
+        <p><strong>实际应用注意：</strong></p>
+        <ul>
+          <li>应通过<strong>敏感性分析</strong>（如 tipping point 分析、pattern-mixture 模型、基于控制组插补等）评估 MNAR 情况下结果的稳健性。</li>
+          <li>ICH E9(R1) 关于“估计目标（estimand）”框架也强调需明确缺失数据的处理策略。</li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="quiz-item">
+      <p class="question">9. 什么是 ICC？ICC 大说明了什么？</p>
+      <div class="answer">
+        <p><strong>参考答案：</strong></p>
+        <p><strong>ICC（Intraclass Correlation Coefficient，组内相关系数）</strong>衡量同一组（如同一个体的多次测量、同一医院的多个患者）内部观测值的相似程度，反映<strong>总变异中有多少比例来自组间变异</strong>。</p>
+        <p><strong>计算公式</strong>（以随机截距模型为例）：</p>
+        <div class="formula">ICC = ρ = σ<sub>u</sub><sup>2</sup> / (σ<sub>u</sub><sup>2</sup> + σ<sub>ε</sub><sup>2</sup>)</div>
+        <p>其中 σ<sub>u</sub><sup>2</sup> 为个体间方差，σ<sub>ε</sub><sup>2</sup> 为个体内（残差）方差。</p>
+        <p><strong>取值范围</strong>：0 ≤ ICC ≤ 1。</p>
+        <p><strong>ICC 大（接近 1）说明：</strong></p>
+        <p>（1）<strong>个体间差异大，个体内差异小</strong>：总变异主要来自个体之间的差别，同一个体各次测量非常相似。</p>
+        <p>（2）<strong>个体内相关性强</strong>：同一个体的重复测量高度相关，知道一次测量就能较好地预测其他测量。</p>
+        <p>（3）<strong>分层/聚类结构明显</strong>：必须采用考虑相关性的模型（如混合效应模型），否则推断严重失真。</p>
+        <p>（4）<strong>测量可靠性高</strong>（在信度研究背景下）：通常 ICC &gt; 0.75 认为信度优秀，0.5–0.75 中等，&lt; 0.5 较差。</p>
+        <p>（5）<strong>设计启示</strong>：ICC 大时，增加<strong>每个个体的观测次数</strong>收益有限，不如<strong>增加个体数量</strong>更能提高统计效能（需相应调整样本量，考虑设计效应 DEFF = 1 + (m−1)·ICC）。</p>
+        <p><strong>ICC 小（接近 0）</strong>则说明：观测值近乎独立，个体内相关性可忽略，可近似采用独立样本分析方法。</p>
+      </div>
+    </div>
+
+    <div class="quiz-item">
+      <p class="question">10. 在多中心纵向研究中，至少可能存在哪两层相关性？</p>
+      <div class="answer">
+        <p><strong>参考答案：</strong></p>
+        <p>多中心纵向研究的数据具有<strong>嵌套结构（nested structure）</strong>，至少存在以下<strong>两层相关性</strong>（实际常为三层或更多）：</p>
+        <p><strong>第一层：个体内相关性（Within-subject correlation）</strong></p>
+        <ul>
+          <li>来源：<strong>同一患者在不同时间点的多次测量</strong>相关。</li>
+          <li>原因：每个患者有其稳定的生理特征、基线水平、遗传背景等。</li>
+          <li>统计表现：同一患者的纵向测量值之间相关，时间越近相关性通常越强。</li>
+        </ul>
+        <p><strong>第二层：中心内相关性（Within-center / cluster correlation）</strong></p>
+        <ul>
+          <li>来源：<strong>同一医院/中心内不同患者之间</strong>存在相关性。</li>
+          <li>原因：相似地理与社会经济背景、医生诊疗习惯、设备与护理水平一致、纳入标准与测量系统偏差相似等。</li>
+          <li>统计表现：同一中心的患者平均水平趋于相似，与其他中心有差异。</li>
+        </ul>
+        <p><strong>完整数据结构（三层模型）示意：</strong></p>
+        <pre style="white-space:pre-wrap;font-family:inherit; background:#f5f5f7; padding:1rem; border-radius:8px;">第三层：中心（Center / Site）
+    ↓
+第二层：患者（Subject / Patient，嵌套于中心内）
+    ↓
+第一层：测量时点（Occasion，嵌套于患者内）</pre>
+        <p><strong>建模建议：</strong></p>
+        <ul>
+          <li>应采用<strong>三水平线性混合效应模型</strong>，设置中心的随机截距（或随机效应）、患者嵌套于中心的随机截距、残差项反映时点内变异。</li>
+          <li>如忽略任何一层相关性，都会导致标准误估计偏误，影响推断的有效性。</li>
+          <li>若中心数较少（如 &lt; 5–10），可将中心作为<strong>固定效应</strong>处理；中心数较多时更适合作为<strong>随机效应</strong>。</li>
+        </ul>
+        <p>其他可能的相关层级：若涉及家庭成员、同一医生治疗的多个患者等，层级可能进一步增加。</p>
+      </div>
+    </div>
+  </section>
+</main>
+
+</body>
+</html>

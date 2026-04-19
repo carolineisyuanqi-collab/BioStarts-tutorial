@@ -1,0 +1,529 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>BioStarts | 医疗卫生数据分析门户</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700;800&display=swap" rel="stylesheet">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
+    <link rel="stylesheet" href="qwen-assistant.css" />
+    <script defer src="qwen-assistant.js"></script>
+
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: { sans: ['Inter', '-apple-system', 'BlinkMacSystemFont', 'PingFang SC', 'sans-serif'] },
+                    colors: {
+                        'apple-blue': '#0066cc',
+                        'apple-bg': '#f5f5f7',
+                        'apple-card': '#ffffff',
+                        'apple-text': '#1d1d1f',
+                        'apple-gray': '#86868b'
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        body { background-color: #f5f5f7; color: #1d1d1f; -webkit-font-smoothing: antialiased; }
+        .glass-nav {
+            background: rgba(245, 245, 247, 0.7);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            border-bottom: 1px solid rgba(0, 0, 0, 0.05);
+        }
+        .glass-card {
+            background: #ffffff;
+            border: 1px solid rgba(0, 0, 0, 0.05);
+            border-radius: 2rem;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.01), 0 2px 4px -1px rgba(0, 0, 0, 0.006);
+            transition: all 0.5s cubic-bezier(0.23, 1, 0.32, 1);
+        }
+        .glass-card:hover {
+            background: #ffffff;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.04);
+            transform: translateY(-5px);
+        }
+        pre { scrollbar-width: thin; scrollbar-color: #0066cc #f5f5f7; }
+        [x-cloak] { display: none !important; }
+        .brand-logo {
+            height: clamp(2.8rem, 6vw, 4.2rem);
+            width: auto;
+            object-fit: contain;
+        }
+    </style>
+</head>
+<body x-data="healthApp()" class="selection:bg-blue-100 selection:text-apple-blue">
+
+    <nav class="fixed top-0 w-full z-50 glass-nav min-h-[5.5rem] flex items-center gap-4 lg:gap-8 px-6 lg:px-12 xl:px-16 py-3">
+        <button type="button" class="cursor-pointer shrink-0 pl-1 bg-transparent" @click="currentTab = 1" title="BioStarts">
+            <img src="biostarts-logo.png" alt="BioStarts logo" class="brand-logo">
+        </button>
+        <div class="hidden xl:flex flex-1 items-stretch min-w-0 text-[22px] font-semibold tracking-normal text-apple-gray">
+            <div class="flex-1 flex justify-center items-center min-w-0">
+                <button type="button" @click="currentTab = 1" :class="currentTab === 1 ? 'text-apple-text border-b-2 border-apple-blue pb-1' : 'hover:text-apple-text transition'">研究动态</button>
+            </div>
+            <div class="flex-1 flex justify-center items-center min-w-0">
+                <button type="button" @click="currentTab = 2" :class="currentTab === 2 ? 'text-apple-text border-b-2 border-apple-blue pb-1' : 'hover:text-apple-text transition'">数据导入</button>
+            </div>
+            <div class="flex-1 flex justify-center items-center min-w-0">
+                <button type="button" @click="currentTab = 3" :class="currentTab === 3 ? 'text-apple-text border-b-2 border-apple-blue pb-1' : 'hover:text-apple-text transition'">代码引擎</button>
+            </div>
+            <div class="flex-1 flex justify-center items-center min-w-0">
+                <div class="relative group inline-flex flex-col items-center">
+                    <button type="button" class="pb-1 border-b-2 border-transparent group-hover:border-apple-blue group-hover:text-apple-text group-focus-within:border-apple-blue group-focus-within:text-apple-text transition bg-transparent text-inherit cursor-default tracking-normal text-[22px] font-semibold">统计医学方法</button>
+                    <div class="absolute left-1/2 -translate-x-1/2 top-full pt-2 z-[100] hidden group-hover:block group-focus-within:block">
+                        <div class="bg-[#0f2940] text-white rounded-xl shadow-2xl p-5 grid grid-cols-3 gap-x-8 gap-y-1 w-[min(92vw,56rem)] text-left font-medium normal-case tracking-normal text-[13px]">
+                            <a href="method-01.html" class="block py-1.5 px-1 rounded-md hover:bg-white/10 text-white/95">1. 数据类型与描述性统计</a>
+                            <a href="method-02.html" class="block py-1.5 px-1 rounded-md hover:bg-white/10 text-white/95">2. 数据分布与正态性</a>
+                            <a href="method-03.html" class="block py-1.5 px-1 rounded-md hover:bg-white/10 text-white/95">3. 组间差异比较</a>
+                            <a href="method-04.html" class="block py-1.5 px-1 rounded-md hover:bg-white/10 text-white/95">4. 分类变量分析</a>
+                            <a href="method-05.html" class="block py-1.5 px-1 rounded-md hover:bg-white/10 text-white/95">5. 相关性分析</a>
+                            <a href="method-06.html" class="block py-1.5 px-1 rounded-md hover:bg-white/10 text-white/95">6. 样本量与统计效能</a>
+                            <a href="method-07.html" class="block py-1.5 px-1 rounded-md hover:bg-white/10 text-white/95">7. 回归模型基础</a>
+                            <a href="method-08.html" class="block py-1.5 px-1 rounded-md hover:bg-white/10 text-white/95">8. 线性回归</a>
+                            <a href="method-09.html" class="block py-1.5 px-1 rounded-md hover:bg-white/10 text-white/95">9. Logistic 回归</a>
+                            <a href="method-10.html" class="block py-1.5 px-1 rounded-md hover:bg-white/10 text-white/95">10. 生存分析</a>
+                            <a href="method-11.html" class="block py-1.5 px-1 rounded-md hover:bg-white/10 text-white/95">11. 纵向数据与重复测量</a>
+                            <a href="method-12.html" class="block py-1.5 px-1 rounded-md hover:bg-white/10 text-white/95">12. 诊断试验与筛查研究</a>
+                            <a href="method-13.html" class="block py-1.5 px-1 rounded-md hover:bg-white/10 text-white/95">13. 一致性与测量学方法</a>
+                            <a href="method-14.html" class="block py-1.5 px-1 rounded-md hover:bg-white/10 text-white/95">14. 临床预测模型</a>
+                            <a href="method-15.html" class="block py-1.5 px-1 rounded-md hover:bg-white/10 text-white/95">15. 观察性研究与因果推断</a>
+                            <a href="method-16.html" class="block py-1.5 px-1 rounded-md hover:bg-white/10 text-white/95">16. 缺失值处理</a>
+                            <a href="method-17.html" class="block py-1.5 px-1 rounded-md hover:bg-white/10 text-white/95">17. 系统综述与 Meta 分析</a>
+                            <a href="method-18.html" class="block py-1.5 px-1 rounded-md hover:bg-white/10 text-white/95">18. 机器学习在医学统计中的应用</a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="text-[9px] text-apple-gray font-mono tracking-widest border border-black/10 rounded-full px-4 py-1 uppercase shrink-0">
+            Analysis Edition 2026
+        </div>
+    </nav>
+
+    <main class="pt-32 pb-20 px-6 max-w-7xl mx-auto">
+
+        <template x-if="currentTab === 1">
+            <div x-transition class="space-y-16 md:space-y-20">
+                <div class="text-center max-w-4xl mx-auto">
+                    <h1 class="text-5xl sm:text-6xl md:text-7xl font-bold tracking-tighter mb-6 text-apple-text">医疗数据分析</h1>
+                    <p class="text-xl text-apple-gray font-light">选择适合你方向的数据库研究和探索吧^^</p>
+                </div>
+                <template x-for="sec in researchCatalog" :key="sec.title">
+                    <section class="space-y-6">
+                        <h2 class="text-2xl md:text-3xl font-bold tracking-tight text-apple-text border-b border-black/10 pb-3" x-text="sec.title"></h2>
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+                            <template x-for="item in sec.items" :key="item.url">
+                                <a :href="item.url" target="_blank" rel="noopener noreferrer" class="glass-card p-8 md:p-10 flex flex-col justify-between min-h-[280px] md:min-h-[300px] group">
+                                    <div>
+                                        <span class="text-apple-blue text-xs font-bold uppercase tracking-widest" x-text="item.tag"></span>
+                                        <h3 class="text-2xl md:text-3xl font-semibold mt-4 text-apple-text leading-tight group-hover:text-apple-blue transition-colors" x-text="item.title"></h3>
+                                        <p class="text-apple-gray mt-4 text-sm font-light leading-relaxed" x-text="item.desc"></p>
+                                    </div>
+                                    <div class="flex items-center text-sm font-medium text-apple-blue transition-all mt-6">访问官网 <span class="ml-2 transform group-hover:translate-x-2 transition-transform">→</span></div>
+                                </a>
+                            </template>
+                        </div>
+                    </section>
+                </template>
+            </div>
+        </template>
+
+        <template x-if="currentTab === 2">
+            <div x-transition class="max-w-3xl mx-auto space-y-10">
+                <h2 class="text-4xl font-bold text-apple-text text-center">导入医学数据集</h2>
+                <div class="glass-card p-20 border-2 border-dashed border-gray-200 hover:border-apple-blue/50 cursor-pointer group text-center" @click="$refs.fileInput.click()">
+                    <input type="file" x-ref="fileInput" class="hidden" accept=".csv" @change="handleUpload">
+                    <div class="flex flex-col items-center">
+                        <div class="w-20 h-20 bg-blue-50 rounded-3xl flex items-center justify-center mb-6 group-hover:scale-110 transition-transform">
+                            <svg class="w-10 h-10 text-apple-blue" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12"/></svg>
+                        </div>
+                        <p class="text-lg font-medium text-apple-text" x-text="fileName || '点击或拖拽 CSV 文件'"></p>
+                        <p class="text-xs text-apple-gray mt-3 max-w-md">约定：CSV 第一行为变量名（列名）。导入后将尝试读取首行供你对照填写。</p>
+                    </div>
+                </div>
+                <div x-show="isUploading" class="space-y-4 text-center">
+                    <div class="w-full bg-gray-200 h-1 rounded-full overflow-hidden"><div class="bg-apple-blue h-full transition-all duration-1000" :style="`width: ${uploadProgress}%`"></div></div>
+                    <p class="text-[10px] font-mono text-apple-gray tracking-widest uppercase" x-text="uploadStatus"></p>
+                </div>
+                <div x-show="uploadComplete" x-cloak class="glass-card p-8 md:p-10 text-left space-y-8 border border-gray-100">
+                    <div>
+                        <h3 class="text-lg font-semibold text-apple-text mb-2">数据处理 · 变量约定</h3>
+                        <p class="text-sm text-apple-gray leading-relaxed">请用<strong class="text-apple-text">英文逗号</strong>分隔多个列名（与 CSV 首行完全一致）。结局可为连续或二分类；逻辑回归需结局近似 0/1 编码。</p>
+                    </div>
+                    <div x-show="csvHeaderLine" class="rounded-2xl bg-gray-50 border border-gray-100 p-4 text-xs font-mono text-apple-text break-all">
+                        <span class="text-apple-gray font-sans text-[11px] uppercase tracking-wider block mb-1">检测到的首行（列名参考）</span>
+                        <span x-text="csvHeaderLine"></span>
+                    </div>
+                    <div class="space-y-2">
+                        <label class="block text-sm font-semibold text-apple-text">结局（因变量）<span class="text-apple-gray font-normal">，英文逗号分隔；回归默认取第一个为主结局</span></label>
+                        <input type="text" x-model="outcomeVars" class="w-full rounded-2xl border border-gray-200 px-4 py-3 text-sm focus:border-apple-blue focus:ring-2 focus:ring-blue-100 outline-none transition" placeholder="例：HbA1c 或 y,outcome">
+                    </div>
+                    <div class="space-y-2">
+                        <label class="block text-sm font-semibold text-apple-text">暴露（自变量）<span class="text-apple-gray font-normal">，英文逗号分隔</span></label>
+                        <input type="text" x-model="exposureVars" class="w-full rounded-2xl border border-gray-200 px-4 py-3 text-sm focus:border-apple-blue focus:ring-2 focus:ring-blue-100 outline-none transition" placeholder="例：age,BMI,sbp">
+                    </div>
+                    <div>
+                        <p class="text-sm font-semibold text-apple-text mb-3">初步绘图与探究（勾选后写入同一份 R 脚本）</p>
+                        <div class="grid sm:grid-cols-2 gap-3 text-sm text-apple-text">
+                            <label class="flex items-start gap-3 cursor-pointer rounded-xl border border-gray-100 p-3 hover:bg-gray-50">
+                                <input type="checkbox" x-model="explore.hist" class="mt-1 rounded border-gray-300 text-apple-blue focus:ring-apple-blue">
+                                <span><strong>分布图</strong><span class="block text-xs text-apple-gray font-normal mt-0.5">结局变量直方图 + 密度（ggplot2）</span></span>
+                            </label>
+                            <label class="flex items-start gap-3 cursor-pointer rounded-xl border border-gray-100 p-3 hover:bg-gray-50">
+                                <input type="checkbox" x-model="explore.scatter" class="mt-1 rounded border-gray-300 text-apple-blue focus:ring-apple-blue">
+                                <span><strong>散点图</strong><span class="block text-xs text-apple-gray font-normal mt-0.5">主结局 vs 首个暴露（可改脚本循环多图）</span></span>
+                            </label>
+                            <label class="flex items-start gap-3 cursor-pointer rounded-xl border border-gray-100 p-3 hover:bg-gray-50">
+                                <input type="checkbox" x-model="explore.linear" class="mt-1 rounded border-gray-300 text-apple-blue focus:ring-apple-blue">
+                                <span><strong>线性回归 lm</strong><span class="block text-xs text-apple-gray font-normal mt-0.5">连续型结局：Y ~ X1 + X2 + …</span></span>
+                            </label>
+                            <label class="flex items-start gap-3 cursor-pointer rounded-xl border border-gray-100 p-3 hover:bg-gray-50">
+                                <input type="checkbox" x-model="explore.logistic" class="mt-1 rounded border-gray-300 text-apple-blue focus:ring-apple-blue">
+                                <span><strong>逻辑回归 glm</strong><span class="block text-xs text-apple-gray font-normal mt-0.5">二分类结局：family=binomial</span></span>
+                            </label>
+                            <label class="flex items-start gap-3 cursor-pointer rounded-xl border border-gray-100 p-3 hover:bg-gray-50 sm:col-span-2">
+                                <input type="checkbox" x-model="explore.corr" class="mt-1 rounded border-gray-300 text-apple-blue focus:ring-apple-blue">
+                                <span><strong>相关热图</strong><span class="block text-xs text-apple-gray font-normal mt-0.5">结局 + 全部暴露数值列的 Pearson 相关（需 corrplot 包，脚本内 install 提示）</span></span>
+                            </label>
+                        </div>
+                    </div>
+                    <div class="flex flex-col sm:flex-row gap-3 pt-2">
+                        <button type="button" @click="generateExplorationAndGo()" class="flex-1 bg-apple-text text-white px-8 py-3.5 rounded-full font-semibold text-sm hover:bg-black transition shadow-lg">根据变量生成探究代码并打开代码引擎</button>
+                        <button type="button" @click="currentTab = 3" class="flex-1 bg-gray-200 text-apple-text px-8 py-3.5 rounded-full font-semibold text-sm hover:bg-gray-300 transition">仅打开代码引擎</button>
+                    </div>
+                </div>
+            </div>
+        </template>
+
+        <template x-if="currentTab === 3">
+            <div x-transition class="space-y-8">
+                <div class="flex flex-col gap-4 md:flex-row md:justify-between md:items-end">
+                    <div>
+                        <h2 class="text-4xl font-bold text-apple-text">流行病学分析脚本</h2>
+                        <p class="text-sm text-apple-gray mt-2 max-w-xl">若已上传 CSV，并在「数据导入」中填写结局/暴露且勾选探究项，「输出代码」将生成 ggplot 与回归脚本。若未满足上述条件，则输出默认 GBD/CHARLS 风格负担模板（可不先上传，脚本内以 uploaded_data.csv 为占位文件名）。</p>
+                    </div>
+                    <div class="flex gap-4">
+                        <button @click="outputGeneratedCode()" class="bg-apple-text text-white px-6 py-2 rounded-full text-[13px] font-semibold hover:bg-black transition">输出代码</button>
+                        <button @click="copyCode" class="bg-gray-200 text-apple-text px-6 py-2 rounded-full text-[13px] font-medium hover:bg-gray-300">复制代码</button>
+                    </div>
+                </div>
+                <div class="bg-white rounded-[2.5rem] p-10 border border-gray-100 shadow-sm relative overflow-hidden">
+                    <pre x-text="generatedCode" class="font-mono text-sm leading-relaxed text-blue-700 overflow-x-auto whitespace-pre min-h-[400px]"></pre>
+                    <div x-show="!generatedCode" class="absolute inset-0 flex items-center justify-center pointer-events-none text-gray-300 italic">等待输出...</div>
+                </div>
+            </div>
+        </template>
+
+     
+
+        
+
+    </main>
+
+    <footer class="border-t border-black/5 py-12 text-center text-[10px] text-apple-gray uppercase tracking-widest">
+        &copy; 2026 BioStarts | Medical Research Standards [cite: 1, 2, 3]
+    </footer>
+
+    <script>
+        function healthApp() {
+            return {
+                currentTab: 1,
+                fileName: '',
+                isUploading: false,
+                uploadProgress: 0,
+                uploadStatus: '',
+                uploadComplete: false,
+                generatedCode: '',
+                csvHeaderLine: '',
+                outcomeVars: '',
+                exposureVars: '',
+                explore: { hist: true, scatter: true, linear: true, logistic: false, corr: false },
+
+                researchCatalog: [
+                    {
+                        title: '一、国际大型队列与健康调查',
+                        items: [
+                            { tag: 'BRFSS', title: 'Behavioral Risk Factor Surveillance System', desc: '美国 CDC 电话调查，吸烟、饮酒、运动等生活方式；每年四十余万人，可追溯至 1984 年，覆盖全美 18 岁以上成人。适合行为流行病学、健康不平等与州级政策对比；样本大、跨度长，但依赖自报、无血样。', url: 'https://www.cdc.gov/brfss/' },
+                            { tag: 'MEPS', title: 'Medical Expenditure Panel Survey', desc: '美国 AHRQ 医疗支出面板：住院、门诊、用药与保险等，可追踪约两年，面向美国非机构化人群。卫生经济学、药物经济学与医保政策评估常用；结构略复杂但文档完善。', url: 'https://meps.ahrq.gov/' },
+                            { tag: 'NHIS', title: 'National Health Interview Survey', desc: 'CDC 年度全国健康访谈：健康、保险、就医与残疾等，代表美国全人群。适合慢病患病率、健康行为与就医可及性；权重设计规范，政策引用率高。', url: 'https://www.cdc.gov/nchs/nhis/' },
+                            { tag: 'NHANES', title: 'National Health and Nutrition Examination Survey', desc: '问卷 + 移动体检车体检、抽血与体成分等，约两年一周期、每周期约万人。营养流行病学、环境暴露与慢病患病率；生化指标质量高，横断面因果需谨慎，发文竞争强。', url: 'https://www.cdc.gov/nchs/nhanes/' },
+                            { tag: 'HRS', title: 'Health and Retirement Study', desc: '密歇根大学自 1992 年起 50 岁以上美国人两年一次随访：认知、抑郁、经济与生物标志物等。认知老化、退休与痴呆研究标杆；与 CHARLS、ELSA、SHARE 等对齐，便于跨国比较。', url: 'https://hrs.isr.umich.edu/' },
+                            { tag: 'UK Biobank', title: 'UK Biobank', desc: '约 50 万 40–69 岁英国人，基因组、脑/心脏影像、可穿戴与 EHR 等。GWAS、孟德尔随机化、影像组学与预测模型主战场；顶流数据但存在健康志愿者偏倚。', url: 'https://www.ukbiobank.ac.uk/' },
+                            { tag: 'All of Us', title: 'All of Us Research Program', desc: 'NIH 百万级精准医学：强调少数族裔招募，整合 EHR、测序、可穿戴与问卷。精准医学、健康不平等与药物基因组学；多样性突出，数据陆续开放且多在云端分析。', url: 'https://www.researchallofus.org/' },
+                            { tag: 'SHARE', title: 'Survey of Health, Ageing and Retirement in Europe', desc: '欧洲多国 + 以色列老龄化追踪，与 HRS/CHARLS 体系一致。跨国老龄化比较、福利制度与长期照护；制度差异本身即天然对比维度。', url: 'https://share-eric.eu/' },
+                            { tag: 'ELSA', title: 'English Longitudinal Study of Ageing', desc: '英国 50 岁以上两年一次随访：认知、生物标志物与经济等。与 HRS 设计对齐，英国老龄化研究标配。', url: 'https://www.elsa-project.ac.uk/' },
+                            { tag: 'WHO GHO', title: 'WHO Global Health Observatory', desc: 'WHO 汇总的全球健康指标：死亡、疾病负担、卫生系统与 SDG 等，国家/地区宏观数据。全球卫生比较、政策评估与生态学研究；权威免费，细度止于国家层面。', url: 'https://www.who.int/data/gho' },
+                            { tag: 'GBD', title: 'Global Burden of Disease Study', desc: 'IHME 主导的全球疾病负担：多疾病、多危险因素、DALY 等按国家/年龄/性别/年份估计。疾病负担趋势、归因与国家比较；可视化强，但为模型估计、低收入国不确定性大。', url: 'https://www.healthdata.org/research-analysis/gbd' },
+                            { tag: 'DHS', title: 'Demographic and Health Surveys', desc: 'USAID 支持、90 多个发展中国家人口健康调查，侧重妇幼、生育、营养与 HIV。全球卫生与妇幼营养流行病学；抽样严谨，仍以问卷为主。', url: 'https://dhsprogram.com/' }
+                        ]
+                    },
+                    {
+                        title: '二、中国本土数据库',
+                        items: [
+                            { tag: 'CHARLS', title: 'China Health and Retirement Longitudinal Study', desc: '北大 2011 年起中老年追踪，对标 HRS：健康、认知、经济与家庭等，含抽血生化。45+ 全国抽样；老龄化、认知与慢病研究国内最常用，近年发文竞争加剧。', url: 'https://charls.pku.edu.cn/' },
+                            { tag: 'CFPS', title: 'China Family Panel Studies', desc: '北大社科调查中心全国家庭追踪：健康、教育、收入与家庭关系。健康的社会决定因素、代际与城乡差距；健康模块不如 CHARLS 深，社会经济变量更全。', url: 'https://www.isss.pku.edu.cn/cfps/' },
+                            { tag: 'CLHLS', title: 'Chinese Longitudinal Healthy Longevity Survey', desc: '杜克与北大自 1998 年高龄老人追踪，百岁老人样本突出。长寿、失能与认知；全球最大高龄队列之一，但缺乏中青年外推。', url: 'https://charls.charlsdata.com/pages/data/111/zh-cn.html' },
+                            { tag: 'CHNS', title: 'China Health and Nutrition Survey', desc: '北卡与疾控合作，1989 年起多省营养与健康、体格测量与连续膳食回顾。营养转型、肥胖与膳食病因；膳食记录是其亮点。', url: 'https://www.cpc.unc.edu/projects/china' },
+                            { tag: 'CKB', title: 'China Kadoorie Biobank', desc: '牛津与中国医科院合作，10 地区约 50 万人，基线血样与基因型及死因随访。心血管、肿瘤与代谢病病因及 MR；国际顶刊常见，申请门槛较高。', url: 'https://www.ckbiobank.org/' }
+                        ]
+                    },
+                    {
+                        title: '三、肿瘤与组学数据库',
+                        items: [
+                            { tag: 'SEER', title: 'Surveillance, Epidemiology, and End Results', desc: 'NCI 肿瘤登记，覆盖全美约半数人口：诊断、分期、治疗与生存。肿瘤流行病学、生存分析与治疗模式；可链接 Medicare，化疗细节相对不足。', url: 'https://seer.cancer.gov/' },
+                            { tag: 'TCGA', title: 'The Cancer Genome Atlas', desc: '33 种癌症万余例多组学：基因组、转录组、甲基化、蛋白与临床。分子分型、预后标志物与泛癌分析；单癌种样本量有限、随访深度参差。', url: 'https://www.cancer.gov/ccg/research/genome-sequencing/tcga' },
+                            { tag: 'GEO', title: 'Gene Expression Omnibus', desc: 'NCBI 基因表达与芯片/测序仓库，物种与组织海量。差异表达、再分析与 signature；质量参差，清洗成本高。', url: 'https://www.ncbi.nlm.nih.gov/geo/' },
+                            { tag: 'cBioPortal', title: 'cBioPortal for Cancer Genomics', desc: 'MSKCC 等维护的癌症基因组可视化，整合 TCGA/ICGC 等。突变谱、临床—基因组关联与快速探索；上手友好，不能替代原始统计流程。', url: 'https://www.cbioportal.org/' },
+                            { tag: 'dbGaP', title: 'Database of Genotypes and Phenotypes', desc: 'NIH 基因型—表型仓库，含 GWAS 与 WES/WGS 原始数据。遗传关联与 PRS；权威但需 IRB 与数据访问审批。', url: 'https://www.ncbi.nlm.nih.gov/gap/' }
+                        ]
+                    },
+                    {
+                        title: '四、重症医学与临床数据库',
+                        items: [
+                            { tag: 'MIMIC-IV', title: 'Medical Information Mart for Intensive Care', desc: 'MIT 与 BIDMC 合作的去标识化 ICU 病历：生命体征、检验、用药与影像报告等。脓毒症、机械通气、临床 NLP 与预测建模；开源经典，单中心外推需谨慎。', url: 'https://mimic.mit.edu/' },
+                            { tag: 'eICU', title: 'eICU Collaborative Research Database', desc: 'Philips eICU 多中心 ICU 数据，二十余万次入院。用途与 MIMIC 类似；常与 MIMIC 搭配做外部验证。', url: 'https://eicu-crd.mit.edu/' },
+                            { tag: 'NSQIP', title: 'National Surgical Quality Improvement Program', desc: '美国外科医师学会手术质量数据库，记录术后 30 天并发症与死亡。外科预后、并发症预测与质量改进；变量标准化好，参与医院需付费。', url: 'https://www.facs.org/quality-programs/data-and-registries/acs-nsqip/' }
+                        ]
+                    },
+                    {
+                        title: '五、药物安全与真实世界数据',
+                        items: [
+                            { tag: 'FAERS', title: 'FDA Adverse Event Reporting System', desc: 'FDA 药品不良事件自发报告。药物警戒与信号检测；覆盖广但报告偏倚大，适合假设生成而非因果推断。', url: 'https://www.fda.gov/drugs/surveillance/fda-adverse-event-reporting-system-faers' },
+                            { tag: 'VAERS', title: 'Vaccine Adverse Event Reporting System', desc: 'CDC/FDA 疫苗不良事件报告。疫苗安全信号与罕见反应；解读需极谨慎，易被误读滥用。', url: 'https://vaers.hhs.gov/' },
+                            { tag: 'OpenFDA', title: 'OpenFDA', desc: 'FDA 开放 API，整合 FAERS、药品标签、召回与器械等。药物再利用与安全性批量分析；底层仍受 FAERS 局限约束。', url: 'https://open.fda.gov/' }
+                        ]
+                    },
+                    {
+                        title: '六、遗传流行病学与孟德尔随机化',
+                        items: [
+                            { tag: 'GWAS Catalog', title: 'GWAS Catalog', desc: 'EBI/NHGRI 收录已发表 GWAS 显著 SNP—性状关联。候选基因、PRS 与 MR 工具变量筛选；多为显著位点汇总，完整 summary statistics 需另寻来源。', url: 'https://www.ebi.ac.uk/gwas/' },
+                            { tag: 'IEU OpenGWAS', title: 'IEU OpenGWAS', desc: '布里斯托大学整理的大量 GWAS summary statistics，与 TwoSampleMR 等配套。双样本 MR 与共定位等；数据源质量不一需自行把关。', url: 'https://gwas.mrcieu.ac.uk/' },
+                            { tag: 'Our World in Data', title: 'Our World in Data', desc: '牛津团队全球宏观指标可视化，健康、环境与经济等。生态研究、科普与政策传播；汇总权威来源，学术引用需注明二手性质。', url: 'https://ourworldindata.org/' }
+                        ]
+                    }
+                ],
+
+                parseCommaNames(s) {
+                    if (!s || typeof s !== 'string') return [];
+                    return s.replace(/，/g, ',').split(',').map((t) => t.trim()).filter(Boolean);
+                },
+
+                peekCsvHeader(file) {
+                    this.csvHeaderLine = '';
+                    const slice = file.slice(0, Math.min(file.size, 16384));
+                    const reader = new FileReader();
+                    reader.onload = (ev) => {
+                        const text = ev.target.result || '';
+                        const line = (text.split(/\r?\n/)[0] || '').trim();
+                        this.csvHeaderLine = line.length > 1800 ? line.slice(0, 1800) + '…' : line;
+                    };
+                    reader.readAsText(slice);
+                },
+
+                handleUpload(e) {
+                    const file = e.target.files[0];
+                    if (file) {
+                        this.fileName = file.name;
+                        this.isUploading = true;
+                        this.uploadComplete = false;
+                        this.generatedCode = '';
+                        this.peekCsvHeader(file);
+                        const steps = ['扫描 CSV 结构...', '解析流行病学字段...', '加载 DALY 计算模型...', 'Ready.'];
+                        let i = 0;
+                        const timer = setInterval(() => {
+                            this.uploadProgress += 25;
+                            this.uploadStatus = steps[i++];
+                            if (this.uploadProgress >= 100) {
+                                clearInterval(timer);
+                                setTimeout(() => { this.isUploading = false; this.uploadComplete = true; }, 500);
+                            }
+                        }, 600);
+                    }
+                },
+
+                buildExplorationR() {
+                    const ys = this.parseCommaNames(this.outcomeVars);
+                    const xs = this.parseCommaNames(this.exposureVars);
+                    const ex = this.explore;
+                    if (!ys.length) {
+                        alert('请填写「结局（因变量）」列名（与 CSV 首行一致，英文逗号分隔）。');
+                        return '';
+                    }
+                    const needX = ex.scatter || ex.linear || ex.logistic || ex.corr;
+                    if (needX && !xs.length) {
+                        alert('已勾选需要自变量的分析，请填写「暴露（自变量）」列名。');
+                        return '';
+                    }
+                    if (!(ex.hist || ex.scatter || ex.linear || ex.logistic || ex.corr)) {
+                        alert('请至少勾选一种「初步绘图与探究」选项。');
+                        return '';
+                    }
+                    const y = ys[0];
+                    const fn = this.fileName || 'uploaded_data.csv';
+                    const lines = [];
+                    lines.push('# ---------------------------------------------------------');
+                    lines.push('# BioStarts · 基于上传 CSV 的初步探究脚本');
+                    lines.push('# 生成时间: ' + new Date().toLocaleString('zh-CN'));
+                    lines.push('# 数据文件: ' + fn);
+                    lines.push('# 主结局列: ' + y + (ys.length > 1 ? '（另有: ' + ys.slice(1).join(', ') + '）' : ''));
+                    lines.push('# 暴露列: ' + (xs.length ? xs.join(', ') : '（无）'));
+                    lines.push('# ---------------------------------------------------------');
+                    lines.push('');
+                    lines.push('library(tidyverse)');
+                    lines.push('library(ggplot2)');
+                    lines.push('');
+                    lines.push('raw_data <- read.csv("' + fn.replace(/"/g, '') + '", check.names = FALSE, stringsAsFactors = FALSE)');
+                    lines.push('# 列名须与 CSV 首行一致；含空格或特殊符号时建议在 R 中先 names() 检查');
+                    lines.push('');
+                    lines.push('outcome_col <- ' + JSON.stringify(y));
+                    if (xs.length) {
+                        lines.push('pred_cols <- c(' + xs.map((c) => JSON.stringify(c)).join(', ') + ')');
+                        lines.push('');
+                    }
+                    if (ex.hist) {
+                        lines.push('# —— 分布图：结局 ——');
+                        lines.push('p_hist <- ggplot(raw_data, aes(x = .data[[outcome_col]])) +');
+                        lines.push('  geom_histogram(aes(y = after_stat(density)), bins = 30, colour = "white", fill = "#0066cc", alpha = 0.85) +');
+                        lines.push('  geom_density(colour = "#1d1d1f", linewidth = 0.9) +');
+                        lines.push('  labs(title = "结局分布", x = outcome_col, y = "密度") + theme_minimal()');
+                        lines.push('print(p_hist)');
+                        lines.push('');
+                    }
+                    if (ex.scatter && xs.length) {
+                        lines.push('# —— 散点图：主结局 vs 首个暴露（' + xs[0] + '）——');
+                        lines.push('p_sc <- ggplot(raw_data, aes(x = .data[[pred_cols[1]]], y = .data[[outcome_col]])) +');
+                        lines.push('  geom_point(alpha = 0.35, colour = "#0066cc") +');
+                        lines.push('  geom_smooth(method = "lm", se = TRUE, colour = "#1d1d1f") +');
+                        lines.push('  labs(title = "结局 vs 暴露（谨慎因果解读）", x = pred_cols[1], y = outcome_col) + theme_minimal()');
+                        lines.push('print(p_sc)');
+                        lines.push('');
+                    }
+                    if (ex.linear && xs.length) {
+                        lines.push('# —— 线性回归 OLS（列名须与 CSV 一致；含空格时请先在 R 中改名）——');
+                        lines.push('form_lm <- as.formula(paste(outcome_col, "~", paste(pred_cols, collapse = " + ")))');
+                        lines.push('fit_lm <- lm(form_lm, data = raw_data)');
+                        lines.push('print(summary(fit_lm))');
+                        lines.push('');
+                    }
+                    if (ex.logistic && xs.length) {
+                        lines.push('# —— 逻辑回归（要求结局近似 0/1 或二分类因子）——');
+                        lines.push('form_g <- as.formula(paste(outcome_col, "~", paste(pred_cols, collapse = " + ")))');
+                        lines.push('fit_glm <- glm(form_g, data = raw_data, family = binomial())');
+                        lines.push('print(summary(fit_glm))');
+                        lines.push('# odds ratios: exp(coef(fit_glm))');
+                        lines.push('');
+                    }
+                    if (ex.corr && xs.length) {
+                        lines.push('# —— Pearson 相关热图（需安装 corrplot）——');
+                        lines.push('# install.packages("corrplot")');
+                        lines.push('library(corrplot)');
+                        const colsR = '[' + [y, ...xs].map((c) => JSON.stringify(c)).join(', ') + ']';
+                        lines.push('num_mat <- raw_data |> dplyr::select(dplyr::any_of(' + colsR + ')) |> dplyr::select(where(is.numeric))');
+                        lines.push('if (ncol(num_mat) >= 2) {');
+                        lines.push('  M <- cor(num_mat, use = "pairwise.complete.obs")');
+                        lines.push('  corrplot(M, method = "color", type = "upper", tl.cex = 0.8)');
+                        lines.push('} else { message("相关热图需要至少两列数值型变量") }');
+                        lines.push('');
+                    }
+                    lines.push('# 提示：正式分析前请检查缺失值、共线性与因果解释边界。');
+                    return lines.join('\n');
+                },
+
+                generateExplorationAndGo() {
+                    if (!this.fileName) return alert('请先上传数据');
+                    const code = this.buildExplorationR();
+                    if (!code) return;
+                    this.generatedCode = code;
+                    this.currentTab = 3;
+                },
+
+                defaultBurdenCode() {
+                    const fn = (this.fileName || 'uploaded_data.csv').replace(/"/g, '');
+                    const d = new Date().toLocaleDateString();
+                    const b = [];
+                    b.push('# ---------------------------------------------------------');
+                    b.push('# BioStarts Analysis Engine');
+                    b.push('# 脚本生成时间: ' + d);
+                    b.push('# 数据源: ' + fn);
+                    b.push('# ---------------------------------------------------------');
+                    b.push('');
+                    b.push('library(tidyverse)');
+                    b.push('library(psych)  # 用于高级描述性统计');
+                    b.push('');
+                    b.push('# 1. 加载数据集');
+                    b.push('raw_data <- read.csv("' + fn + '")');
+                    b.push('');
+                    b.push('# =========================================================');
+                    b.push('# 2. 第一阶段：描述性统计分析 (Descriptive Statistics)');
+                    b.push('# =========================================================');
+                    b.push('');
+                    b.push('descriptive_summary <- raw_data %>%');
+                    b.push('  select_if(is.numeric) %>%');
+                    b.push('  summarise(across(everything(), list(');
+                    b.push('    mean   = ~mean(. , na.rm = TRUE),');
+                    b.push('    sd     = ~sd(. , na.rm = TRUE),');
+                    b.push('    median = ~median(. , na.rm = TRUE),');
+                    b.push('    q1     = ~quantile(. , 0.25, na.rm = TRUE),');
+                    b.push('    q3     = ~quantile(. , 0.75, na.rm = TRUE)');
+                    b.push('  )))');
+                    b.push('');
+                    b.push('print("--- 描述性统计摘要 ---")');
+                    b.push('print(descriptive_summary)');
+                    b.push('');
+                    b.push('# =========================================================');
+                    b.push('# 3. 第二阶段：核心负担指标计算 (GBD/CHARLS Methodology)');
+                    b.push('# =========================================================');
+                    b.push('');
+                    b.push('process_burden_metrics <- function(df) {');
+                    b.push('  df %>%');
+                    b.push('    filter(!is.na(deaths) & !is.na(population)) %>%');
+                    b.push('    mutate(');
+                    b.push('      incidence_rate = (new_cases / population) * 100000,');
+                    b.push('      mortality_rate = (deaths / population) * 100000,');
+                    b.push('      yll  = deaths * (standard_expectancy - age_at_death),');
+                    b.push('      yld  = prevalence_cases * disability_weight,');
+                    b.push('      daly = yll + yld');
+                    b.push('    )');
+                    b.push('}');
+                    b.push('');
+                    b.push('final_results <- process_burden_metrics(raw_data)');
+                    b.push('');
+                    b.push('# =========================================================');
+                    b.push('# 4. 第三阶段：年龄标化率计算 (ASR)');
+                    b.push('# =========================================================');
+                    b.push('');
+                    b.push('calculate_asr <- function(df, weights) {');
+                    b.push('  sum(df$incidence_rate * weights) / sum(weights)');
+                    b.push('}');
+                    b.push('');
+                    b.push('print("--- 核心负担计算完成 ---")');
+                    b.push('print(head(final_results))');
+                    return b.join('\n');
+                },
+
+                outputGeneratedCode() {
+                    const ys = this.parseCommaNames(this.outcomeVars);
+                    const ex = this.explore;
+                    const wantsExplore = ys.length && (ex.hist || ex.scatter || ex.linear || ex.logistic || ex.corr);
+                    if (wantsExplore) {
+                        if (!this.fileName) return alert('请先上传数据');
+                        const c = this.buildExplorationR();
+                        if (c) this.generatedCode = c;
+                        return;
+                    }
+                    this.generatedCode = this.defaultBurdenCode();
+                },
+
+                copyCode() {
+                    if (!this.generatedCode) return alert('请先输出代码');
+                    navigator.clipboard.writeText(this.generatedCode).then(() => alert('分析脚本已复制到剪贴板！'));
+                }
+            }
+        }
+    </script>
+</body>
+</html>

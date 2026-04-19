@@ -1,0 +1,279 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>4. 分类变量分析 | BioStarts</title>
+    <link rel="stylesheet" href="method-common.css" />
+  <link rel="stylesheet" href="qwen-assistant.css" />
+  <script defer src="method-quiz.js"></script>
+  <script defer src="qwen-assistant.js"></script>
+</head>
+<body>
+<nav class="method-topbar" style="background:#0f2940;color:#f8fafc;padding:12px 24px;font-family:Inter,'PingFang SC','Microsoft YaHei',sans-serif;font-size:13px;display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:8px;">
+  <a href="index.html" style="color:#fff;text-decoration:none;font-weight:600;">← BioStarts</a>
+  <span style="opacity:.85;">统计医学方法 · 第4章</span>
+</nav>
+
+  <main class="container">
+    <section class="hero">
+      <span class="badge">Foundations · Section 4</span>
+      <h1>4. 分类变量分析</h1>
+      <p class="lead">
+        当研究问题关注的是“是否发病”“是否缓解”“是否阳性”这类分类结局时，
+        统计分析的重点不再是均值差异，而是不同类别的频数、比例和它们之间的关系。
+      </p>
+      <p>
+        这一节介绍医学研究中最常见的分类变量分析工具：
+        列联表、卡方检验、Fisher 精确检验和 McNemar 检验。
+      </p>
+    </section>
+
+    <section class="toc">
+      <h2 style="margin-top:0;border-bottom:none;padding-bottom:0;">本节目录</h2>
+      <ul>
+        <li><a href="#part-4-1">4.1 列联表基础</a></li>
+        <li><a href="#part-4-2">4.2 卡方检验</a></li>
+        <li><a href="#part-4-3">4.3 Fisher 精确检验</a></li>
+        <li><a href="#part-4-4">4.4 McNemar 检验</a></li>
+        <li><a href="#self-test">本节自测题</a></li>
+      </ul>
+    </section>
+
+    <section id="part-4-1" class="card">
+      <h2>4.1 列联表基础</h2>
+      <h3>严格定义</h3>
+      <p>
+        列联表（contingency table）用于展示两个或多个分类变量的联合分布。
+        最常见的是二维列联表：行表示一个分类变量，列表示另一个分类变量，
+        每个单元格记录某种组合下的频数，边缘总和称为边际频数。
+      </p>
+
+      <h3>通俗解释</h3>
+      <p>
+        列联表的作用，是把“两个分类变量是怎么交叉在一起的”一眼看清。
+        它是后面卡方检验、Fisher 精确检验和 McNemar 检验的出发点。
+      </p>
+
+      <div class="box example">
+        <strong>医学 toy example：</strong>
+        比较新药组和常规治疗组的肺炎缓解率。
+        行可以写“新药 / 常规”，列可以写“缓解 / 未缓解”，
+        表中每个格子填入对应人数。
+      </div>
+
+      <div class="box">
+        <strong>实用提示：</strong>
+        看列联表时先问：
+        <ul>
+          <li>数据是不是分类变量？</li>
+          <li>样本是独立的还是配对的？</li>
+          <li>是不是 2×2 表？</li>
+          <li>有没有格子人数特别小？</li>
+        </ul>
+      </div>
+
+      <h3>参考文献</h3>
+      <ol>
+        <li>Bewick V, et al. <em>Statistics review 8: Qualitative data – tests of association</em>.</li>
+        <li>Hazra A, Gogtay N. <em>Comparing Groups – Categorical Variables</em>.</li>
+      </ol>
+    </section>
+
+    <section id="part-4-2" class="card">
+      <h2>4.2 卡方检验</h2>
+      <h3>严格定义</h3>
+      <p>
+        Pearson 卡方检验（chi-square test）用于检验两个分类变量是否独立，
+        或不同独立组中分类结局的分布是否相同。
+        它比较观察频数与理论期望频数之间的差异。
+      </p>
+
+      <h3>通俗解释</h3>
+      <p>
+        卡方检验是在问：
+        “表里的分布差异，是否大到不像随机波动能解释？”
+      </p>
+
+      <div class="box example">
+        <strong>医学 toy example：</strong>
+        比较吸烟者和不吸烟者的术后并发症发生率是否不同。
+        如果每个格子人数都足够，这就是卡方检验的典型场景。
+      </div>
+
+      <div class="box warning">
+        <strong>常见误区：</strong>
+        <ul>
+          <li>格子太小还硬做卡方检验。</li>
+          <li>只报告 p 值，不报告各组比例和差异大小。</li>
+          <li>把“有统计学关联”直接说成“有因果关系”。</li>
+        </ul>
+      </div>
+
+      <h3>何时要小心</h3>
+      <p>
+        如果表格中某些格子的期望频数过低，卡方近似会变差。
+        尤其在 2×2 表、小样本、罕见事件研究中，要考虑 Fisher 精确检验。
+      </p>
+
+      <h3>参考文献</h3>
+      <ol>
+        <li>Swinscow & Campbell. <em>The Chi squared tests</em>.</li>
+        <li>Kim HY. <em>Chi-squared test and Fisher's exact test</em>.</li>
+      </ol>
+    </section>
+
+    <section id="part-4-3" class="card">
+      <h2>4.3 Fisher 精确检验</h2>
+      <h3>严格定义</h3>
+      <p>
+        Fisher 精确检验主要用于 2×2 列联表，尤其适用于样本量较小、
+        或某些单元格频数很低的情况。它基于精确概率计算，
+        因而不依赖卡方检验那样的近似。
+      </p>
+
+      <h3>通俗解释</h3>
+      <p>
+        当样本太少，小到“卡方检验的近似不够放心”时，
+        就优先想到 Fisher 精确检验。
+      </p>
+
+      <div class="box example">
+        <strong>医学 toy example：</strong>
+        某罕见病研究总样本只有 18 人，
+        比较两种治疗方案的不良反应发生率时，
+        如果表格中有格子计数为 0 或 1，
+        就很适合用 Fisher 精确检验。
+      </div>
+
+      <div class="box warning">
+        <strong>常见误区：</strong>
+        <ul>
+          <li>把 Fisher 精确检验当成“任何时候都更高级”的选择。</li>
+          <li>把配对二分类数据也拿来做 Fisher 检验。</li>
+        </ul>
+      </div>
+
+      <h3>参考文献</h3>
+      <ol>
+        <li>Kim HY. <em>Chi-squared test and Fisher’s exact test</em>.</li>
+        <li>Alhamhoom Y, et al. <em>Chi-square and Fisher’s exact tests</em>.</li>
+      </ol>
+    </section>
+
+    <section id="part-4-4" class="card">
+      <h2>4.4 McNemar 检验</h2>
+      <h3>严格定义</h3>
+      <p>
+        McNemar 检验用于分析配对的二分类数据，
+        典型情形是同一批对象前后各测一次，
+        或一一匹配的配对设计。它通常应用于 2×2 配对列联表，
+        检验两次相关测量的边际比例是否相同。
+      </p>
+
+      <h3>通俗解释</h3>
+      <p>
+        如果卡方检验比较的是“两群不同的人”，
+        那 McNemar 检验比较的是“同一个人前后是否发生了系统变化”。
+      </p>
+
+      <div class="box example">
+        <strong>医学 toy example：</strong>
+        对同一批患者比较干预前后的筛查阳性率。
+        由于每位患者都被测量了两次，数据是配对的，
+        因此应优先考虑 McNemar 检验。
+      </div>
+
+      <div class="box">
+        <strong>核心直觉：</strong>
+        McNemar 检验主要关注的是“不一致对”：
+        <ul>
+          <li>前阳后阴</li>
+          <li>前阴后阳</li>
+        </ul>
+        如果大多数人前后都没变，真正影响检验结果的主要就是这两个格子。
+      </div>
+
+      <div class="box warning">
+        <strong>常见误区：</strong>
+        <ul>
+          <li>把配对二分类数据误当成独立样本做卡方检验。</li>
+          <li>把 McNemar 检验误当成“一致性检验”；它检验的是边际比例差异，不等于一致性评价。</li>
+        </ul>
+      </div>
+
+      <h3>参考文献</h3>
+      <ol>
+        <li><em>The Chi squared tests</em>（BMJ Statistics at Square One）</li>
+        <li>Sundjaja JH, et al. <em>McNemar And Mann-Whitney U Tests</em>.</li>
+      </ol>
+    </section>
+
+    <section class="card">
+      <h2>本节最简记忆版</h2>
+      <ul>
+        <li><strong>列联表：</strong>先把两个分类变量交叉起来看。</li>
+        <li><strong>卡方检验：</strong>独立样本、分类变量、大样本时常用。</li>
+        <li><strong>Fisher 精确检验：</strong>2×2 表、小样本或格子稀疏时常用。</li>
+        <li><strong>McNemar 检验：</strong>配对二分类数据的首选方法之一。</li>
+      </ul>
+    </section>
+
+    <section id="self-test" class="card">
+      <h2>本节自测题（8 题）</h2>
+
+      <div class="quiz-item">
+        <p class="question">1. “治疗组/对照组” 与 “缓解/未缓解” 组成的 2×2 表，最基本属于什么工具？</p>
+        <p class="answer"><strong>答案：</strong>列联表。</p>
+      </div>
+
+      <div class="quiz-item">
+        <p class="question">2. 卡方检验最常用于什么问题？</p>
+        <p class="answer"><strong>答案：</strong>比较两个分类变量是否独立，或不同独立组中分类结局分布是否相同。</p>
+      </div>
+
+      <div class="quiz-item">
+        <p class="question">3. 如果 2×2 表中某个格子人数特别少，优先考虑什么方法？</p>
+        <p class="answer"><strong>答案：</strong>Fisher 精确检验。</p>
+      </div>
+
+      <div class="quiz-item">
+        <p class="question">4. 同一批患者治疗前后“阳性/阴性”结果比较，最适合什么方法？</p>
+        <p class="answer"><strong>答案：</strong>McNemar 检验。</p>
+      </div>
+
+      <div class="quiz-item">
+        <p class="question">5. McNemar 检验和普通卡方检验最大的区别是什么？</p>
+        <p class="answer"><strong>答案：</strong>McNemar 用于配对二分类数据；普通卡方检验通常用于独立样本。</p>
+      </div>
+
+      <div class="quiz-item">
+        <p class="question">6. Fisher 精确检验是不是任何时候都比卡方检验更好？</p>
+        <p class="answer"><strong>答案：</strong>不是。它主要在小样本或稀疏 2×2 表时更有优势。</p>
+      </div>
+
+      <div class="quiz-item">
+        <p class="question">7. 卡方检验显著，是否就能说明存在因果关系？</p>
+        <p class="answer"><strong>答案：</strong>不能。它只能说明统计学关联。</p>
+      </div>
+
+      <div class="quiz-item">
+        <p class="question">8. McNemar 检验是不是“一致性检验”？</p>
+        <p class="answer"><strong>答案：</strong>严格说不是。它检验的是边际比例是否不同。</p>
+      </div>
+    </section>
+
+    <section class="card">
+      <h2>参考文献汇总</h2>
+      <ol>
+        <li>Bewick V, et al. Statistics review 8: Qualitative data – tests of association.</li>
+        <li>Hazra A, Gogtay N. Comparing Groups – Categorical Variables.</li>
+        <li>Swinscow & Campbell. The Chi squared tests.</li>
+        <li>Kim HY. Chi-squared test and Fisher’s exact test.</li>
+        <li>Alhamhoom Y, et al. Chi-square and Fisher’s exact tests.</li>
+        <li>Sundjaja JH, et al. McNemar And Mann-Whitney U Tests.</li>
+      </ol>
+    </section>
+  </main>
+</body>
+</html>

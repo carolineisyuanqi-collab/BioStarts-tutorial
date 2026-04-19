@@ -1,0 +1,457 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>诊断试验与筛查研究 | BioStarts</title>
+    <link rel="stylesheet" href="method-common.css" />
+  <link rel="stylesheet" href="qwen-assistant.css" />
+  <script defer src="method-quiz.js"></script>
+  <script defer src="qwen-assistant.js"></script>
+</head>
+<body class="method-legacy-chapter">
+<nav class="method-topbar" style="background:#0f2940;color:#f8fafc;padding:12px 24px;font-family:Inter,'PingFang SC','Microsoft YaHei',sans-serif;font-size:13px;display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:8px;">
+  <a href="index.html" style="color:#fff;text-decoration:none;font-weight:600;">← BioStarts</a>
+  <span style="opacity:.85;">统计医学方法 · 第12章</span>
+</nav>
+
+
+  
+<main class="container">
+<h1>12. 诊断试验与筛查研究</h1>
+
+  <section class="toc">
+    <h2 style="margin-top:0;border-bottom:none;padding-bottom:0;">本节目录</h2>
+    <ul>
+      <li><a href="#part-12-1">12.1 敏感度与特异度</a></li>
+      <li><a href="#part-12-2">12.2 阳性预测值与阴性预测值</a></li>
+      <li><a href="#part-12-3">12.3 ROC 曲线</a></li>
+      <li><a href="#part-12-4">12.4 AUC 的解释</a></li>
+      <li><a href="#part-12-5">12.5 截点选择与临床应用</a></li>
+      <li><a href="#summary">本节小结</a></li>
+      <li><a href="#references">延伸阅读参考文献</a></li>
+      <li><a href="#self-test">自测小题</a></li>
+    </ul>
+  </section>
+
+  <h2 id="part-12-1">12.1 敏感度与特异度</h2>
+
+  <h3>严格定义</h3>
+  <p>
+    在诊断试验研究中，通常使用参考标准（reference standard）判断受试者是否真正患有目标疾病。
+    若将结果整理为四格表：
+    真阳性（TP）、假阳性（FP）、假阴性（FN）、真阴性（TN），则：
+  </p>
+  <div class="formula">
+    敏感度 Sensitivity = TP / (TP + FN)
+  </div>
+  <div class="formula">
+    特异度 Specificity = TN / (TN + FP)
+  </div>
+  <p>
+    敏感度表示在所有真正患病者中检测为阳性的比例；特异度表示在所有真正无病者中检测为阴性的比例。
+  </p>
+
+  <h3>通俗解释</h3>
+  <p>
+    敏感度反映“把病人找出来”的能力，特异度反映“别把健康人误判成病人”的能力。
+    临床上通常认为：筛查阶段更重视敏感度，确诊阶段更重视特异度。
+  </p>
+
+  <div class="box example">
+    <strong>医学 toy example：</strong>
+    某乳腺癌筛查试验中，40 人真实患病，160 人真实无病。
+    检测结果为 TP=36，FN=4，FP=24，TN=136。
+    因此敏感度 = 36/40 = 90%，特异度 = 136/160 = 85%。
+  </div>
+
+  <div class="box warning">
+    <strong>初学者提醒：</strong>
+    敏感度 95% 并不表示“阳性的人里 95% 真有病”。
+    这句话描述的是阳性预测值，不是敏感度。
+  </div>
+
+  <h3>参考文献</h3>
+  <ol class="ref">
+    <li>Šimundić AM. Measures of Diagnostic Accuracy: Basic Definitions. EJIFCC. 2009.</li>
+    <li>Dhamnetiya D, et al. How to Analyze the Diagnostic Performance of a New Test? Cureus. 2021.</li>
+  </ol>
+
+  <h2 id="part-12-2">12.2 阳性预测值与阴性预测值</h2>
+
+  <h3>严格定义</h3>
+  <div class="formula">
+    阳性预测值 PPV = TP / (TP + FP)
+  </div>
+  <div class="formula">
+    阴性预测值 NPV = TN / (TN + FN)
+  </div>
+  <p>
+    PPV 表示检测阳性者中真正患病的比例；NPV 表示检测阴性者中真正无病的比例。
+  </p>
+
+  <h3>通俗解释</h3>
+  <p>
+    PPV 和 NPV 不是从“真实有没有病”出发，而是从“检测结果出来以后，这个结果有多可信”来理解。
+    PPV 回答“测阳性后多大概率真有病”，NPV 回答“测阴性后多大概率真没病”。
+  </p>
+
+  <h3>与患病率的关系</h3>
+  <p>
+    PPV 和 NPV 会受到患病率影响。患病率越低，PPV 往往越低；患病率越高，PPV 往往越高。
+    这也是筛查研究中阳性结果常常还需要进一步确诊的原因。
+  </p>
+
+  <div class="box example">
+    <strong>医学 toy example：</strong>
+    若前例中 TP=36，FP=24，TN=136，FN=4，
+    则 PPV = 36/(36+24)=60%，NPV = 136/(136+4)=97.1%。
+    说明阳性结果并不一定都是真正患病，但阴性结果通常较让人放心。
+  </div>
+
+  <h3>参考文献</h3>
+  <ol class="ref">
+    <li>Šimundić AM. 2009.</li>
+    <li>Deeks JJ. Systematic reviews of evaluations of diagnostic and screening tests. BMJ. 2001.</li>
+  </ol>
+
+  <h2 id="part-12-3">12.3 ROC 曲线</h2>
+
+  <h3>严格定义</h3>
+  <p>
+    ROC 曲线（receiver operating characteristic curve）是对连续型或等级型诊断指标在不同截点下的诊断性能进行图形化展示的方法。
+    其横轴为 1 − specificity（假阳性率），纵轴为 sensitivity（真阳性率）。
+  </p>
+
+  <h3>通俗解释</h3>
+  <p>
+    当一个指标是连续数值时，不同截点会带来不同的敏感度与特异度。
+    ROC 曲线把所有可能截点的表现画在同一张图上，帮助我们观察“提高敏感度往往要牺牲部分特异度”的权衡关系。
+  </p>
+
+  <div class="box example">
+    <strong>医学 toy example：</strong>
+    某肿瘤标志物数值越高越提示肿瘤。
+    若把截点设得很低，敏感度高，但假阳性率也高；
+    若把截点设得很高，特异度升高，但可能漏诊更多患者。
+    把所有截点对应的点连起来，就是 ROC 曲线。
+  </div>
+
+  <h3>临床用途</h3>
+  <ul>
+    <li>评价单个试验的整体判别能力；</li>
+    <li>比较两个试验或两个模型；</li>
+    <li>辅助选择临床合适的截点。</li>
+  </ul>
+
+  <h3>参考文献</h3>
+  <ol class="ref">
+    <li>Hajian-Tilaki K. ROC Curve Analysis for Medical Diagnostic Test Evaluation. 2013.</li>
+    <li>Florkowski CM. ROC Curves and Likelihood Ratios. Clin Biochem Rev. 2008.</li>
+  </ol>
+
+  <h2 id="part-12-4">12.4 AUC 的解释</h2>
+
+  <h3>严格定义</h3>
+  <p>
+    AUC（area under the ROC curve）即 ROC 曲线下面积，是诊断试验整体区分能力的总结性指标。
+    AUC 越接近 1，说明区分能力越强；AUC = 0.5 表示与随机猜测相近。
+  </p>
+
+  <h3>通俗解释</h3>
+  <p>
+    AUC 可以理解为：随机抽取一名真正患病者和一名真正无病者时，
+    该检测或模型给患病者更高风险分数的概率。
+  </p>
+
+  <div class="box example">
+    <strong>医学 toy example：</strong>
+    若某糖尿病视网膜病变筛查模型的 AUC = 0.91，
+    可以说它整体区分患病与无病个体的能力较强。
+    但这并不意味着每个截点下都适合临床使用。
+  </div>
+
+  <div class="box warning">
+    <strong>注意：</strong>
+    AUC 高，不等于临床上一定有用。真正应用时仍需要看具体截点下的敏感度、特异度、患病率以及临床代价。
+  </div>
+
+  <h3>参考文献</h3>
+  <ol class="ref">
+    <li>Hajian-Tilaki K. 2013.</li>
+    <li>Nahm FS. Receiver operating characteristic curve: overview and practical use. 2022.</li>
+  </ol>
+
+  <h2 id="part-12-5">12.5 截点选择与临床应用</h2>
+
+  <h3>严格定义</h3>
+  <p>
+    截点（cut-off, threshold）是将连续型检测值划分为阳性与阴性时所采用的界值。
+    不同截点会改变敏感度与特异度，因此截点选择本质上是漏诊与误诊之间的平衡。
+  </p>
+
+  <h3>通俗解释</h3>
+  <p>
+    截点不是纯数学问题，而是统计与临床共同决定的问题。
+    筛查通常更怕漏诊，因此倾向于更高敏感度；
+    确诊通常更怕误诊，因此倾向于更高特异度。
+  </p>
+
+  <h3>常见统计方法</h3>
+  <div class="formula">
+    Youden 指数 J = Sensitivity + Specificity − 1
+  </div>
+  <p>
+    Youden 指数最大时的截点常被视为统计上较优截点。
+    但它默认敏感度和特异度同等重要，因此并不一定适合所有临床场景。
+  </p>
+
+  <div class="box example">
+    <strong>医学 toy example：</strong>
+    若 D-二聚体用于急诊筛查血栓，临床更担心漏掉真正血栓患者，
+    因此会倾向选择一个更高敏感度的截点，即使带来较多假阳性。
+  </div>
+
+  <h3>筛查研究中特别要注意</h3>
+  <ul>
+    <li>筛查常面对低患病率人群；</li>
+    <li>阳性结果通常需要进一步确诊；</li>
+    <li>不能只看 AUC，还要看具体工作点；</li>
+    <li>需要考虑后续检查成本、心理负担、过度诊断等问题。</li>
+  </ul>
+
+  <h3>参考文献</h3>
+  <ol class="ref">
+    <li>Hoyer A, et al. Studies for the Evaluation of Diagnostic Tests. 2021.</li>
+    <li>Schisterman EF, et al. Youden Index and the optimal threshold for markers. 2008.</li>
+  </ol>
+
+  <h2 id="summary">本节小结</h2>
+  <div class="summary">
+    <p>
+      诊断试验研究的核心是判断一个试验能否可靠地区分“有病”和“无病”。
+      敏感度和特异度描述试验本身的性能，阳性预测值和阴性预测值描述结果对临床判断的实际意义。
+    </p>
+    <p>
+      ROC 曲线和 AUC 适用于连续型指标的整体评价，但临床应用不能停留在 AUC 层面，
+      还必须结合具体截点、患病率以及漏诊和误诊的后果来综合判断。
+    </p>
+    <p>
+      对筛查研究而言，最重要的思想是：筛查阳性通常不等于确诊，统计指标的解释必须放回真实人群与临床流程中。
+    </p>
+  </div>
+
+  <h2 id="references">延伸阅读参考文献</h2>
+  <ol class="ref">
+    <li>Šimundić AM. Measures of Diagnostic Accuracy: Basic Definitions. EJIFCC. 2009.</li>
+    <li>Dhamnetiya D, et al. How to Analyze the Diagnostic Performance of a New Test? Cureus. 2021.</li>
+    <li>Hajian-Tilaki K. ROC Curve Analysis for Medical Diagnostic Test Evaluation. 2013.</li>
+    <li>Florkowski CM. ROC Curves and Likelihood Ratios. Clin Biochem Rev. 2008.</li>
+    <li>Nahm FS. ROC curve: overview and practical use. 2022.</li>
+    <li>Deeks JJ. Systematic reviews of evaluations of diagnostic and screening tests. BMJ. 2001.</li>
+    <li>Cohen JF, et al. STARD 2015 guidelines. BMJ Open. 2016.</li>
+    <li>Power M, et al. Principles for high-quality, high-value testing. 2013.</li>
+    <li>Hoyer A, et al. Evaluation of Diagnostic Tests. 2021.</li>
+    <li>Schisterman EF, et al. Youden Index and optimal threshold. 2008.</li>
+  </ol>
+
+  <section id="self-test" class="card">
+    <h2>自测小题</h2>
+    <p style="margin-top:0;font-size:0.9em;opacity:.85;">以下 10 题为诊断试验与筛查思考题；每题参考答案含「核心答案」「展开讲解」「通俗例子」。先写要点，再点击「提交并显示参考答案」对照。</p>
+
+    <div class="quiz-item">
+      <p class="question">1. 敏感度和特异度分别是从哪类人群出发定义的？</p>
+      <div class="answer">
+        <h4>核心答案</h4>
+        <ul>
+          <li><strong>敏感度</strong>从“<strong>真正患病</strong>的人”出发：在所有确实患病的人里，试验阳性的比例，即 <strong>Sn = TP / (TP + FN)</strong>。</li>
+          <li><strong>特异度</strong>从“<strong>真正没病</strong>的人”出发：在所有确实没病的人里，试验阴性的比例，即 <strong>Sp = TN / (TN + FP)</strong>。</li>
+        </ul>
+        <p>两者的思维起点是<strong>先知道病情、再看试验结果</strong>，属于<strong>以金标准为条件</strong>的指标。</p>
+        <h4>展开讲解</h4>
+        <table class="mini-table">
+          <thead><tr><th></th><th>金标准阳性 (D+)</th><th>金标准阴性 (D−)</th></tr></thead>
+          <tbody>
+            <tr><th>试验阳性 (T+)</th><td>TP（真阳性）</td><td>FP（假阳性）</td></tr>
+            <tr><th>试验阴性 (T−)</th><td>FN（假阴性）</td><td>TN（真阴性）</td></tr>
+          </tbody>
+        </table>
+        <ul>
+          <li><strong>敏感度 = TP / (TP + FN)</strong>：纵向看“金标准阳性”这一列——在所有真正的病人中，有多少被试验检出来。</li>
+          <li><strong>特异度 = TN / (FP + TN)</strong>：纵向看“金标准阴性”这一列——在所有真正的非病人中，有多少被试验正确排除。</li>
+        </ul>
+        <p>敏感度和特异度<strong>在一定程度上不随患病率变化</strong>（假设试验本身性能稳定），因而常作为评价试验<strong>内在性能</strong>的指标。但两者仍可能随<strong>谱偏倚（spectrum bias）</strong>变化：若只纳入重症病人，敏感度可能虚高；只纳入健康志愿者，特异度可能虚高。</p>
+        <h4>通俗例子</h4>
+        <p>鼻咽拭子检测新冠：在 100 个经金标准确认的真病人里检出 85 个阳性 → 敏感度 85%；在 100 个真没病的人里 95 个阴性 → 特异度 95%。<strong>敏感度是“我是病人，能不能被抓住”；特异度是“我没病，能不能被放过”。</strong></p>
+      </div>
+    </div>
+    <div class="quiz-item">
+      <p class="question">2. 为什么高敏感度试验更适合用于初筛？</p>
+      <div class="answer">
+        <h4>核心答案</h4>
+        <p>初筛的核心目标是<strong>尽量不漏掉病人</strong>（阴性时排除疾病）——漏诊代价通常远高于误诊。高敏感度意味着<strong>假阴性少</strong>，阴性结果能较可靠地排除疾病。口诀：<strong>SnNout</strong>（Sensitive test, when Negative, rules Out）。</p>
+        <h4>展开讲解</h4>
+        <table class="mini-table">
+          <thead><tr><th>阶段</th><th>目标</th><th>优先指标</th><th>可容忍代价</th></tr></thead>
+          <tbody>
+            <tr><td><strong>初筛</strong></td><td>不漏诊（rule-out）</td><td>高敏感度</td><td>较多假阳性 → 后续确诊</td></tr>
+            <tr><td><strong>确诊</strong></td><td>不误诊（rule-in）</td><td>高特异度</td><td>少量假阴性 → 其他方法兜底</td></tr>
+          </tbody>
+        </table>
+        <p>筛查优先保证敏感度的原因：漏诊代价大；假阳性可通过更特异试验复核；两步策略“先广撒网、再精挑”。阴性似然比 <strong>LR− = (1 − Sn) / Sp</strong>：敏感度越高，LR− 越小，阴性越能排除患病。</p>
+        <h4>通俗例子</h4>
+        <p>机场安检：高敏感度、特异度不必极高——漏刀代价大于开包检查。医学中 HIV 初筛用高敏 ELISA，阳性后用 Western blot；新生儿 PKU 筛查同理。</p>
+      </div>
+    </div>
+    <div class="quiz-item">
+      <p class="question">3. PPV 和 NPV 与敏感度、特异度的思维起点有什么不同？</p>
+      <div class="answer">
+        <h4>核心答案</h4>
+        <p>敏感/特异：<strong>已知疾病状态 → 问试验结果如何</strong>（以金标准为条件）。PPV/NPV：<strong>已知试验结果 → 问真实疾病状态如何</strong>（以试验为条件）。PPV/NPV 是患者和医生真正关心的“我阳性了到底有没有病”，但<strong>强烈依赖患病率</strong>，不是试验的“内在性能”单指标。</p>
+        <h4>展开讲解</h4>
+        <p><strong>阳性预测值 PPV = TP / (TP + FP)</strong>：横向看试验阳性行——阳性者中真病人比例。<strong>阴性预测值 NPV = TN / (TN + FN)</strong>：横向看试验阴性行。</p>
+        <ul>
+          <li>Sn/Sp 是 <strong>P(试验结果 | 疾病状态)</strong>；</li>
+          <li>PPV/NPV 是 <strong>P(疾病状态 | 试验结果)</strong>。</li>
+        </ul>
+        <p>贝叶斯联系（患病率记为 <em>p</em>）：</p>
+        <div class="formula">PPV = (Sn·p) / (Sn·p + (1−Sp)(1−p))</div>
+        <div class="formula">NPV = (Sp·(1−p)) / (Sp·(1−p) + (1−Sn)·p)</div>
+        <p>故同一试验在不同患病率人群中 PPV/NPV 可截然不同。向患者解释“阳性意味着什么”时要看 <strong>PPV</strong>，不能只看敏感度。</p>
+        <h4>通俗例子</h4>
+        <p>体检癌症早筛阳性，你最想问的是“我真的患癌吗、概率多大？”——这正是 PPV。若只被告知“敏感度 95%、特异度 98%”，仍不知道个体风险，因为还取决于<strong>患病率</strong>。</p>
+      </div>
+    </div>
+    <div class="quiz-item">
+      <p class="question">4. 为什么低患病率人群中 PPV 常常偏低？</p>
+      <div class="answer">
+        <h4>核心答案</h4>
+        <p>低患病率意味着<strong>绝大多数受试者其实没病</strong>；即使特异度很高，在巨大的真阴性基数上，(1−Sp)×(1−p) 产生的假阳性人数仍可能超过真阳性人数，故阳性中假阳性占主导，PPV 偏低——这是<strong>贝叶斯推理的必然结果</strong>。</p>
+        <h4>展开讲解</h4>
+        <div class="formula">PPV = (Sn·p) / (Sn·p + (1−Sp)(1−p))</div>
+        <p>当 <em>p</em> 很小时，分母第二项主导，PPV 被压低。</p>
+        <table class="mini-table">
+          <thead><tr><th>患病率 p</th><th>真病人</th><th>TP</th><th>假没病</th><th>FP</th><th>PPV ≈</th></tr></thead>
+          <tbody>
+            <tr><td>50%</td><td>50,000</td><td>49,500</td><td>50,000</td><td>500</td><td>99.0%</td></tr>
+            <tr><td>10%</td><td>10,000</td><td>9,900</td><td>90,000</td><td>900</td><td>91.7%</td></tr>
+            <tr><td>1%</td><td>1,000</td><td>990</td><td>99,000</td><td>990</td><td>50.0%</td></tr>
+            <tr><td>0.1%</td><td>100</td><td>99</td><td>99,900</td><td>999</td><td>9.0%</td></tr>
+            <tr><td>0.01%</td><td>10</td><td>≈10</td><td>99,990</td><td>≈1000</td><td>≈1.0%</td></tr>
+          </tbody>
+        </table>
+        <p>（示例：Sn=99%，Sp=99%，10 万人中应用。）罕见病普筛时，即使试验很好，<strong>筛查阳性也多半为误报</strong>。</p>
+        <h4>临床推论与通俗例子</h4>
+        <p>低患病率普筛易产生大量假阳性；指南常先<strong>风险分层</strong>再圈高危人群筛查，以提高 PPV。例：1 万人仅 1 人患病，Sn=Sp=99% 时约 1 个 TP、约 99 个 FP，阳性约 100 人里真病人仅 1 个，PPV≈1%。</p>
+      </div>
+    </div>
+    <div class="quiz-item">
+      <p class="question">5. ROC 曲线的横轴和纵轴分别是什么？</p>
+      <div class="answer">
+        <h4>核心答案</h4>
+        <ul>
+          <li><strong>横轴 (x) = 1 − 特异度 = 假阳性率 (FPR)</strong>；</li>
+          <li><strong>纵轴 (y) = 敏感度 = 真阳性率 (TPR)</strong>。</li>
+        </ul>
+        <p>曲线由<strong>所有可能截点</strong>下各自的 (FPR, TPR) 连线得到，是 Sn 与 Sp 权衡的全景图。</p>
+        <h4>展开讲解</h4>
+        <p>连续型检验输出时，滑动截点 <em>c</em>：低截点 → 几乎全阳 → 右上；高截点 → 几乎全阴 → 左下。<strong>左上角 (0, 1)</strong> 为理想点；<strong>对角线</strong> 表示与随机猜测相当；曲线越向左上凸，试验越好。ROC 近似<strong>独立于患病率</strong>，便于比较试验内在区分能力。</p>
+        <h4>通俗例子</h4>
+        <p>急诊胸痛用肌钙蛋白预测心梗：阈值低则高 Sn、低 Sp；阈值高则高 Sp、可能漏早期心梗。把所有阈值对应的 (1−Sp, Sn) 连成 ROC，可知<strong>无论选哪一档阈值，试验大致能做到什么</strong>。</p>
+      </div>
+    </div>
+    <div class="quiz-item">
+      <p class="question">6. AUC = 0.5 和 AUC = 1.0 各意味着什么？</p>
+      <div class="answer">
+        <h4>核心答案</h4>
+        <ul>
+          <li><strong>AUC = 0.5</strong>：曲线沿对角线，试验<strong>无鉴别能力</strong>，相当于随机猜一对病人/非病人谁得分更高。</li>
+          <li><strong>AUC = 1.0</strong>：曲线贴左上角，<strong>完美区分</strong>；现实中接近 1.0 需警惕过拟合或数据泄漏。</li>
+        </ul>
+        <p><strong>概率解释（Mann–Whitney）</strong>：随机抽一真病人、一真非病人，病人得分更高的概率 = AUC。</p>
+        <h4>展开讲解</h4>
+        <table class="mini-table">
+          <thead><tr><th>AUC</th><th>判读（参考）</th></tr></thead>
+          <tbody>
+            <tr><td>0.5</td><td>无鉴别（随机）</td></tr>
+            <tr><td>0.5–0.6</td><td>很差</td></tr>
+            <tr><td>0.6–0.7</td><td>差</td></tr>
+            <tr><td>0.7–0.8</td><td>一般/可接受</td></tr>
+            <tr><td>0.8–0.9</td><td>好</td></tr>
+            <tr><td>0.9–1.0</td><td>优秀</td></tr>
+            <tr><td>1.0</td><td>完美（罕见）</td></tr>
+          </tbody>
+        </table>
+        <p>AUC &lt; 0.5 时曲线在对角线下方，可检查预测方向是否反了。<strong>AUC 不等于准确率</strong>；<strong>AUC 对校准不敏感</strong>，医学预测模型常需同时报告校准与 DCA。</p>
+        <h4>通俗例子</h4>
+        <p>AUC=1.0 像能完美排序谁能通过考试；AUC=0.5 像抛硬币；AUC=0.8 像多数时候能把一对学生中更可能通过者指出来。</p>
+      </div>
+    </div>
+    <div class="quiz-item">
+      <p class="question">7. 为什么 AUC 高并不等于筛查一定适用？</p>
+      <div class="answer">
+        <h4>核心答案</h4>
+        <p>AUC 只衡量<strong>内在区分（排序）能力</strong>；筛查是否合适还取决于<strong>绝对收益、患病率、假阳性后果、成本与可及性、后续确诊与治疗链、过度诊断与治疗、人群价值观</strong>等。AUC 高而 PPV 极低、无有效治疗、成本不可承受时，仍<strong>不是好的筛查工具</strong>。</p>
+        <h4>展开讲解</h4>
+        <p>典型情形：（1）低患病率导致 PPV 崩溃（见 Q4）；（2）<strong>缺乏有效后续治疗</strong>，早发现不改变结局；（3）<strong>过度诊断</strong>：AUC 不衡量此问题；（4）成本与可及性；（5）阳性后下游有创检查伤害；（6）心理与社会成本。</p>
+        <p>WHO Wilson–Jungner 等原则强调：疾病负担、可早期识别、早期治疗改善结局、试验可接受、完整诊疗链、成本合理等。<strong>AUC 只对应“试验准确”这一条。</strong></p>
+        <h4>通俗例子</h4>
+        <p>某罕见癌血液检测 AUC=0.95，但患病率极低 → PPV 仍可能个位数；若早晚期预后无差、确诊需高死亡率活检，则筛查弊大于利。现代筛查多建立在<strong>RCT 证明降低病因死亡率</strong>，而非单看 AUC。</p>
+      </div>
+    </div>
+    <div class="quiz-item">
+      <p class="question">8. Youden 指数的公式是什么？</p>
+      <div class="answer">
+        <h4>核心答案</h4>
+        <div class="formula">J = Sensitivity + Specificity − 1 = TPR − FPR</div>
+        <p>取值约 <strong>[0, 1]</strong>。<strong>使 J 最大的截点</strong>常称 Youden 最优截点，对应 ROC 上离左上角 (0,1) 垂直距离较大（或切线斜率为 1）的点。</p>
+        <h4>展开讲解</h4>
+        <p><strong>优点</strong>：简单、与患病率无关、便于比较试验。<strong>局限</strong>：默认 Sn 与 Sp 同等重要（临床常不成立）；不考虑患病率；不考虑假阳/假阴代价差异；类别极不平衡时可能不稳。</p>
+        <p>其他选截点方法：加权 Youden、成本效益、<strong>DCA</strong>、固定 Sn 下最大 Sp、最小期望损失等。</p>
+        <h4>通俗例子</h4>
+        <p>截点 A：Sn=0.90, Sp=0.70 → J=0.60；截点 B：Sn=0.80, Sp=0.85 → J=0.65（Youden 可能选 B）。若用于<strong>漏诊代价极高</strong>的早癌筛查，临床可能宁愿选 A 而非 Youden 最优。</p>
+      </div>
+    </div>
+    <div class="quiz-item">
+      <p class="question">9. 筛查研究中选择截点时通常优先考虑什么？</p>
+      <div class="answer">
+        <h4>核心答案</h4>
+        <p>筛查截点<strong>首要不是统计最优（如 Youden 最大）</strong>，而是<strong>临床优先顺序</strong>：常优先保证<strong>高敏感度</strong>以减少漏诊；再在此约束下尽量提高特异度。还需综合患病率、漏诊/误诊相对代价、后续确诊路径、成本与可及性。</p>
+        <h4>展开讲解</h4>
+        <p><strong>敏感度优先</strong>：预设最低 Sn（如 95% 或 99%），在此下取最大 Sp；假阳性由第二步确诊兜底——见于 HIV 初筛、新生儿代谢病筛查等。</p>
+        <p><strong>特异度优先</strong>：用于确诊第二步，避免对非病人造成伤害。</p>
+        <p><strong>Youden</strong>：诊断试验评价中常报告，多为参考而非临床最终截点。</p>
+        <p><strong>成本/效用、DCA、临床可操作性</strong>（仪器精度、整数阈值、指南一致性）等。</p>
+        <p>应避免：训练集上选截点不做外部验证；过程不透明只报“漂亮”截点。</p>
+        <h4>通俗例子</h4>
+        <p>新生儿甲减筛查：漏诊可致不可逆智力障碍；治疗为廉价左甲状腺素。合理策略常是<strong>Sn≥99% 硬约束下再最大化 Sp</strong>，而非单纯 Youden 最优——后者若少漏几个新生儿，伦理上不可接受。</p>
+      </div>
+    </div>
+    <div class="quiz-item">
+      <p class="question">10. 阅读诊断试验论文时，除了 AUC 还应关注哪些临床因素？</p>
+      <div class="answer">
+        <h4>核心答案</h4>
+        <p>除 AUC 外，至少应检查：<strong>研究设计与谱、金标准定义、人群与患病率、盲法、完整指标（Sn/Sp/PPV/NPV/LR±）、截点选择与验证、外部验证、校准（模型类）、临床效用（DCA/决策影响）、报告规范（STARD / TRIPOD+AI 等）</strong>。</p>
+        <h4>展开讲解（10 个检查点）</h4>
+        <ol>
+          <li><strong>设计与人群谱</strong>：前瞻/回顾？目标人群还是病例对照式谱偏倚设计？</li>
+          <li><strong>金标准</strong>：是否独立？是否存在部分验证偏倚（work-up bias）？</li>
+          <li><strong>患病率</strong>：论文中 PPV/NPV 基于何种患病率？换场景需重算。</li>
+          <li><strong>盲法</strong>：判读是否盲于金标准？</li>
+          <li><strong>完整性能</strong>：Sn、Sp、PPV、NPV、LR+、LR− 及 95%CI；多截点信息。</li>
+          <li><strong>截点</strong>：预设还是数据驱动？是否独立验证？避免乐观偏倚。</li>
+          <li><strong>外部验证</strong>：多中心/多人群；性能下降 5–15 个百分点常见。</li>
+          <li><strong>校准</strong>（预测模型）：校准图、预测概率是否匹配实际。</li>
+          <li><strong>临床效用</strong>：DCA、影响研究（真实流程改变结局与否）。</li>
+          <li><strong>报告规范</strong>：STARD、QUADAS-2、TRIPOD+AI、STARD-AI、利益冲突等。</li>
+        </ol>
+        <p><strong>加分项</strong>：亚组、非劣效、可接受性、成本效益。</p>
+        <h4>通俗例子</h4>
+        <p>液体活检 ctDNA 早期肺癌 AUC=0.94：仍要问纳入人群、金标准、真实筛查人群 PPV、盲法、截点来源、外部验证、假阳性导致多少 CT/活检、有无 DCA、与现有筛查相比增量获益等。<strong>核心心法</strong>：价值在于能否说清“用在谁身上、漏不漏、阳性意味着什么、后续怎么办、能否改善结局”。</p>
+      </div>
+    </div>
+  </section>
+</main>
+
+</body>
+</html>

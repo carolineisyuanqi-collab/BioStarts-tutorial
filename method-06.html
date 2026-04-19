@@ -1,0 +1,269 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>6. 样本量与统计效能 | BioStarts</title>
+    <link rel="stylesheet" href="method-common.css" />
+  <link rel="stylesheet" href="qwen-assistant.css" />
+  <script defer src="method-quiz.js"></script>
+  <script defer src="qwen-assistant.js"></script>
+</head>
+<body>
+<nav class="method-topbar" style="background:#0f2940;color:#f8fafc;padding:12px 24px;font-family:Inter,'PingFang SC','Microsoft YaHei',sans-serif;font-size:13px;display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:8px;">
+  <a href="index.html" style="color:#fff;text-decoration:none;font-weight:600;">← BioStarts</a>
+  <span style="opacity:.85;">统计医学方法 · 第6章</span>
+</nav>
+
+  <div class="container">
+    <h1 class="page-title">6. 样本量与统计效能</h1>
+
+    <div class="intro">
+      <p>在医学研究中，样本量不是“越多越好”，也不是“能收多少算多少”。样本量过小，研究可能即使存在真实差异也检不出来；样本量过大，则可能浪费资源，并让很小、临床意义有限的差异也达到统计学显著。因此，样本量设计的核心，是在 I 类错误、II 类错误、统计效能、效应量和研究可行性之间取得平衡。</p>
+    </div>
+
+    <section class="toc">
+      <h2 style="margin-top:0;border-bottom:none;padding-bottom:0;">本节目录</h2>
+      <ul>
+        <li><a href="#part-6-1">6.1 假设检验中的 I 类错误与 II 类错误</a></li>
+        <li><a href="#part-6-2">6.2 Power 的概念</a></li>
+        <li><a href="#part-6-3">6.3 效应量</a></li>
+        <li><a href="#part-6-4">6.4 样本量估计的基本思路</a></li>
+        <li><a href="#summary">本节小结</a></li>
+        <li><a href="#self-test">自测小题</a></li>
+      </ul>
+    </section>
+
+    <section class="section">
+      <h2 id="part-6-1">6.1 假设检验中的 I 类错误与 II 类错误</h2>
+
+      <h3>严格定义</h3>
+      <p>在假设检验中，研究者通常先设定原假设（H0）和备择假设（H1）。</p>
+      <ul>
+        <li><strong>I 类错误（Type I error）</strong>：原假设其实为真，却被错误拒绝。即“本来没有差异，却误判成有差异”。其概率记作 <code>α</code>。</li>
+        <li><strong>II 类错误（Type II error）</strong>：原假设其实为假，却没有被拒绝。即“本来真的有差异，却没检出来”。其概率记作 <code>β</code>。</li>
+      </ul>
+
+      <h3>通俗解释</h3>
+      <p>可以把它们理解为两种统计学误判：</p>
+      <ul>
+        <li>I 类错误 = 误报（false positive）</li>
+        <li>II 类错误 = 漏报（false negative）</li>
+      </ul>
+
+      <div class="box toy">
+        <h3>医学 toy example</h3>
+        <p>比较两种抗高血压药 A 和 B 的疗效。</p>
+        <ul>
+          <li>如果两药实际上没有差异，但研究结论说“有差异”，这是 I 类错误。</li>
+          <li>如果 A 药实际上更好，但研究结果说“无显著差异”，这是 II 类错误。</li>
+        </ul>
+      </div>
+
+      <div class="box warn">
+        <strong>初学者注意：</strong>
+        <ul>
+          <li><code>p &gt; 0.05</code> 不等于“两组完全一样”。</li>
+          <li>很多小样本研究最容易犯的不是 I 类错误，而是 II 类错误。</li>
+        </ul>
+      </div>
+
+      <h3>推荐阅读</h3>
+      <ul class="refs">
+        <li>Kim HY. <em>Statistical notes for clinical researchers: Type I and type II errors</em>. Restorative Dentistry &amp; Endodontics, 2015.</li>
+        <li>Akobeng AK. <em>Understanding type I and type II errors, statistical power and sample size</em>. Acta Paediatrica, 2016.</li>
+      </ul>
+    </section>
+
+    <section class="section">
+      <h2 id="part-6-2">6.2 Power 的概念</h2>
+
+      <h3>严格定义</h3>
+      <p>统计效能（power）是指：当原假设实际上是假的时候，统计检验能够正确拒绝原假设的概率。</p>
+
+      <div class="formula">Power = 1 − β</div>
+
+      <p>如果 β = 0.20，那么 power = 0.80，也就是 80%。</p>
+
+      <h3>通俗解释</h3>
+      <p>Power 可以理解为：如果真实差异就在那儿，这个研究有多大把握能把它发现出来。</p>
+
+      <div class="box">
+        <strong>影响 power 的因素：</strong>
+        <ul>
+          <li>样本量越大，power 通常越高；</li>
+          <li>效应量越大，power 越高；</li>
+          <li>α 越宽松，power 越高，但 I 类错误风险增加；</li>
+          <li>数据波动越大，power 越低。</li>
+        </ul>
+      </div>
+
+      <div class="box toy">
+        <h3>医学 toy example</h3>
+        <p>研究一种镇痛新药是否能使疼痛评分平均下降 1 分。如果只招募 12 名患者，研究可能检不出真实差异；若样本增加到 120 名，检出这 1 分差异的可能性通常就更高，也就是 power 更高。</p>
+      </div>
+
+      <div class="box warn">
+        <strong>常见误区：</strong>
+        <ul>
+          <li>Power 高不代表某次研究结果一定显著。</li>
+          <li>不建议在研究结束后用 observed power 来硬解释阴性结果。</li>
+        </ul>
+      </div>
+
+      <h3>推荐阅读</h3>
+      <ul class="refs">
+        <li>Shreffler J, Huecker MR. <em>Type I and Type II Errors and Statistical Power</em>. StatPearls, 2023.</li>
+        <li>Sullivan GM, Feinn R. <em>Do You Have Power? Considering Type II Error in Medical Education Research</em>. Journal of Graduate Medical Education, 2021.</li>
+      </ul>
+    </section>
+
+    <section class="section">
+      <h2 id="part-6-3">6.3 效应量</h2>
+
+      <h3>严格定义</h3>
+      <p>效应量（effect size）是用于量化“差异有多大”或“关联有多强”的指标。它强调研究结果的实际大小，而不仅是统计学显著性。</p>
+      <ul>
+        <li>均值差异可用 Cohen’s d 表示；</li>
+        <li>分类变量结局可用 OR、RR、风险差表示；</li>
+        <li>相关分析中的 Pearson r 也可视为一种效应量。</li>
+      </ul>
+
+      <h3>通俗解释</h3>
+      <p>p 值回答的是“这个结果像不像随机误差造成的”，而效应量回答的是“这个差异到底有多大，临床上值不值得在意”。</p>
+
+      <div class="box toy">
+        <h3>医学 toy example</h3>
+        <p>某降糖药研究中，对照组 HbA1c 平均下降 0.2%，新药组平均下降 0.8%，两组差值为 0.6%。这个 0.6% 就是一个很直观的效应大小。</p>
+        <p>如果研究者认为“至少下降 0.5% 才有临床意义”，那样本量估计就应该围绕 0.5% 这个差异设计。</p>
+      </div>
+
+      <div class="box warn">
+        <strong>初学者注意：</strong>
+        <ul>
+          <li>只报告 p 值是不够的，最好同时报告效应量。</li>
+          <li>效应量小不一定没价值，要结合临床背景解释。</li>
+          <li>“多大算重要”不是固定的，不能机械套用阈值。</li>
+        </ul>
+      </div>
+
+      <h3>推荐阅读</h3>
+      <ul class="refs">
+        <li>Kim HY. <em>Statistical notes for clinical researchers: effect size</em>. Restorative Dentistry &amp; Endodontics, 2015.</li>
+        <li>Sullivan GM, Feinn R. <em>Using Effect Size—or Why the P Value Is Not Enough</em>. Journal of Graduate Medical Education, 2012.</li>
+      </ul>
+    </section>
+
+    <section class="section">
+      <h2 id="part-6-4">6.4 样本量估计的基本思路</h2>
+
+      <h3>严格定义</h3>
+      <p>样本量估计（sample size estimation）是指：在研究开始前，根据主要结局、研究设计、α、power、预期效应量和数据变异程度，计算出需要纳入多少研究对象，才能较有把握回答研究问题。</p>
+
+      <h3>通俗解释</h3>
+      <p>样本量估计本质上是在回答：</p>
+      <div class="formula">为了有足够机会发现我关心的差异，我需要收多少人？</div>
+
+      <div class="box">
+        <strong>样本量估计通常要考虑：</strong>
+        <ul>
+          <li>主要结局指标是什么；</li>
+          <li>研究设计是什么（RCT、队列、横断面、配对设计等）；</li>
+          <li>α 通常设多少；</li>
+          <li>Power 设 80% 还是 90%；</li>
+          <li>最小临床重要差异或预期效应量是多少；</li>
+          <li>标准差、基础事件率等波动信息；</li>
+          <li>是否需要考虑失访率、脱落率。</li>
+        </ul>
+      </div>
+
+      <div class="box toy">
+        <h3>医学 toy example</h3>
+        <p>随机对照试验中，主要结局为 12 周后收缩压变化。研究者预期：</p>
+        <ul>
+          <li>临床上至少比对照组多降 5 mmHg 才有意义；</li>
+          <li>既往研究提示标准差约为 12 mmHg；</li>
+          <li>α = 0.05；</li>
+          <li>power = 80%；</li>
+          <li>预计失访率 10%。</li>
+        </ul>
+        <p>那么应先围绕“检测 5 mmHg 差异”计算理论样本量，再根据 10% 失访率上调，得到最终纳入人数。</p>
+      </div>
+
+      <div class="box warn">
+        <strong>为什么不能拍脑袋定样本量：</strong>
+        <ul>
+          <li>样本过小：power 不足，阴性结果可能不可靠；</li>
+          <li>样本过大：浪费资源，也可能让很小的无临床意义差异变得显著；</li>
+          <li>因此样本量问题既是统计问题，也是伦理问题和资源问题。</li>
+        </ul>
+      </div>
+
+      <h3>推荐阅读</h3>
+      <ul class="refs">
+        <li>Suresh KP, Chandrashekara S. <em>Sample size estimation and power analysis for clinical research studies</em>. Journal of Human Reproductive Sciences, 2012.</li>
+        <li>Althubaiti A. <em>Sample size determination: A practical guide for health researchers</em>. Journal of General and Family Medicine, 2022.</li>
+      </ul>
+    </section>
+
+    <section class="section">
+      <h2 id="summary">本节小结</h2>
+      <div class="summary">
+        <ul>
+          <li>I 类错误：本来没差异，却误判有差异。</li>
+          <li>II 类错误：本来有差异，却没检出来。</li>
+          <li>Power = 1 − β，是研究发现真实差异的能力。</li>
+          <li>效应量回答“差异有多大”，而不只是“显不显著”。</li>
+          <li>样本量估计要围绕 α、power、效应量和波动大小综合设计。</li>
+        </ul>
+        <p>对医学生来说，最重要的思维不是背公式，而是明白：样本量设计的目标，是为了有合理把握去发现一个临床上真正值得关心的差异。</p>
+      </div>
+    </section>
+
+    <section class="section">
+      <h2 id="self-test">自测小题</h2>
+
+      <div class="quiz-item">
+        <strong>1.</strong> I 类错误指的是什么？
+        <div class="answer">答案：原假设为真却被错误拒绝，即“误报”。</div>
+      </div>
+
+      <div class="quiz-item">
+        <strong>2.</strong> II 类错误指的是什么？
+        <div class="answer">答案：原假设为假却未被拒绝，即“漏报”。</div>
+      </div>
+
+      <div class="quiz-item">
+        <strong>3.</strong> 如果 β = 0.20，那么 power 等于多少？
+        <div class="answer">答案：0.80，也就是 80%。</div>
+      </div>
+
+      <div class="quiz-item">
+        <strong>4.</strong> 在其他条件不变时，样本量增大通常会使 power 变大还是变小？
+        <div class="answer">答案：通常变大。</div>
+      </div>
+
+      <div class="quiz-item">
+        <strong>5.</strong> p 值显著是否等于效应量一定很大？
+        <div class="answer">答案：不等于。</div>
+      </div>
+
+      <div class="quiz-item">
+        <strong>6.</strong> 样本量估计中，“最小临床重要差异”更接近于哪一个概念：效应量还是 p 值？
+        <div class="answer">答案：更接近效应量。</div>
+      </div>
+
+      <div class="quiz-item">
+        <strong>7.</strong> 一个研究结果“不显著”，能否直接证明两组完全没有差异？
+        <div class="answer">答案：不能，也可能是 power 不足。</div>
+      </div>
+
+      <div class="quiz-item">
+        <strong>8.</strong> 样本量估计应该在研究开始前做，还是结果出来后再做？
+        <div class="answer">答案：应在研究开始前做。</div>
+      </div>
+    </section>
+
+  </div>
+</body>
+</html>
