@@ -1,0 +1,246 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>8. 线性回归 | BioStarts</title>
+    <link rel="stylesheet" href="method-common.css" />
+  <script defer src="method-quiz.js"></script>
+</head>
+<body>
+<nav class="method-topbar" style="background:#0f2940;color:#f8fafc;padding:12px 24px;font-family:Inter,'PingFang SC','Microsoft YaHei',sans-serif;font-size:13px;display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:8px;">
+  <a href="index.html" style="color:#fff;text-decoration:none;font-weight:600;">← BioStarts</a>
+  <span style="opacity:.85;">统计医学方法 · 第8章</span>
+</nav>
+
+  <div class="container">
+    <h1 class="page-title">8. 线性回归</h1>
+
+    <div class="intro">
+      <p>线性回归是医学研究中最常见的回归模型之一，主要用于分析连续型结局变量与一个或多个解释变量之间的关系。它既能帮助研究者量化“一个变量变化以后，结局平均会变化多少”，也能帮助在同时考虑多个变量时进行调整和解释。</p>
+    </div>
+
+    <section class="toc">
+      <h2 style="margin-top:0;border-bottom:none;padding-bottom:0;">本节目录</h2>
+      <ul>
+        <li><a href="#part-8-1">8.1 什么时候用线性回归</a></li>
+        <li><a href="#part-8-2">8.2 回归系数如何解释</a></li>
+        <li><a href="#part-8-3">8.3 多元线性回归</a></li>
+        <li><a href="#part-8-4">8.4 模型假设与诊断</a></li>
+        <li><a href="#summary">本节小结</a></li>
+        <li><a href="#self-test">自测小题</a></li>
+      </ul>
+    </section>
+
+    <section class="section">
+      <h2 id="part-8-1">8.1 什么时候用线性回归</h2>
+
+      <h3>严格定义</h3>
+      <p>线性回归适用于因变量是连续型数值的研究场景，例如收缩压、血糖、BMI、住院天数、肺功能指标等。简单线性回归包含一个自变量，多元线性回归包含多个自变量。</p>
+
+      <h3>通俗解释</h3>
+      <p>线性回归最核心的问题是：某个因素变化后，结局平均会跟着变化多少。</p>
+
+      <div class="box">
+        <strong>常见适用场景：</strong>
+        <ul>
+          <li>因变量是连续型；</li>
+          <li>研究者想估计平均变化量；</li>
+          <li>关系大体可以用线性趋势描述；</li>
+          <li>自变量可为连续型、二分类或多分类变量。</li>
+        </ul>
+      </div>
+
+      <div class="box toy">
+        <h3>医学 toy example</h3>
+        <p>研究 BMI 是否与收缩压有关时，可以把收缩压作为因变量，BMI 作为自变量，建立线性回归模型，从而估计 BMI 每增加 1 个单位，收缩压平均变化多少 mmHg。</p>
+      </div>
+
+      <div class="box warn">
+        <strong>初学者注意：</strong>
+        <ul>
+          <li>如果结局是“是否患病”“是否死亡”，通常不应优先使用普通线性回归。</li>
+          <li>线性回归最适合连续型结局，而不是二分类结局或时间到事件结局。</li>
+        </ul>
+      </div>
+
+      <h3>推荐阅读</h3>
+      <ul class="refs">
+        <li>Schober P, Vetter TR. <em>Linear Regression in Medical Research</em>. Anesthesia &amp; Analgesia, 2020.</li>
+        <li>Schneider A, Hommel G, Blettner M. <em>Linear Regression Analysis</em>. Deutsches Ärzteblatt International, 2010.</li>
+      </ul>
+    </section>
+
+    <section class="section">
+      <h2 id="part-8-2">8.2 回归系数如何解释</h2>
+
+      <h3>严格定义</h3>
+      <p>在线性回归中，回归系数表示：在其他变量保持不变时，自变量每增加 1 个单位，因变量平均变化多少个单位。系数为正表示正向关系，系数为负表示负向关系。</p>
+
+      <h3>通俗解释</h3>
+      <p>回归系数最朴素的理解是：X 每增加一点，Y 平均改变多少。</p>
+
+      <div class="box">
+        <strong>解释时可分三类：</strong>
+        <ul>
+          <li>连续型自变量：每增加 1 单位，结局平均变化多少；</li>
+          <li>二分类自变量：某组相比参考组，结局平均高或低多少；</li>
+          <li>多分类自变量：各类别分别与参考组相比，结局平均差多少。</li>
+        </ul>
+      </div>
+
+      <div class="box toy">
+        <h3>医学 toy example</h3>
+        <p>若 BMI 的回归系数为 1.4，则可解释为：在其他变量不变时，BMI 每增加 1 kg/m²，收缩压平均增加 1.4 mmHg。</p>
+      </div>
+
+      <div class="box warn">
+        <strong>初学者注意：</strong>
+        <ul>
+          <li>回归系数显著，不等于临床意义一定很大。</li>
+          <li>解释系数时必须带上单位，否则很容易失去临床含义。</li>
+          <li>回归系数通常描述的是条件关联，不自动等于因果效应。</li>
+        </ul>
+      </div>
+
+      <h3>推荐阅读</h3>
+      <ul class="refs">
+        <li>Bzovsky S, et al. <em>The clinician's guide to interpreting a regression analysis</em>. Bone &amp; Joint Open, 2022.</li>
+        <li>Schneider A, Hommel G, Blettner M. <em>Linear Regression Analysis</em>. Deutsches Ärzteblatt International, 2010.</li>
+      </ul>
+    </section>
+
+    <section class="section">
+      <h2 id="part-8-3">8.3 多元线性回归</h2>
+
+      <h3>严格定义</h3>
+      <p>多元线性回归是在同一个模型中纳入多个自变量，用来解释一个连续型因变量。它允许研究者在控制其他变量后，评估某个变量与结局之间的独立关系。</p>
+
+      <h3>通俗解释</h3>
+      <p>多元线性回归就是把多个可能影响结局的因素放在同一个模型里一起看，从而回答“在其他变量都考虑进去后，它还和结局有关吗”。</p>
+
+      <div class="box toy">
+        <h3>医学 toy example</h3>
+        <p>研究 BMI 与收缩压的关系时，如果把年龄、性别、降压药使用、糖尿病病史一起放进模型，那么 BMI 的系数更接近“在这些因素相同时，BMI 与收缩压的独立关系”。</p>
+      </div>
+
+      <div class="box">
+        <strong>R² 的基本理解：</strong>
+        <p>R²（决定系数）表示模型解释因变量变异的比例。例如 R² = 0.40，可理解为模型中的变量一起解释了结局约 40% 的变异。</p>
+      </div>
+
+      <div class="box warn">
+        <strong>初学者注意：</strong>
+        <ul>
+          <li>变量不是越多越好，过多变量可能带来过拟合和解释困难。</li>
+          <li>R² 高不等于模型一定正确，R² 低也不等于模型没价值。</li>
+        </ul>
+      </div>
+
+      <h3>推荐阅读</h3>
+      <ul class="refs">
+        <li>Alexopoulos EC. <em>Introduction to Multivariate Regression Analysis</em>. Hippokratia, 2010.</li>
+        <li>Roustaei N, et al. <em>Application and interpretation of linear-regression analysis</em>. BJA Education, 2024.</li>
+      </ul>
+    </section>
+
+    <section class="section">
+      <h2 id="part-8-4">8.4 模型假设与诊断</h2>
+
+      <h3>严格定义</h3>
+      <p>经典线性回归依赖若干基本假设，包括：线性关系、观测独立、残差方差齐性、残差近似正态，以及无严重多重共线性。这些假设关系到系数、标准误、置信区间和 p 值是否能被可靠解释。</p>
+
+      <h3>通俗解释</h3>
+      <p>线性回归不是把数据扔进软件就结束了。你需要确认：用“直线”去描述这些数据，大体上是不是合理。</p>
+
+      <div class="box">
+        <strong>常见诊断方式：</strong>
+        <ul>
+          <li>散点图：看关系是否大致线性；</li>
+          <li>残差 vs 拟合值图：看是否存在曲线趋势或漏斗形；</li>
+          <li>Q-Q 图：看残差是否明显偏离正态；</li>
+          <li>VIF：评估多重共线性。</li>
+        </ul>
+      </div>
+
+      <div class="box toy">
+        <h3>医学 toy example</h3>
+        <p>若研究“年龄、BMI、CRP 与住院天数”的回归模型后，残差图明显呈漏斗形，则可能提示方差不齐；若 BMI 和腰围一起进入模型且 VIF 很高，则可能提示共线性问题。</p>
+      </div>
+
+      <div class="box warn">
+        <strong>初学者注意：</strong>
+        <ul>
+          <li>线性回归更关心的是残差近似正态，而不是因变量必须完美正态。</li>
+          <li>样本量大并不意味着完全可以不做模型诊断。</li>
+          <li>轻度违背假设不一定让模型完全失效，但需要判断是否影响解释。</li>
+        </ul>
+      </div>
+
+      <h3>推荐阅读</h3>
+      <ul class="refs">
+        <li>Kim HY. <em>Simple linear regression 3: residual analysis</em>. Restorative Dentistry &amp; Endodontics, 2019.</li>
+        <li>Ernst AF, Albers CJ. <em>Regression assumptions in clinical psychology research practice—A systematic review of common misconceptions</em>. PeerJ, 2017.</li>
+      </ul>
+    </section>
+
+    <section class="section">
+      <h2 id="summary">本节小结</h2>
+      <div class="summary">
+        <ul>
+          <li>线性回归主要用于连续型结局。</li>
+          <li>回归系数回答“自变量每变 1 个单位，结局平均变多少”。</li>
+          <li>多元线性回归可以在控制其他变量后看独立关联。</li>
+          <li>模型假设与诊断不能跳过，因为显著性和系数解释都依赖模型基本合理。</li>
+        </ul>
+        <p>对医学生来说，最重要的不是一上来背公式，而是学会判断：结局是不是连续的，系数有没有临床意义，模型假设大致是否合理。</p>
+      </div>
+    </section>
+
+    <section class="section">
+      <h2 id="self-test">自测小题</h2>
+
+      <div class="quiz-item">
+        <strong>1.</strong> 线性回归最适合哪一类因变量？
+        <div class="answer">答案：连续型因变量。</div>
+      </div>
+
+      <div class="quiz-item">
+        <strong>2.</strong> 若 BMI 的回归系数为 1.2，通常是什么意思？
+        <div class="answer">答案：在其他变量不变时，BMI 每增加 1 个单位，结局平均增加 1.2 个单位。</div>
+      </div>
+
+      <div class="quiz-item">
+        <strong>3.</strong> 二分类结局变量适不适合直接用普通线性回归作为首选方法？
+        <div class="answer">答案：一般不适合，通常优先考虑 Logistic 回归。</div>
+      </div>
+
+      <div class="quiz-item">
+        <strong>4.</strong> 多元线性回归和简单线性回归的主要区别是什么？
+        <div class="answer">答案：多元线性回归会同时纳入多个自变量。</div>
+      </div>
+
+      <div class="quiz-item">
+        <strong>5.</strong> R² 表示的是什么？
+        <div class="answer">答案：模型解释因变量变异的比例。</div>
+      </div>
+
+      <div class="quiz-item">
+        <strong>6.</strong> 在线性回归里，更关键的是因变量正态，还是残差正态？
+        <div class="answer">答案：更关键的是残差正态。</div>
+      </div>
+
+      <div class="quiz-item">
+        <strong>7.</strong> 残差 vs 拟合值图出现漏斗形，通常提示哪类问题？
+        <div class="answer">答案：可能提示方差不齐性。</div>
+      </div>
+
+      <div class="quiz-item">
+        <strong>8.</strong> 自变量之间高度相关，可能带来什么问题？
+        <div class="answer">答案：可能导致多重共线性，使系数估计不稳定。</div>
+      </div>
+    </section>
+
+  </div>
+</body>
+</html>

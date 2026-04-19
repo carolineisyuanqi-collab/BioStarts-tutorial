@@ -1,0 +1,272 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>9. Logistic 回归 | BioStarts</title>
+    <link rel="stylesheet" href="method-common.css" />
+  <script defer src="method-quiz.js"></script>
+</head>
+<body>
+<nav class="method-topbar" style="background:#0f2940;color:#f8fafc;padding:12px 24px;font-family:Inter,'PingFang SC','Microsoft YaHei',sans-serif;font-size:13px;display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:8px;">
+  <a href="index.html" style="color:#fff;text-decoration:none;font-weight:600;">← BioStarts</a>
+  <span style="opacity:.85;">统计医学方法 · 第9章</span>
+</nav>
+
+  <div class="container">
+    <h1 class="page-title">9. Logistic 回归</h1>
+
+    <div class="intro">
+      <p>当研究结局不是连续数值，而是“是否发生某事件”时，普通线性回归通常不再合适。医学研究中这类结局非常常见，例如：是否患病、是否死亡、是否复发、是否出现不良反应、是否达到治疗反应。Logistic 回归就是专门为这类二分类结局设计的建模方法。</p>
+    </div>
+
+    <section class="toc">
+      <h2 style="margin-top:0;border-bottom:none;padding-bottom:0;">本节目录</h2>
+      <ul>
+        <li><a href="#part-9-1">9.1 二分类结局的建模</a></li>
+        <li><a href="#part-9-2">9.2 OR 值的医学解释</a></li>
+        <li><a href="#part-9-3">9.3 单因素 Logistic 回归</a></li>
+        <li><a href="#part-9-4">9.4 多因素 Logistic 回归</a></li>
+        <li><a href="#part-9-5">9.5 混杂控制与结果汇报</a></li>
+        <li><a href="#summary">本节小结</a></li>
+        <li><a href="#self-test">自测小题</a></li>
+      </ul>
+    </section>
+
+    <section class="section">
+      <h2 id="part-9-1">9.1 二分类结局的建模</h2>
+
+      <h3>严格定义</h3>
+      <p>Logistic 回归是一类广义线性模型，主要用于分析二分类因变量与一个或多个自变量之间的关系。这里的二分类因变量指只有两种状态，例如：有病/无病、死亡/存活、阳性/阴性、有效/无效。</p>
+
+      <h3>通俗解释</h3>
+      <p>Logistic 回归关注的是：某个因素变化后，一个事件发生的可能性会不会变大或变小。</p>
+
+      <div class="box">
+        <strong>常见适用场景：</strong>
+        <ul>
+          <li>因变量是二分类变量；</li>
+          <li>自变量可以是连续型、二分类或多分类；</li>
+          <li>研究者希望估计某因素与事件发生之间的关联强度；</li>
+          <li>需要同时控制其他协变量或混杂因素。</li>
+        </ul>
+      </div>
+
+      <div class="box toy">
+        <h3>医学 toy example</h3>
+        <p>研究糖尿病患者是否发生糖尿病肾病时，结局是“发生/未发生”，这就是典型的二分类结局。此时更适合使用 Logistic 回归，而不是普通线性回归。</p>
+      </div>
+
+      <div class="box warn">
+        <strong>初学者注意：</strong>
+        <ul>
+          <li>二分类结局一般不建议直接用普通线性回归。</li>
+          <li>Logistic 回归标准输出通常是 OR，而不是 RR。</li>
+        </ul>
+      </div>
+
+      <h3>推荐阅读</h3>
+      <ul class="refs">
+        <li>Sperandei S. <em>Understanding logistic regression analysis</em>. Biochemia Medica, 2014.</li>
+        <li>Schober P, Vetter TR. <em>Logistic Regression in Medical Research</em>. Anesthesia &amp; Analgesia, 2021.</li>
+      </ul>
+    </section>
+
+    <section class="section">
+      <h2 id="part-9-2">9.2 OR 值的医学解释</h2>
+
+      <h3>严格定义</h3>
+      <p>在 Logistic 回归中，最常见的效应量是 OR（odds ratio，比值比）。它表示某暴露存在时，事件发生的优势是未暴露时的多少倍。回归系数指数化后即可得到 OR：</p>
+
+      <div class="formula">OR = e<sup>β</sup></div>
+
+      <ul>
+        <li>OR &gt; 1：提示事件发生优势增加；</li>
+        <li>OR &lt; 1：提示事件发生优势降低；</li>
+        <li>OR = 1：提示无关联。</li>
+      </ul>
+
+      <h3>通俗解释</h3>
+      <p>OR 最实用的理解方式是：这个因素存在后，事件发生的相对可能性是变大了还是变小了，大约变成原来的几倍。</p>
+
+      <div class="box toy">
+        <h3>医学 toy example</h3>
+        <p>若高血压的 OR = 3.1，95%CI 1.8–5.2，则可解释为：在控制其他变量后，高血压患者发生卒中的优势约为非高血压者的 3.1 倍。</p>
+      </div>
+
+      <div class="box warn">
+        <strong>初学者注意：</strong>
+        <ul>
+          <li>OR 不是概率比，也不一定等于风险比。</li>
+          <li>当结局并不罕见时，OR 往往会比 RR 看起来更大。</li>
+          <li>OR = 0.70 可解释为“优势降低约 30%”。</li>
+        </ul>
+      </div>
+
+      <h3>推荐阅读</h3>
+      <ul class="refs">
+        <li>Szumilas M. <em>Explaining Odds Ratios</em>. Journal of the Canadian Academy of Child and Adolescent Psychiatry, 2010.</li>
+        <li>Park SH. <em>How to Clearly and Accurately Report Odds Ratio and Hazard Ratio in Diagnostic Research Studies</em>. Korean Journal of Radiology, 2022.</li>
+      </ul>
+    </section>
+
+    <section class="section">
+      <h2 id="part-9-3">9.3 单因素 Logistic 回归</h2>
+
+      <h3>严格定义</h3>
+      <p>单因素 Logistic 回归是指一次只考察一个自变量与二分类结局之间的关系。它得到的 OR 通常是粗 OR（crude OR），还没有控制其他变量的影响。</p>
+
+      <h3>通俗解释</h3>
+      <p>单因素 Logistic 回归像“一个一个单独问”：先看每个变量单独与结局有没有表面关联。</p>
+
+      <div class="box toy">
+        <h3>医学 toy example</h3>
+        <p>研究肺炎患者住院死亡风险时，可以先分别做年龄、糖尿病、CRP、ICU 入院与死亡之间的单因素 Logistic 回归，得到各自的粗 OR。</p>
+      </div>
+
+      <div class="box warn">
+        <strong>初学者注意：</strong>
+        <ul>
+          <li>单因素显著，不等于它一定是“独立危险因素”。</li>
+          <li>单因素不显著，也不代表这个变量一定不能进入多因素模型。</li>
+        </ul>
+      </div>
+
+      <h3>推荐阅读</h3>
+      <ul class="refs">
+        <li>Bewick V, Cheek L, Ball J. <em>Statistics review 14: Logistic regression</em>. Critical Care, 2005.</li>
+        <li>Kim HY. <em>Statistical notes for clinical researchers: logistic regression</em>. Restorative Dentistry &amp; Endodontics, 2017.</li>
+      </ul>
+    </section>
+
+    <section class="section">
+      <h2 id="part-9-4">9.4 多因素 Logistic 回归</h2>
+
+      <h3>严格定义</h3>
+      <p>多因素 Logistic 回归是在同一个模型中同时纳入多个自变量，用于估计每个变量在控制其他变量后的关联强度。此时得到的 OR 通常称为调整后 OR（adjusted OR, aOR）。</p>
+
+      <h3>通俗解释</h3>
+      <p>多因素 Logistic 回归就是把多个变量一起放进模型里，去看某个变量在“别人都在场”的情况下，还是否与结局有关。</p>
+
+      <div class="box toy">
+        <h3>医学 toy example</h3>
+        <p>若肺炎住院死亡的单因素分析中糖尿病显著，但在把年龄、性别、CRP、ICU 入院一起纳入后，糖尿病不再显著，则说明它原来的表面关联可能部分受其他变量影响。</p>
+      </div>
+
+      <div class="box warn">
+        <strong>初学者注意：</strong>
+        <ul>
+          <li>多因素模型中的变量选择不能只依赖单因素 p 值。</li>
+          <li>变量过多可能带来过拟合、共线性和不稳定估计。</li>
+          <li>应结合临床知识和混杂控制思路来建模。</li>
+        </ul>
+      </div>
+
+      <h3>推荐阅读</h3>
+      <ul class="refs">
+        <li>Schober P, Vetter TR. <em>Logistic Regression in Medical Research</em>. Anesthesia &amp; Analgesia, 2021.</li>
+        <li>Kalil AC, et al. <em>Recommendations for the Assessment and Reporting of Multivariable Logistic Regression in Transplantation Literature</em>. American Journal of Transplantation, 2010.</li>
+      </ul>
+    </section>
+
+    <section class="section">
+      <h2 id="part-9-5">9.5 混杂控制与结果汇报</h2>
+
+      <h3>严格定义</h3>
+      <p>混杂控制通常指通过把潜在混杂因素纳入 Logistic 回归模型，尽量减少暴露与结局之间关联估计的偏倚。结果汇报则应包括变量定义、编码方式、粗 OR、调整后 OR、95%CI 和 p 值等关键信息。</p>
+
+      <h3>通俗解释</h3>
+      <p>混杂控制是为了防止“别人把关系搅浑”，结果汇报则是为了让读者清楚看到：你估计了多大的效应，这个效应有多不确定，以及你到底调整了什么。</p>
+
+      <div class="box">
+        <strong>常见结果表列项：</strong>
+        <ul>
+          <li>变量名</li>
+          <li>单因素 OR（95%CI）</li>
+          <li>p 值</li>
+          <li>多因素 aOR（95%CI）</li>
+          <li>p 值</li>
+        </ul>
+      </div>
+
+      <div class="box toy">
+        <h3>医学 toy example</h3>
+        <p>一个更规范的结果写法是：糖尿病在单因素分析中与住院死亡相关（OR 1.80，95%CI 1.10–2.95，p=0.02）；在调整年龄、性别、CRP 和 ICU 入院状态后，这种关联减弱且不再显著（aOR 1.10，95%CI 0.62–1.95，p=0.74）。</p>
+      </div>
+
+      <div class="box warn">
+        <strong>初学者注意：</strong>
+        <ul>
+          <li>不能只报告 p 值，不报告 OR 和 95%CI。</li>
+          <li>调整后 OR 仍然主要表示关联，不自动等于因果效应。</li>
+        </ul>
+      </div>
+
+      <h3>推荐阅读</h3>
+      <ul class="refs">
+        <li>Ou FS, et al. <em>Guidelines for Statistical Reporting in Medical Journals</em>. Annals of Thoracic Surgery, 2020.</li>
+        <li>Dwivedi AK, et al. <em>How to write statistical analysis section in medical research</em>. Journal of Translational Internal Medicine, 2022.</li>
+      </ul>
+    </section>
+
+    <section class="section">
+      <h2 id="summary">本节小结</h2>
+      <div class="summary">
+        <ul>
+          <li>Logistic 回归用于二分类结局。</li>
+          <li>它最常见的结果指标是 OR。</li>
+          <li>单因素 Logistic 回归给出粗 OR。</li>
+          <li>多因素 Logistic 回归给出调整后 OR，更接近控制其他变量后的独立关联。</li>
+          <li>结果汇报时应同时报告 OR、95%CI、p 值、变量编码和调整情况。</li>
+        </ul>
+        <p>对医学生来说，最重要的是不要只看“显不显著”，而要同时看 OR 多大、区间多宽、有没有调整混杂，以及这种关联在临床上是否有意义。</p>
+      </div>
+    </section>
+
+    <section class="section">
+      <h2 id="self-test">自测小题</h2>
+
+      <div class="quiz-item">
+        <strong>1.</strong> Logistic 回归最适合哪一类因变量？
+        <div class="answer">答案：二分类因变量。</div>
+      </div>
+
+      <div class="quiz-item">
+        <strong>2.</strong> Logistic 回归最常见的效应量指标是什么？
+        <div class="answer">答案：OR（比值比）。</div>
+      </div>
+
+      <div class="quiz-item">
+        <strong>3.</strong> OR &gt; 1 通常表示什么？
+        <div class="answer">答案：表示该变量与事件发生优势增加有关。</div>
+      </div>
+
+      <div class="quiz-item">
+        <strong>4.</strong> OR = 0.70 可以怎样用医学语言解释？
+        <div class="answer">答案：表示该变量与事件发生优势降低约 30% 有关。</div>
+      </div>
+
+      <div class="quiz-item">
+        <strong>5.</strong> 单因素 Logistic 回归得到的 OR 一般属于粗 OR 还是调整后 OR？
+        <div class="answer">答案：粗 OR。</div>
+      </div>
+
+      <div class="quiz-item">
+        <strong>6.</strong> 多因素 Logistic 回归的核心价值是什么？
+        <div class="answer">答案：在控制其他变量后评估独立关联，并尽量减少混杂影响。</div>
+      </div>
+
+      <div class="quiz-item">
+        <strong>7.</strong> 结果表里只报告 p 值、不报告 OR 和 95%CI，规范吗？
+        <div class="answer">答案：不规范。</div>
+      </div>
+
+      <div class="quiz-item">
+        <strong>8.</strong> 调整后 OR 是否自动等于因果效应？
+        <div class="answer">答案：不等于。</div>
+      </div>
+    </section>
+
+  </div>
+</body>
+</html>

@@ -1,0 +1,359 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>一致性与测量学方法 | BioStarts</title>
+    <link rel="stylesheet" href="method-common.css" />
+  <script defer src="method-quiz.js"></script>
+</head>
+<body class="method-legacy-chapter">
+<nav class="method-topbar" style="background:#0f2940;color:#f8fafc;padding:12px 24px;font-family:Inter,'PingFang SC','Microsoft YaHei',sans-serif;font-size:13px;display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:8px;">
+  <a href="index.html" style="color:#fff;text-decoration:none;font-weight:600;">← BioStarts</a>
+  <span style="opacity:.85;">统计医学方法 · 第13章</span>
+</nav>
+
+
+  
+<main class="container">
+<h1>13. 一致性与测量学方法</h1>
+
+  <section class="toc">
+    <h2 style="margin-top:0;border-bottom:none;padding-bottom:0;">本节目录</h2>
+    <ul>
+      <li><a href="#part-13-1">13.1 一致性和相关性的区别</a></li>
+      <li><a href="#part-13-2">13.2 Bland-Altman 分析</a></li>
+      <li><a href="#part-13-3">13.3 两种测量方法比较</a></li>
+      <li><a href="#part-13-4">13.4 适用场景与常见误区</a></li>
+      <li><a href="#summary">本节小结</a></li>
+      <li><a href="#references">延伸阅读参考文献</a></li>
+      <li><a href="#self-test">自测小题</a></li>
+    </ul>
+  </section>
+
+  <h2 id="part-13-1">13.1 一致性和相关性的区别</h2>
+
+  <h3>严格定义</h3>
+  <p>
+    相关性（correlation）描述两个变量之间是否存在线性或单调关联；
+    一致性（agreement）关注的是两种测量方法、两个观察者或两次测量所得结果在数值上是否足够接近，
+    以及它们能否互相替代。
+  </p>
+
+  <h3>通俗解释</h3>
+  <p>
+    相关性回答的是“一个高时另一个会不会也高”，
+    一致性回答的是“这两个值到底差多少，能不能当作差不多”。
+    因此，高相关并不等于高一致。
+  </p>
+
+  <div class="box example">
+    <strong>医学 toy example：</strong>
+    若某床旁血糖仪测得的结果总比实验室法高 1 mmol/L，
+    两者仍可能有很高相关性，因为它们会一起升高、一起降低。
+    但由于始终存在系统偏差，这两种方法并不真正一致。
+  </div>
+
+  <div class="box warning">
+    <strong>初学者提醒：</strong>
+    方法比较研究若只报告皮尔逊相关系数，往往是不够的，
+    因为相关系数不直接反映两种方法的数值差异是否可接受。
+  </div>
+
+  <h3>与 ICC 的关系</h3>
+  <p>
+    ICC（组内相关系数）常用于一致性或可靠性研究，比普通相关系数更接近“一致性”的概念。
+    但 ICC 受样本异质性和模型设定影响，报告时必须说明具体采用哪一种 ICC。
+  </p>
+
+  <h3>参考文献</h3>
+  <ol class="ref">
+    <li>Bland JM, Altman DG. Statistical methods for assessing agreement between two methods of clinical measurement. Lancet. 1986.</li>
+    <li>Liu J, et al. Correlation and agreement: overview and clarification. 2016.</li>
+  </ol>
+
+  <h2 id="part-13-2">13.2 Bland–Altman 分析</h2>
+
+  <h3>严格定义</h3>
+  <p>
+    Bland–Altman 分析是比较两种连续型测量方法一致性的经典方法。
+    对每个对象，计算两方法测量值的均值和差值，并绘制“差值对均值图”。
+    同时估计平均差和 95% 一致性限。
+  </p>
+
+  <div class="formula">
+    平均差 = d̄
+  </div>
+  <div class="formula">
+    95% 一致性限 = d̄ ± 1.96 × SD(d)
+  </div>
+
+  <h3>通俗解释</h3>
+  <p>
+    Bland–Altman 分析真正想回答的是：
+    换一种测量方法后，结果通常会差多少？这种差异在临床上能不能接受？
+  </p>
+
+  <h3>结果解读要点</h3>
+  <ul>
+    <li>平均差是否接近 0：看是否存在系统偏倚；</li>
+    <li>一致性限是否够窄：看个体层面的差异是否可接受；</li>
+    <li>差值是否随均值变化：看是否存在比例偏倚。</li>
+  </ul>
+
+  <div class="box example">
+    <strong>医学 toy example：</strong>
+    比较电子体温计与标准体温计。
+    若平均差为 0.2℃，说明电子体温计整体略偏高；
+    若 95% 一致性限为 -0.4℃ 到 0.8℃，
+    则还要进一步判断这个误差范围在临床上是否可接受。
+  </div>
+
+  <h3>参考文献</h3>
+  <ol class="ref">
+    <li>Bland JM, Altman DG. 1986.</li>
+    <li>Gerke O. Reporting Standards for a Bland–Altman Agreement Analysis. 2020.</li>
+  </ol>
+
+  <h2 id="part-13-3">13.3 两种测量方法比较</h2>
+
+  <h3>严格定义</h3>
+  <p>
+    当研究目的是比较两种测量方法、两台仪器、两个观察者或新旧检测流程时，
+    核心问题通常是它们是否足够接近，以至于在临床上可以互换或替代。
+  </p>
+
+  <h3>通俗解释</h3>
+  <p>
+    比如比较新型无创血糖仪和实验室法，问题不是“一个高时另一个会不会也高”，
+    而是“它们测出来的具体值差多少，这个差值会不会影响诊断和治疗决策”。
+  </p>
+
+  <h3>常见分析思路</h3>
+  <ol>
+    <li>先画散点图，了解整体关系和异常值；</li>
+    <li>计算均值差，初步感受系统偏差；</li>
+    <li>做 Bland–Altman 分析，查看平均差和一致性限；</li>
+    <li>必要时结合 ICC 评价可靠性或观察者间一致性；</li>
+    <li>最重要的是结合临床可接受误差来解释结果。</li>
+  </ol>
+
+  <div class="box example">
+    <strong>医学 toy example：</strong>
+    比较 MRI 与超声心动图测量左心室射血分数（LVEF）。
+    即使平均差很小，如果 95% 一致性限很宽，
+    在个体层面仍可能影响“是否达到治疗阈值”的判断，因此不能简单认为两种方法可互换。
+  </div>
+
+  <h3>参考文献</h3>
+  <ol class="ref">
+    <li>Phatak AG, et al. Method Comparison (Agreement) Studies: Myths and Rationale. 2017.</li>
+    <li>Ranganathan P, et al. Common pitfalls in statistical analysis: Measures of agreement. 2017.</li>
+  </ol>
+
+  <h2 id="part-13-4">13.4 适用场景与常见误区</h2>
+
+  <h3>适用场景</h3>
+  <ul>
+    <li>新仪器与旧仪器比较；</li>
+    <li>不同观察者测量同一指标；</li>
+    <li>同一工具的重复测量可靠性评价；</li>
+    <li>连续型指标的临床替代性研究。</li>
+  </ul>
+
+  <h3>常见误区</h3>
+  <ul>
+    <li>误以为相关系数高就说明一致性好；</li>
+    <li>只看平均差接近 0，而忽略一致性限很宽；</li>
+    <li>只看 P 值，不看误差大小的临床意义；</li>
+    <li>不预先设定临床可接受误差范围；</li>
+    <li>对重复测量数据仍机械套用最简单的 Bland–Altman 方法；</li>
+    <li>报告 ICC 时不说明具体模型类型。</li>
+  </ul>
+
+  <div class="box warning">
+    <strong>最实用的判断框架：</strong>
+    先问自己：研究目标到底是“看趋势是否一致”，还是“看数值能否互换”？
+    只要目标是方法替代或临床互换，就不要只满足于一个相关系数。
+  </div>
+
+  <h3>参考文献</h3>
+  <ol class="ref">
+    <li>Ranganathan P, et al. 2017.</li>
+    <li>Koo TK, Li MY. A Guideline of Selecting and Reporting ICCs for Reliability Research. 2016.</li>
+  </ol>
+
+  <h2 id="summary">本节小结</h2>
+  <div class="summary">
+    <p>
+      一致性与相关性不是同一个概念。相关性描述两个变量是否一起变化，
+      一致性则关心两种测量结果在数值上是否足够接近、能否互相替代。
+    </p>
+    <p>
+      对连续型测量方法的比较，Bland–Altman 分析是最经典的方法之一。
+      它通过平均差和 95% 一致性限，直接展示系统偏差和个体层面的误差范围。
+    </p>
+    <p>
+      对医学生来说，最重要的实践认识是：
+      评价新方法是否能替代旧方法，不是看相关性高不高，而是看两者差多少，以及这个差值临床上能否接受。
+    </p>
+  </div>
+
+  <h2 id="references">延伸阅读参考文献</h2>
+  <ol class="ref">
+    <li>Bland JM, Altman DG. Statistical methods for assessing agreement between two methods of clinical measurement. Lancet. 1986.</li>
+    <li>Bland JM, Altman DG. Comparing methods of measurement. Lancet. 1995.</li>
+    <li>Liu J, et al. Correlation and agreement: overview and clarification. 2016.</li>
+    <li>Ranganathan P, et al. Common pitfalls in statistical analysis: Measures of agreement. 2017.</li>
+    <li>Gerke O. Reporting Standards for a Bland–Altman Agreement Analysis. 2020.</li>
+    <li>Doğan NÖ. Bland-Altman analysis: understanding correlation and agreement. 2018.</li>
+    <li>Koo TK, Li MY. Guideline of Selecting and Reporting ICCs. 2016.</li>
+    <li>Lee KM, et al. Pitfalls in Testing Reliability Using ICCs. 2012.</li>
+    <li>Phatak AG, et al. Method Comparison (Agreement) Studies: Myths and Rationale. 2017.</li>
+    <li>Qin S, et al. Assessing test–retest reliability of patient-reported outcomes. 2018.</li>
+  </ol>
+
+  <section id="self-test" class="card">
+    <h2>自测小题</h2>
+    <p style="margin-top:0;font-size:0.9em;opacity:.85;">以下 10 题为方法比较与一致性/可靠性思考题；每题含「核心答案」「展开讲解」「通俗例子」。先写要点，再点击「提交并显示参考答案」对照。</p>
+
+    <div class="quiz-item">
+      <p class="question">1. “相关性”与“一致性”最本质的区别是什么？</p>
+      <div class="answer">
+        <h4>核心答案</h4>
+        <p><strong>相关性</strong>衡量两组测量值<strong>线性关联的强弱与方向</strong>——是否同步变化；<strong>一致性</strong>衡量<strong>数值是否接近、可否互换</strong>。最本质区别：<strong>相关只关心趋势，一致性关心绝对值</strong>。两法可 r 极高但完全不能互换；也可数值完全一致但 r 因范围窄而偏低。</p>
+        <h4>展开讲解</h4>
+        <p>Pearson 度量散点与某条直线的贴合；<strong>一致性</strong>关注是否贴近<strong>恒等线 y = x</strong>。方法比较的核心是“能否换用”，属于一致性问题，<strong>不能单靠 Pearson r</strong>。Bland &amp; Altman (1986, <em>Lancet</em>) 正是为纠偏“用相关做方法比较”而推广差值图。</p>
+        <pre style="white-space:pre-wrap;font-family:inherit;background:#f5f5f7;padding:1rem;border-radius:8px;font-size:0.9em;">情形 A：相关极好 r≈0.99，但 y≈2x+5 —— 不可互换
+情形 B：散点贴 y=x —— 一致好，r 也高</pre>
+        <h4>通俗例子</h4>
+        <p>秤 A 读 50,60,70…kg，秤 B 各多 10 kg：<strong>r = 1.0</strong> 但<strong>一致性为零</strong>。两体温计均读 37.0、37.1℃ 时绝对一致，但范围太窄时 r 可能很低。<strong>相关系数不是方法比较的正确工具。</strong></p>
+      </div>
+    </div>
+    <div class="quiz-item">
+      <p class="question">2. 为什么两个方法的相关系数很高，仍不能说明它们可以互换？</p>
+      <div class="answer">
+        <h4>核心答案</h4>
+        <p>相关<strong>不敏感于系统偏差、比例偏差和测量范围</strong>，只反映排序是否一致。互换性需用<strong>Bland–Altman 的 95% LoA、ICC 等一致性指标</strong>判断。</p>
+        <h4>展开讲解</h4>
+        <p><strong>恒定偏差</strong>：y = x + c，r 可 = 1 仍不可互换。<strong>比例偏差</strong>：斜率 ≠ 1。<strong>范围效应</strong>：宽范围 r 高、窄范围 r 低。<strong>异方差</strong>：r 不反映差值随水平变化。</p>
+        <div class="formula">r = Cov(X,Y) / (σ<sub>X</sub>σ<sub>Y</sub>)</div>
+        <p>r 与均值差、截距无直接关系；高 r 若误作“可互换”会导致<strong>临床决策阈值被系统性偏移</strong>。</p>
+        <h4>通俗例子</h4>
+        <p>新电子血压计 vs 水银柱 r=0.97，但 B–A 显示系统性高 12 mmHg 且随血压升高差值扩大——不宜全院换用；严肃期刊要求<strong>必须报告 Bland–Altman</strong>，r 仅作补充。</p>
+      </div>
+    </div>
+    <div class="quiz-item">
+      <p class="question">3. Bland–Altman 图中横轴和纵轴分别是什么？</p>
+      <div class="answer">
+        <h4>核心答案</h4>
+        <ul>
+          <li><strong>横轴</strong> = 两法测量值的平均 (X<sub>A</sub> + X<sub>B</sub>)/2，代表被测量真值的常用估计；</li>
+          <li><strong>纵轴</strong> = 两法差值 X<sub>A</sub> − X<sub>B</sub>，代表该水平上的分歧。</li>
+        </ul>
+        <p>每受试者一点 ((均值), (差值))，展示<strong>差值如何随测量水平变化</strong>。</p>
+        <h4>展开讲解</h4>
+        <p>通常无真正金标准时，用<strong>两法平均</strong>作横轴可避免把单方误差强加为“真值”造成假相关。图上应标：<strong>均差 d̄</strong>、<strong>95% LoA = d̄ ± 1.96·SD<sub>d</sub></strong>、0 参考线；严谨时加均差与 LoA 的 95%CI。观察：是否绕 0、是否喇叭形（异方差）、离群点、样本量（Bland 建议 n≥100 以稳定 LoA）。</p>
+        <h4>通俗例子</h4>
+        <p>80 人两血压计：均差约 +8 mmHg，LoA 约 −5～+20，随均值升高差值扩大 → 可见<strong>系统偏差 + 比例偏差</strong>；这些信息相关图无法给出。</p>
+      </div>
+    </div>
+    <div class="quiz-item">
+      <p class="question">4. Bland–Altman 分析中的平均差反映什么？</p>
+      <div class="answer">
+        <h4>核心答案</h4>
+        <p><strong>平均差 d̄</strong> = 各 (X<sub>A</sub>−X<sub>B</sub>) 的算术平均，反映<strong>系统偏差</strong>——A 平均比 B 高/低多少，是一致性评价的<strong>第一层</strong>。</p>
+        <h4>展开讲解</h4>
+        <p>d̄≈0：平均无系统偏差，但不保证可互换（见 Q6）。d̄ 的 95%CI 应与<strong>预先设定的临床可接受偏差</strong>比较。区分：<strong>d̄</strong> 表集中趋势偏差；<strong>SD<sub>d</sub> 与 LoA</strong> 表离散；二者独立——小 bias 可伴宽 LoA。</p>
+        <div class="formula">CI<sub>95%</sub>(d̄) = d̄ ± 1.96·SD<sub>d</sub>/√n</div>
+        <p>可辅以配对 t 检验（勿唯 P 论）；差值对均值回归斜率显著 → <strong>比例偏差</strong>，不能单用常数 d̄ 概括。</p>
+        <h4>通俗例子</h4>
+        <p>家用血氧仪 vs 医院：d̄ = +2.3%。是否可接受取决于场景——急诊氧疗决策时 2.3% 系统偏差可能危险；居家趋势监测则可能可接受。<strong>须与预设临床可接受偏差比较。</strong></p>
+      </div>
+    </div>
+    <div class="quiz-item">
+      <p class="question">5. 95% 一致性限（95% LoA）反映什么临床含义？</p>
+      <div class="answer">
+        <h4>核心答案</h4>
+        <p><strong>95% LoA = d̄ ± 1.96·SD<sub>d</sub></strong>：对<strong>约 95% 个体</strong>，两法差值落在该区间内；衡量<strong>个体水平随机变异</strong>，直接服务“能否互换”的判断，常是 B–A 中<strong>最具临床指导意义</strong>的指标。</p>
+        <h4>展开讲解</h4>
+        <p>LoA 是<strong>个体层面</strong>；均差是<strong>群体层面</strong>。LoA ≠ 参数 CI。严谨可报告 LoA 边界的 CI。步骤：预设<strong>最大允许差 MAD</strong>（由临床定）→ 看 95% LoA 是否<strong>完全落在 ±MAD 内</strong> → 可声称临床可互换，否则不可。</p>
+        <div class="formula">CI 近似：LoA ± 1.96·√(3·SD<sub>d</sub><sup>2</sup>/n)</div>
+        <h4>通俗例子</h4>
+        <p>袖带 vs 动脉测压：d̄≈+1 mmHg 很小，但 LoA 可能 [−24,+26]——个体可差 25 mmHg，休克场景<strong>不能互换</strong>。<strong>LoA 比均差更贴近临床决策。</strong></p>
+      </div>
+    </div>
+    <div class="quiz-item">
+      <p class="question">6. 如果平均差接近 0，但一致性限很宽，应如何解释？</p>
+      <div class="answer">
+        <h4>核心答案</h4>
+        <p><strong>群体平均无系统偏差，但个体水平随机变异很大</strong>——“平均一致”不等于“可互换”；有时比“小偏差但 LoA 窄”更危险，因 d̄≈0 易给人虚假安全感。</p>
+        <h4>展开讲解</h4>
+        <p>图像上：点绕 0 对称但散得很开。常见原因：两法随机误差大、生物学变异、原理不同导致情境依赖、样本小致 LoA 不稳、异方差等。临床使用需<strong>同时</strong>：d̄ 在可接受范围<strong>且</strong> LoA 在可接受范围，<strong>后者往往更重</strong>。</p>
+        <h4>通俗例子</h4>
+        <p>两血糖仪 d̄≈0.05 mmol/L，但 LoA 宽约 ±3 mmol/L——单次测量可差很大，用于胰岛素决策可能导致严重低血糖或高血糖。<strong>平均一致 ≠ 临床可互换。</strong></p>
+      </div>
+    </div>
+    <div class="quiz-item">
+      <p class="question">7. 为什么方法比较研究不应只看 P 值？</p>
+      <div class="answer">
+        <h4>核心答案</h4>
+        <p>核心问题是<strong>等效/一致性</strong>（是否足够接近、能否互换），而 P 值检验的是<strong>是否存在差异</strong>——方向相反。大样本下微小无意义偏差可极显著；小样本下巨大临床差异可不显著。<strong>P 既不能证明一致，也不能证明不一致。</strong></p>
+        <h4>展开讲解</h4>
+        <p>正确思路：预设临床等效界 [−Δ,+Δ] → 报告 d̄ 及其 95%CI → 若 CI 完全落在界内则等效（类似 TOST）。共识：估计与 CI 优于单纯 P；临床意义优于统计显著性。</p>
+        <h4>通俗例子</h4>
+        <p>万人体重秤差 0.02 kg 极显著却无临床意义；20 名儿童身高法差 3 cm 不显著却可能跨越矮小诊断界值。<strong>方法比较的语言应是估计值 + CI + 预设临床阈值。</strong></p>
+      </div>
+    </div>
+    <div class="quiz-item">
+      <p class="question">8. ICC 在一致性/可靠性研究中有什么作用？</p>
+      <div class="answer">
+        <h4>核心答案</h4>
+        <p>ICC 反映<strong>同一对象被不同评估者/仪器/时点测量时的一致程度</strong>，是<strong>信度/可靠性</strong>的核心指标；同时纳入相关与绝对接近，取值 0–1，越高越可靠。</p>
+        <h4>展开讲解</h4>
+        <div class="formula">ICC ≈ σ<sup>2</sup><sub>对象间</sub> / (σ<sup>2</sup><sub>对象间</sub> + σ<sup>2</sup><sub>误差</sub>)</div>
+        <p>与 Pearson r：ICC 要求<strong>对等重复测量</strong>；比例评分若 r=1 而绝对不一致，ICC 可较低。Koo &amp; Li (2016) 参考：&lt;0.5 差，0.5–0.75 中等，0.75–0.9 好，&gt;0.9 优秀（视场景调整）。</p>
+        <p><strong>与 Bland–Altman 分工</strong>：ICC 给综合分数便于比较；B–A 给偏差+LoA+图形，回答<strong>能否互换</strong>——<strong>互补不可替代</strong>。</p>
+        <h4>通俗例子</h4>
+        <p>三位病理医免疫组化 0–3 分：两两 r≈0.85，但均分倾向不同，ICC(双向随机绝对一致)可能仅 0.62——<strong>方向一致但绝对标准不统一</strong>，多中心试验需培训至 ICC 达标。</p>
+      </div>
+    </div>
+    <div class="quiz-item">
+      <p class="question">9. 为什么报告 ICC 时必须说明模型类型？</p>
+      <div class="answer">
+        <h4>核心答案</h4>
+        <p><strong>ICC 是家族名而非单一公式</strong>——评估者随机/固定、单次/平均、绝对一致/仅一致性等组合下<strong>至少约 10 种变体</strong>，数值可差很大。不附模型类型则<strong>无法解读或复现</strong>。</p>
+        <h4>展开讲解</h4>
+        <p>Shrout &amp; Fleiss：Model 1 单向随机；Model 2 双向随机（可推广到评估者总体）；Model 3 双向混合（固定这几位评估者）。类型：ICC(*,1) 单次 vs ICC(*,k) 平均。定义：absolute agreement vs consistency。同一数据 ICC(3,k) 与 ICC(2,1) 可差 0.2 以上。</p>
+        <table class="mini-table">
+          <thead><tr><th>记号</th><th>含义（简）</th></tr></thead>
+          <tbody>
+            <tr><td>ICC(1,1)</td><td>One-way random, single</td></tr>
+            <tr><td>ICC(2,1)</td><td>Two-way random, single, absolute</td></tr>
+            <tr><td>ICC(2,k)</td><td>Two-way random, average</td></tr>
+            <tr><td>ICC(3,1)</td><td>Two-way mixed, single, consistency</td></tr>
+          </tbody>
+        </table>
+        <p>合格报告应含：模型、单次/平均、绝对/一致、95%CI、软件与函数、对象数×评估者数。例：“ICC (Model 2, two-way random, single, absolute agreement) = 0.81 (95% CI: 0.74–0.87)”。</p>
+        <h4>通俗例子</h4>
+        <p>AI 眼底分级：若未来任意医生使用 → Model 2；若仅固定 5 人 → Model 3；单次给病人用 → 单次 ICC。<strong>不说明模型如同报血压不说收缩/舒张。</strong></p>
+      </div>
+    </div>
+    <div class="quiz-item">
+      <p class="question">10. 若研究目标是判断新设备能否替代旧设备，你为什么会优先看 Bland–Altman 分析？</p>
+      <div class="answer">
+        <h4>核心答案</h4>
+        <p>“能否替代”是<strong>互换性</strong>问题：在具体病人身上两设备读数是否足够接近、<strong>换设备是否改变临床决策</strong>。B–A 同时给出<strong>系统偏差 + 95% LoA + 差值随水平变化</strong>，可与<strong>预先规定的 MAD</strong>对照；r、ICC、P 均不能直接回答。</p>
+        <h4>展开讲解</h4>
+        <p>严谨链条：① B–A（bias、LoA、形态、CI）；② 辅助 Passing–Bablok/Deming 查比例偏差；③ ICC 作综合信度；④ 方案预设 MAD、样本量（常 n≥100）、分层与外部验证；⑤ 遵循 STARD-agreement、GRRAS 等。</p>
+        <p>为何不主用 r/ICC/P：见 Q1–2、Q7、Q8。B–A 优势是<strong>把“每个病人差多少”直接可视化并与临床语言对接</strong>。</p>
+        <h4>通俗例子</h4>
+        <p>便携超声 vs 台式测胎儿 BPD：仅报 r=0.98、P=0.45 不足。应预设 MAD=±2 mm，n=160，若 d̄ 小但 LoA 超出 ±2 mm → <strong>结论：不能替代精细生长评估，仅宜床旁筛查</strong>。价值在于说清<strong>在何尺度上一致、何尺度上不一致</strong>。</p>
+        <p><strong>核心心法</strong>：方法比较的价值不在证明“新旧一样”，而在刻画差异是否在临床可接受范围内；B–A 能成为金标准，正因把统计<strong>翻译成临床能听懂的语言</strong>。</p>
+      </div>
+    </div>
+  </section>
+</main>
+
+</body>
+</html>

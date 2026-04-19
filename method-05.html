@@ -1,0 +1,280 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>5. 相关性分析 | BioStarts</title>
+    <link rel="stylesheet" href="method-common.css" />
+  <script defer src="method-quiz.js"></script>
+</head>
+<body>
+<nav class="method-topbar" style="background:#0f2940;color:#f8fafc;padding:12px 24px;font-family:Inter,'PingFang SC','Microsoft YaHei',sans-serif;font-size:13px;display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:8px;">
+  <a href="index.html" style="color:#fff;text-decoration:none;font-weight:600;">← BioStarts</a>
+  <span style="opacity:.85;">统计医学方法 · 第5章</span>
+</nav>
+
+  <div class="container">
+    <h1 class="page-title">5. 相关性分析</h1>
+
+    <div class="intro">
+      <p>在医学研究中，我们经常关心两个变量是否“同时变化”。例如：年龄越大，血压是否越高？BMI 越大，空腹血糖是否越高？肿瘤标志物水平越高，病灶负荷是否也越大？这类问题的第一步往往是做相关性分析。相关分析的核心任务是描述两个变量之间关系的方向和强度。</p>
+      <p><strong>但必须强调：</strong>相关分析描述的是“关联（association）”，不是“因果（causation）”。</p>
+    </div>
+
+    <section class="toc">
+      <h2 style="margin-top:0;border-bottom:none;padding-bottom:0;">本节目录</h2>
+      <ul>
+        <li><a href="#part-5-1">5.1 Pearson 相关</a></li>
+        <li><a href="#part-5-2">5.2 Spearman 相关</a></li>
+        <li><a href="#part-5-3">5.3 相关系数的解释</a></li>
+        <li><a href="#part-5-4">5.4 相关不等于因果</a></li>
+        <li><a href="#summary">本节小结</a></li>
+      </ul>
+    </section>
+
+    <section class="section">
+      <h2 id="part-5-1">5.1 Pearson 相关</h2>
+
+      <h3>严格定义</h3>
+      <p><strong>Pearson 相关系数（Pearson correlation coefficient）</strong>通常记作 <code>r</code>，用于衡量两个连续变量之间<strong>线性关系</strong>的方向和强度。它的取值范围为 −1 到 +1：</p>
+      <ul>
+        <li><code>r = +1</code>：完全正线性相关</li>
+        <li><code>r = -1</code>：完全负线性相关</li>
+        <li><code>r = 0</code>：没有线性相关</li>
+      </ul>
+      <p>这里要特别注意：<code>r = 0</code> 只表示“没有线性关系”，不代表两个变量之间完全没有其他形式的关系。</p>
+
+      <h3>通俗解释</h3>
+      <p>Pearson 相关可以理解为：看两列连续数字是否沿着一条斜线一起变化。</p>
+      <div class="quote">
+        当一个变量增大时，另一个变量是否也倾向于按“直线趋势”一起增大或减小？
+      </div>
+
+      <h3>什么时候用</h3>
+      <div class="box">
+        <ul>
+          <li>两个变量都是<strong>连续型变量</strong>；</li>
+          <li>研究者关心的是<strong>线性关系</strong>；</li>
+          <li>数据分布没有特别严重的偏态；</li>
+          <li>离群值不太严重；</li>
+          <li>散点图看起来大致呈现一条斜向带状分布。</li>
+        </ul>
+      </div>
+
+      <div class="box toy">
+        <h3>医学 toy example</h3>
+        <p>研究“BMI 与空腹血糖”之间是否相关，在 120 名体检者中测量两项指标。若散点图显示 BMI 越高，空腹血糖通常也越高，而且点分布大致沿一条向上的斜线，则适合做 Pearson 相关分析。</p>
+        <p>若结果为 <code>r = 0.58</code>，可以解释为：BMI 与空腹血糖存在<strong>中等偏强的正线性相关</strong>。</p>
+      </div>
+
+      <div class="box warn">
+        <strong>初学者注意：</strong>
+        <ul>
+          <li>Pearson 相关衡量的是线性关系，不是所有形式的关系。</li>
+          <li>它对离群值较敏感，少数极端点可能明显改变结果。</li>
+          <li>做 Pearson 相关前，最好先画散点图，而不是只看一个相关系数。</li>
+          <li>高相关不代表两个测量方法“一致”，一致性问题应另用其他方法分析。</li>
+        </ul>
+      </div>
+
+      <h3>推荐阅读</h3>
+      <ul class="refs">
+        <li>Schober P, Boer C, Schwarte LA. <em>Correlation Coefficients: Appropriate Use and Interpretation</em>. Anesthesia &amp; Analgesia, 2018.</li>
+        <li>Mukaka MM. <em>A guide to appropriate use of Correlation coefficient in medical research</em>. Malawi Medical Journal, 2012.</li>
+      </ul>
+    </section>
+
+    <section class="section">
+      <h2 id="part-5-2">5.2 Spearman 相关</h2>
+
+      <h3>严格定义</h3>
+      <p><strong>Spearman 等级相关系数（Spearman rank correlation coefficient）</strong>通常记作 <code>ρ</code> 或 <code>r<sub>s</sub></code>。它通过把原始数据转换为秩（rank），评估两个变量之间<strong>单调关系</strong>的方向和强度。</p>
+      <p>这里的“单调关系”是指：一个变量越大，另一个变量整体上也倾向于越大，或者整体上越小，但不要求这种关系一定是严格直线。</p>
+
+      <h3>通俗解释</h3>
+      <p>Spearman 更像是在看：</p>
+      <div class="quote">
+        排名靠前的人，在另一个指标里是不是也大多排名靠前？
+      </div>
+      <p>所以它更关注“排序趋势是否一致”，而不是“点是否排成一条直线”。</p>
+
+      <h3>什么时候用</h3>
+      <div class="box">
+        <ul>
+          <li>至少有一个变量是<strong>等级变量/有序变量</strong>；</li>
+          <li>连续变量分布明显偏态；</li>
+          <li>数据中存在一定离群值；</li>
+          <li>变量关系看起来总体单调，但不一定线性。</li>
+        </ul>
+      </div>
+
+      <div class="box toy">
+        <h3>医学 toy example</h3>
+        <p>研究“疼痛评分（0–10 分）与睡眠质量分级”之间的关系。疼痛评分和睡眠质量都带有明显的等级信息，这时 Spearman 相关通常比 Pearson 更自然。</p>
+        <p>若结果为 <code>r<sub>s</sub> = 0.64</code>，可以解释为：疼痛越重的患者，睡眠越差的趋势较明显，属于<strong>中等偏强的正单调相关</strong>。</p>
+      </div>
+
+      <div class="box">
+        <strong>Pearson 与 Spearman 的直观区别：</strong>
+        <ul>
+          <li><strong>Pearson</strong>：更适合连续变量、线性关系。</li>
+          <li><strong>Spearman</strong>：更适合等级变量、偏态数据、单调关系。</li>
+        </ul>
+      </div>
+
+      <div class="box warn">
+        <strong>常见误区：</strong>
+        <ul>
+          <li>Spearman 不是“不会做 Pearson 时的次选方法”。</li>
+          <li>它比 Pearson 对异常值更稳，但不是完全不受影响。</li>
+          <li>Spearman 相关高，也不等于两个工具可以互相替代。</li>
+        </ul>
+      </div>
+
+      <h3>推荐阅读</h3>
+      <ul class="refs">
+        <li>Mukaka MM. <em>A guide to appropriate use of Correlation coefficient in medical research</em>. Malawi Medical Journal, 2012.</li>
+        <li>Fletcher J. <em>Correlation</em>. BMJ, 2009.</li>
+      </ul>
+    </section>
+
+    <section class="section">
+      <h2 id="part-5-3">5.3 相关系数的解释</h2>
+
+      <h3>严格定义</h3>
+      <p>无论是 Pearson 的 <code>r</code>，还是 Spearman 的 <code>r<sub>s</sub></code> / <code>ρ</code>，它们都在 <code>-1</code> 到 <code>+1</code> 之间：</p>
+      <ul>
+        <li><strong>正号</strong>：正相关，一个变量增大时另一个变量也倾向增大；</li>
+        <li><strong>负号</strong>：负相关，一个变量增大时另一个变量倾向减小；</li>
+        <li><strong>绝对值越大</strong>：相关越强；</li>
+        <li><strong>越接近 0</strong>：相关越弱。</li>
+      </ul>
+
+      <h3>通俗解释</h3>
+      <p>解释相关系数时，可以同时看两个方面：</p>
+      <ol>
+        <li><strong>方向</strong>：同向变化还是反向变化；</li>
+        <li><strong>强度</strong>：这种共同变化紧不紧密。</li>
+      </ol>
+
+      <div class="box">
+        <strong>常见经验性分级（仅作教学参考）：</strong>
+        <ul>
+          <li>0.00–0.30：很弱或可忽略相关</li>
+          <li>0.30–0.50：低度相关</li>
+          <li>0.50–0.70：中度相关</li>
+          <li>0.70–0.90：高度相关</li>
+          <li>0.90–1.00：很高或极强相关</li>
+        </ul>
+        <p>负相关时同样看绝对值来判断强弱。</p>
+      </div>
+
+      <div class="box toy">
+        <h3>医学 toy example</h3>
+        <p>若研究“血清 CRP 与住院天数”的关系，结果为 <code>r = 0.26</code>，可解释为：两者存在<strong>较弱的正相关</strong>。</p>
+        <p>若结果为 <code>r = 0.74</code>，可解释为：两者存在<strong>较强的正相关</strong>。</p>
+        <p>但无论是哪种情况，都不能直接说“CRP 决定了住院天数”。</p>
+      </div>
+
+      <div class="box">
+        <strong>论文写作时更规范的表达：</strong>
+        <ul>
+          <li>X 与 Y 呈正相关（Pearson <code>r = 0.48</code>, <code>p &lt; 0.001</code>）</li>
+          <li>X 与 Y 呈中等程度负相关（Spearman <code>r<sub>s</sub> = -0.52</code>, <code>p = 0.004</code>）</li>
+          <li>X 与 Y 未见明显线性相关（Pearson <code>r = 0.09</code>, <code>p = 0.31</code>）</li>
+        </ul>
+      </div>
+
+      <div class="box warn">
+        <strong>初学者最该记住的两点：</strong>
+        <ul>
+          <li><strong>统计学显著</strong>不等于<strong>相关很强</strong>。</li>
+          <li><strong>相关很强</strong>也不一定有明确的临床意义。</li>
+        </ul>
+      </div>
+
+      <h3>推荐阅读</h3>
+      <ul class="refs">
+        <li>Schober P, Boer C, Schwarte LA. <em>Correlation Coefficients: Appropriate Use and Interpretation</em>. Anesthesia &amp; Analgesia, 2018.</li>
+        <li>Akoglu H. <em>User's guide to correlation coefficients</em>. Turkish Journal of Emergency Medicine, 2018.</li>
+      </ul>
+    </section>
+
+    <section class="section">
+      <h2 id="part-5-4">5.4 相关不等于因果</h2>
+
+      <h3>严格定义</h3>
+      <p>“相关不等于因果”是指：即使两个变量在统计上呈现明显相关，也不能仅凭这一点就认定一个变量导致了另一个变量。相关分析只说明变量之间存在<strong>统计关联</strong>，并不能自动区分：</p>
+      <ul>
+        <li>X 导致 Y；</li>
+        <li>Y 导致 X；</li>
+        <li>第三个变量同时影响 X 和 Y；</li>
+        <li>观察到的相关仅仅来自偏倚或样本结构。</li>
+      </ul>
+
+      <h3>通俗解释</h3>
+      <div class="quote">
+        两件事经常一起出现，不代表其中一件事就是另一件事的原因。
+      </div>
+
+      <p>例如，炎症指标高和住院时间长可能相关，但这并不说明“炎症指标本身单独导致住院更久”；也可能是病情重这一共同因素同时导致两者增加。</p>
+
+      <h3>医学里为什么尤其要警惕</h3>
+      <p>因为大多数医学数据来自真实世界，而不是完全受控的实验环境。年龄、性别、疾病严重程度、合并症、治疗方案、生活方式等，都可能成为混杂因素，使两个变量表面上看起来相关。</p>
+
+      <div class="box toy">
+        <h3>医学 toy example</h3>
+        <p>一项横断面研究发现：“每天喝咖啡杯数”与“心率”呈正相关。</p>
+        <p>这时不能立刻说“咖啡导致心率升高”。更严谨的思路是：</p>
+        <ul>
+          <li>也许喝咖啡多的人压力更大；</li>
+          <li>也许他们睡眠更差；</li>
+          <li>也许他们吸烟比例更高；</li>
+          <li>也许某些基础疾病同时影响了咖啡摄入和心率。</li>
+        </ul>
+        <p>所以，相关结果通常只是提出假设的起点，而不是因果结论的终点。</p>
+      </div>
+
+      <div class="box">
+        <strong>相关分析的价值仍然很大：</strong>
+        <ul>
+          <li>可作为探索性分析，帮助发现潜在关系；</li>
+          <li>可作为后续回归建模的前奏；</li>
+          <li>可帮助研究者快速把握变量间的大致关联方向与强度。</li>
+        </ul>
+      </div>
+
+      <div class="box warn">
+        <strong>写作时建议先问自己四个问题：</strong>
+        <ol>
+          <li>这两个变量的时间顺序清楚吗？</li>
+          <li>会不会有共同原因同时影响它们？</li>
+          <li>会不会存在反向因果？</li>
+          <li>当前研究设计足以支持因果推断吗？</li>
+        </ol>
+      </div>
+
+      <h3>推荐阅读</h3>
+      <ul class="refs">
+        <li>Igelström E, et al. <em>Causal inference and effect estimation using observational data</em>. Journal of Epidemiology &amp; Community Health, 2022.</li>
+        <li>Howick J, Glasziou P, Aronson JK. <em>The evolution of evidence hierarchies: what can Bradford Hill's guidelines for causation contribute?</em> Journal of the Royal Society of Medicine, 2009.</li>
+      </ul>
+    </section>
+
+    <section class="section">
+      <h2 id="summary">本节小结</h2>
+      <div class="summary">
+        <p><strong>本节最核心的四句话：</strong></p>
+        <ul>
+          <li>Pearson 相关看的是连续变量之间的<strong>线性关系</strong>。</li>
+          <li>Spearman 相关看的是等级或偏态数据之间的<strong>单调关系</strong>。</li>
+          <li>相关系数要同时看<strong>方向、强度和图形</strong>，不能只看 p 值。</li>
+          <li>任何相关结果都不能自动解释为<strong>因果关系</strong>。</li>
+        </ul>
+        <p>对医学生来说，一个非常实用的思路是：先看变量类型，再看散点图，再决定 Pearson 还是 Spearman，最后在解释时始终提醒自己：<strong>这是 association，不是 causation。</strong></p>
+      </div>
+    </section>
+
+  </div>
+</body>
+</html>

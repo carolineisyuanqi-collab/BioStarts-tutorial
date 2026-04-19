@@ -1,0 +1,258 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>10. 生存分析 | BioStarts</title>
+    <link rel="stylesheet" href="method-common.css" />
+  <script defer src="method-quiz.js"></script>
+</head>
+<body>
+<nav class="method-topbar" style="background:#0f2940;color:#f8fafc;padding:12px 24px;font-family:Inter,'PingFang SC','Microsoft YaHei',sans-serif;font-size:13px;display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:8px;">
+  <a href="index.html" style="color:#fff;text-decoration:none;font-weight:600;">← BioStarts</a>
+  <span style="opacity:.85;">统计医学方法 · 第10章</span>
+</nav>
+
+  <div class="container">
+    <h1 class="page-title">10. 生存分析</h1>
+
+    <div class="intro">
+      <p>在医学研究中，很多结局不仅关心“有没有发生”，还关心“什么时候发生”。例如：患者从手术到复发经历了多久？从入组到死亡用了多长时间？从治疗开始到症状缓解用了多久？这类数据不能只用普通比较方法处理，因为它们需要同时考虑时间信息和删失问题。</p>
+    </div>
+
+    <section class="toc">
+      <h2 style="margin-top:0;border-bottom:none;padding-bottom:0;">本节目录</h2>
+      <ul>
+        <li><a href="#part-10-1">10.1 时间结局与删失数据</a></li>
+        <li><a href="#part-10-2">10.2 Kaplan-Meier 生存曲线</a></li>
+        <li><a href="#part-10-3">10.3 Log-rank 检验</a></li>
+        <li><a href="#part-10-4">10.4 Cox 比例风险回归</a></li>
+        <li><a href="#part-10-5">10.5 HR 的解释</a></li>
+        <li><a href="#summary">本节小结</a></li>
+        <li><a href="#self-test">自测小题</a></li>
+      </ul>
+    </section>
+
+    <section class="section">
+      <h2 id="part-10-1">10.1 时间结局与删失数据</h2>
+
+      <h3>严格定义</h3>
+      <p>时间结局是指从研究起点到某个特定事件发生之间的时间长度。删失数据是指事件时间没有被完整观察到的情况，临床研究中最常见的是右删失。</p>
+
+      <h3>通俗解释</h3>
+      <p>删失并不等于完全没信息，而是“只知道这个人在某一段观察期内还没发生事件，之后怎样不清楚”。</p>
+
+      <div class="box toy">
+        <h3>医学 toy example</h3>
+        <p>研究乳腺癌术后复发时间时，有些患者 5 年内复发，有些 5 年后仍未复发，还有些中途失访。未复发者和失访者都属于右删失。</p>
+      </div>
+
+      <div class="box warn">
+        <strong>初学者注意：</strong>
+        <ul>
+          <li>删失不是单纯缺失。</li>
+          <li>生存分析不只用于“死亡”，也用于复发、失效、缓解等各种事件。</li>
+        </ul>
+      </div>
+
+      <h3>推荐阅读</h3>
+      <ul class="refs">
+        <li>Bewick V, Cheek L, Ball J. <em>Statistics review 12: Survival analysis</em>. Critical Care, 2004.</li>
+        <li>D’Arrigo G, et al. <em>Methods to Analyse Time-to-Event Data: The Kaplan-Meier Survival Curve</em>. 2021.</li>
+      </ul>
+    </section>
+
+    <section class="section">
+      <h2 id="part-10-2">10.2 Kaplan–Meier 生存曲线</h2>
+
+      <h3>严格定义</h3>
+      <p>Kaplan–Meier 方法是一种非参数方法，用于估计随时间变化的生存函数。它能够处理删失信息，因此是描述时间到事件数据的经典工具。</p>
+
+      <h3>通俗解释</h3>
+      <p>KM 曲线在回答：随着时间往后走，还没发生事件的人大概还剩多少比例。</p>
+
+      <div class="box">
+        <strong>怎么读 KM 曲线：</strong>
+        <ul>
+          <li>纵轴通常是生存概率或未发生事件概率；</li>
+          <li>横轴是时间；</li>
+          <li>曲线下降越快，通常表示事件发生越快。</li>
+        </ul>
+      </div>
+
+      <div class="box toy">
+        <h3>医学 toy example</h3>
+        <p>若两种肺癌治疗方案的 KM 曲线相比，A 组曲线长期高于 B 组，通常提示 A 组在各时间点保持“未发生事件”的比例更高。</p>
+      </div>
+
+      <div class="box warn">
+        <strong>初学者注意：</strong>
+        <ul>
+          <li>曲线末端常常样本很少，解读时要结合在险人数。</li>
+          <li>曲线看起来分开，不等于一定有统计学显著差异。</li>
+        </ul>
+      </div>
+
+      <h3>推荐阅读</h3>
+      <ul class="refs">
+        <li>Rich JT, et al. <em>A practical guide to understanding Kaplan–Meier curves</em>. 2010.</li>
+        <li>Schober P, et al. <em>Survival Analysis and Interpretation of Time-to-Event Data</em>. 2018.</li>
+      </ul>
+    </section>
+
+    <section class="section">
+      <h2 id="part-10-3">10.3 Log-rank 检验</h2>
+
+      <h3>严格定义</h3>
+      <p>Log-rank 检验是一种非参数检验，用于比较两组或多组生存曲线是否存在整体差异。</p>
+
+      <h3>通俗解释</h3>
+      <p>它回答的是：两条 KM 曲线看起来不一样，这种差异像是真的，还是像随机波动？</p>
+
+      <div class="box toy">
+        <h3>医学 toy example</h3>
+        <p>比较两种化疗方案的无进展生存时，可以先画 KM 曲线，再做 Log-rank 检验。若 p &lt; 0.05，通常表示两组整体生存分布存在统计学差异。</p>
+      </div>
+
+      <div class="box warn">
+        <strong>初学者注意：</strong>
+        <ul>
+          <li>Log-rank 检验主要比较整体生存分布，而不是某一个时间点。</li>
+          <li>曲线明显交叉时，解释需更谨慎。</li>
+        </ul>
+      </div>
+
+      <h3>推荐阅读</h3>
+      <ul class="refs">
+        <li>Bland JM, Altman DG. <em>The logrank test</em>. BMJ, 2004.</li>
+        <li>In J, Lee DK. <em>Survival analysis: Part I — analysis of time-to-event</em>. 2018.</li>
+      </ul>
+    </section>
+
+    <section class="section">
+      <h2 id="part-10-4">10.4 Cox 比例风险回归</h2>
+
+      <h3>严格定义</h3>
+      <p>Cox 比例风险回归是一种半参数回归模型，用于研究多个自变量与时间到事件结局之间的关系。它最常见的输出是 HR，关键前提之一是比例风险假设。</p>
+
+      <h3>通俗解释</h3>
+      <p>Cox 回归是在考虑时间和删失的同时，分析多个因素怎样影响事件发生的快慢。</p>
+
+      <div class="box toy">
+        <h3>医学 toy example</h3>
+        <p>研究年龄、肿瘤分期和治疗方式对乳腺癌复发时间的影响时，可用 Cox 回归在同一个模型中评估这些变量与复发时间的关系。</p>
+      </div>
+
+      <div class="box warn">
+        <strong>初学者注意：</strong>
+        <ul>
+          <li>Cox 回归并不是没有假设，最重要的是比例风险假设。</li>
+          <li>它与 Logistic 回归不同，因为它明确利用了时间信息和删失信息。</li>
+        </ul>
+      </div>
+
+      <h3>推荐阅读</h3>
+      <ul class="refs">
+        <li>Deo SV, et al. <em>Survival analysis—part 2: Cox proportional hazards model</em>. 2021.</li>
+        <li>Schober P, et al. <em>Survival Analysis and Interpretation of Time-to-Event Data</em>. 2018.</li>
+      </ul>
+    </section>
+
+    <section class="section">
+      <h2 id="part-10-5">10.5 HR 的解释</h2>
+
+      <h3>严格定义</h3>
+      <p>HR（hazard ratio）是 Cox 回归中最常见的效应量，表示两组在任一时刻的瞬时事件发生率之比。</p>
+
+      <div class="formula">
+        HR &gt; 1：瞬时风险更高<br>
+        HR &lt; 1：瞬时风险更低<br>
+        HR = 1：无差异
+      </div>
+
+      <h3>通俗解释</h3>
+      <p>HR 最实用的理解方式是：在随访中的任意一个时刻，这一组发生事件的速度大约是另一组的几倍。</p>
+
+      <div class="box toy">
+        <h3>医学 toy example</h3>
+        <p>若一项肿瘤试验报告 HR = 0.65，95%CI 0.50–0.84，则通常可理解为：治疗组在随访期间任一时刻发生死亡的瞬时风险约比对照组低 35%。</p>
+      </div>
+
+      <div class="box warn">
+        <strong>初学者注意：</strong>
+        <ul>
+          <li>HR 不是 OR，也不是简单的 RR。</li>
+          <li>HR 反映的是瞬时风险，不是累计风险。</li>
+          <li>如果比例风险假设不成立，单一 HR 的解释会变弱。</li>
+        </ul>
+      </div>
+
+      <h3>推荐阅读</h3>
+      <ul class="refs">
+        <li>Spruance SL, et al. <em>Hazard Ratio in Clinical Trials</em>. 2004.</li>
+        <li>Sashegyi A, Ferry D. <em>On the Interpretation of the Hazard Ratio and Communication of Survival Benefit</em>. 2017.</li>
+      </ul>
+    </section>
+
+    <section class="section">
+      <h2 id="summary">本节小结</h2>
+      <div class="summary">
+        <ul>
+          <li>生存分析研究的是时间到事件数据。</li>
+          <li>删失不是完全没信息，而是事件时间没有被完整观察到。</li>
+          <li>Kaplan–Meier 曲线用于描述随时间变化的生存概率。</li>
+          <li>Log-rank 检验用于比较生存曲线整体是否有差异。</li>
+          <li>Cox 回归用于在考虑时间和删失的同时进行多变量分析。</li>
+          <li>HR 描述的是随访过程中任一时刻的瞬时风险之比。</li>
+        </ul>
+        <p>对医学生来说，最重要的是理解：生存分析不只是看“有没有发生事件”，而是看“什么时候发生”；HR 也不是简单的风险比，而是带有时间维度的比较。</p>
+      </div>
+    </section>
+
+    <section class="section">
+      <h2 id="self-test">自测小题</h2>
+
+      <div class="quiz-item">
+        <strong>1.</strong> 生存分析最核心研究的是什么类型的数据？
+        <div class="answer">答案：时间到事件数据。</div>
+      </div>
+
+      <div class="quiz-item">
+        <strong>2.</strong> 右删失是什么意思？
+        <div class="answer">答案：事件时间没有被完整观察到，只知道截至某时还未发生或中途失访。</div>
+      </div>
+
+      <div class="quiz-item">
+        <strong>3.</strong> Kaplan–Meier 曲线的纵轴通常表示什么？
+        <div class="answer">答案：生存概率或未发生事件的概率。</div>
+      </div>
+
+      <div class="quiz-item">
+        <strong>4.</strong> KM 曲线下降越快，一般说明什么？
+        <div class="answer">答案：说明事件发生得更快。</div>
+      </div>
+
+      <div class="quiz-item">
+        <strong>5.</strong> Log-rank 检验主要用于做什么？
+        <div class="answer">答案：比较两组或多组生存曲线整体是否存在差异。</div>
+      </div>
+
+      <div class="quiz-item">
+        <strong>6.</strong> Cox 比例风险回归最常见的效应量指标是什么？
+        <div class="answer">答案：HR（hazard ratio）。</div>
+      </div>
+
+      <div class="quiz-item">
+        <strong>7.</strong> HR = 0.80 通常可以怎样粗略解释？
+        <div class="answer">答案：在随访过程中任一时刻，事件发生的瞬时风险大约降低 20%。</div>
+      </div>
+
+      <div class="quiz-item">
+        <strong>8.</strong> HR 是否可以简单等同于 RR 或累计风险比？
+        <div class="answer">答案：不可以。</div>
+      </div>
+    </section>
+
+  </div>
+</body>
+</html>

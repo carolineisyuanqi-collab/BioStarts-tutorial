@@ -1,0 +1,609 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>3. 组间差异比较 | BioStarts</title>
+    <link rel="stylesheet" href="method-common.css" />
+  <script defer src="method-quiz.js"></script>
+</head>
+<body>
+<nav class="method-topbar" style="background:#0f2940;color:#f8fafc;padding:12px 24px;font-family:Inter,'PingFang SC','Microsoft YaHei',sans-serif;font-size:13px;display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:8px;">
+  <a href="index.html" style="color:#fff;text-decoration:none;font-weight:600;">← BioStarts</a>
+  <span style="opacity:.85;">统计医学方法 · 第3章</span>
+</nav>
+
+  <main class="container">
+    <h1>3. 组间差异比较</h1>
+    <section class="toc">
+      <h2 style="margin-top:0;border-bottom:none;padding-bottom:0;">本节目录</h2>
+      <ul>
+        <li><a href="#part-3-1">3.1 独立样本 t 检验</a></li>
+        <li><a href="#part-3-2">3.2 配对 t 检验</a></li>
+        <li><a href="#part-3-3">3.3 单因素方差分析 ANOVA</a></li>
+        <li><a href="#part-3-4">3.4 Mann-Whitney U / Wilcoxon 秩和检验</a></li>
+        <li><a href="#part-3-5">3.5 Wilcoxon 符号秩检验</a></li>
+        <li><a href="#part-3-6">3.6 Kruskal-Wallis 检验</a></li>
+        <li><a href="#part-3-7">3.7 多重比较校正</a></li>
+        <li><a href="#summary">本页最简记忆版</a></li>
+        <li><a href="#self-test">本页自测题</a></li>
+        <li><a href="#references">本页参考文献汇总</a></li>
+      </ul>
+    </section>
+<section id="section-3" class="card">
+      <h2>3. 组间差异比较</h2>
+      <p>
+        组间比较的核心问题是：不同组之间是否存在统计学上的差异。
+        但在真正选检验之前，必须先判断三件事：
+        <strong>结局变量是什么类型、组与组之间是否独立、组数是两组还是三组及以上。</strong>
+      </p>
+    </section>
+
+    <section id="part-3-1" class="card">
+      <h2>3.1 独立样本 t 检验</h2>
+
+      <h3>严格定义</h3>
+      <p>
+        <strong>独立样本 t 检验（independent two-sample t test）</strong>
+        用于比较两个<strong>彼此独立</strong>组的连续变量均值是否存在差异。
+        典型场景是治疗组和对照组、男性和女性、暴露组和未暴露组。
+      </p>
+
+      <p>
+        该方法通常要求：
+      </p>
+      <ul>
+        <li>结局变量是连续型；</li>
+        <li>两组独立；</li>
+        <li>各组分布近似正态，或样本量足够大且不极端偏态；</li>
+        <li>经典 Student t 检验额外要求方差齐性；若方差不齐，可考虑 Welch t 检验。</li>
+      </ul>
+
+      <h3>通俗解释</h3>
+      <p>
+        独立样本 t 检验就是问：
+        “两组人的平均水平，差得是否大到不像只是随机波动造成的？”
+      </p>
+
+      <div class="box example">
+        <strong>医学 toy example：</strong>
+        比较服用新降压药组和安慰剂组 8 周后的平均收缩压是否不同。
+        如果每位患者只属于其中一组，且两组互不重叠，这就是独立样本设计。
+      </div>
+
+      <div class="box warning">
+        <strong>常见误区：</strong>
+        <ul>
+          <li>同一个人治疗前后两次测量，不能用独立样本 t 检验，应考虑配对 t 检验。</li>
+          <li>两组样本量明显不平衡且方差差异较大时，应注意 Welch t 检验比经典 t 检验更稳妥。</li>
+        </ul>
+      </div>
+
+      <h3>参考文献</h3>
+      <ol class="refs">
+        <li>
+          Statistics at Square One. <em>The t tests</em>.
+          <a href="https://www.bmj.com/about-bmj/resources-readers/publications/statistics-square-one/7-t-tests" target="_blank" rel="noopener noreferrer">BMJ Statistics at Square One</a>
+        </li>
+        <li>
+          Mishra P, et al. <em>Application of Student’s t-test, analysis of variance, and covariance</em>.
+          <a href="https://pmc.ncbi.nlm.nih.gov/articles/PMC6813708/" target="_blank" rel="noopener noreferrer">PMC6813708</a>
+        </li>
+      </ol>
+    </section>
+
+    <section id="part-3-2" class="card">
+      <h2>3.2 配对 t 检验</h2>
+
+      <h3>严格定义</h3>
+      <p>
+        <strong>配对 t 检验（paired t test）</strong>用于比较两次<strong>相关联</strong>测量的均值差异。
+        常见场景包括同一患者治疗前后、左眼与右眼、病例与其匹配对照。
+      </p>
+
+      <p>
+        它本质上不是直接比较两列原始数值，而是比较“每一对差值”的均值是否为 0。
+        因此更关键的假设通常是：<strong>配对差值</strong>近似正态。
+      </p>
+
+      <h3>通俗解释</h3>
+      <p>
+        配对 t 检验像是先算出“每个人用了药以后变化了多少”，
+        再问这些变化的平均值是否显著偏离 0。
+      </p>
+
+      <div class="box example">
+        <strong>医学 toy example：</strong>
+        你测量 30 名高血压患者服药前和服药 4 周后的收缩压，
+        由于前后两次都来自同一位患者，这两列数据不是独立的，应使用配对 t 检验。
+      </div>
+
+      <div class="box warning">
+        <strong>常见误区：</strong>
+        <ul>
+          <li>把前后测量当成独立两组来做，会忽略同一个体内部相关性。</li>
+          <li>配对 t 检验关注的是“差值是否近似正态”，而不是两次测量本身都必须各自完美正态。</li>
+        </ul>
+      </div>
+
+      <h3>参考文献</h3>
+      <ol class="refs">
+        <li>
+          Statistics at Square One. <em>The t tests</em>.
+          <a href="https://www.bmj.com/about-bmj/resources-readers/publications/statistics-square-one/7-t-tests" target="_blank" rel="noopener noreferrer">BMJ Statistics at Square One</a>
+        </li>
+        <li>
+          Bensken WP, et al. <em>Basic Introduction to Statistics in Medicine, Part 2: Comparing Groups</em>.
+          <a href="https://pmc.ncbi.nlm.nih.gov/articles/PMC8851223/" target="_blank" rel="noopener noreferrer">PMC8851223</a>
+        </li>
+      </ol>
+    </section>
+
+    <section id="part-3-3" class="card">
+      <h2>3.3 单因素方差分析 ANOVA</h2>
+
+      <h3>严格定义</h3>
+      <p>
+        <strong>单因素方差分析（one-way analysis of variance, ANOVA）</strong>
+        用于比较三个或以上<strong>独立组</strong>的连续变量均值是否存在总体差异。
+      </p>
+
+      <p>
+        它检验的原假设通常是：
+        “所有组的总体均值都相同。”
+        若 ANOVA 的总体检验显著，只能说明“至少有一组不同”，并不能直接告诉你具体是哪些组之间不同。
+      </p>
+
+      <h3>通俗解释</h3>
+      <p>
+        如果 t 检验是“两组均值比较”，那么单因素 ANOVA 就是“三组及以上均值比较”的推广版本。
+        它先回答“整体上有没有差异”，再通过事后比较来找出差异在哪些组之间。
+      </p>
+
+      <div class="box example">
+        <strong>医学 toy example：</strong>
+        比较三种不同降脂治疗方案 12 周后 LDL 水平的均值是否不同。
+        因为有三组独立患者，且结局是连续变量，这就是 ANOVA 的典型应用场景。
+      </div>
+
+      <div class="box warning">
+        <strong>常见误区：</strong>
+        <ul>
+          <li>三组比较时，不能简单重复做三次 t 检验，否则会抬高总体 I 类错误率。</li>
+          <li>ANOVA 显著不等于所有组都两两不同，后续通常还要做多重比较。</li>
+        </ul>
+      </div>
+
+      <h3>参考文献</h3>
+      <ol class="refs">
+        <li>
+          Mishra P, et al. <em>Application of Student’s t-test, analysis of variance, and covariance</em>.
+          <a href="https://pmc.ncbi.nlm.nih.gov/articles/PMC6813708/" target="_blank" rel="noopener noreferrer">PMC6813708</a>
+        </li>
+        <li>
+          Statistics at Square One. <em>Study design and choosing a statistical test</em>.
+          <a href="https://www.bmj.com/about-bmj/resources-readers/publications/statistics-square-one/13-study-design-and-choosing-statisti" target="_blank" rel="noopener noreferrer">BMJ Statistics at Square One</a>
+        </li>
+      </ol>
+    </section>
+
+    <section id="part-3-4" class="card">
+      <h2>3.4 Mann–Whitney U / Wilcoxon 秩和检验</h2>
+
+      <h3>严格定义</h3>
+      <p>
+        <strong>Mann–Whitney U 检验</strong>，也常称为<strong>Wilcoxon 秩和检验</strong>，
+        是比较两个独立组的非参数方法。它基于所有观测值的秩次，而不是直接基于原始数值。
+      </p>
+
+      <p>
+        它常用作独立样本 t 检验的非参数对应方法，
+        尤其适用于偏态连续数据、异常值较多的数据，或者本身就是等级数据的情形。
+      </p>
+
+      <h3>通俗解释</h3>
+      <p>
+        这个检验不直接比谁的“平均值”更大，而是把两组数据混在一起排队，
+        看看哪一组整体排得更靠前。
+      </p>
+
+      <div class="box example">
+        <strong>医学 toy example：</strong>
+        比较术后疼痛评分（1–10 分）在新镇痛方案组和常规方案组之间是否不同。
+        如果评分分布偏态，或者你不想把它当作标准正态连续变量处理，就可以考虑 Mann–Whitney U 检验。
+      </div>
+
+      <div class="box warning">
+        <strong>常见误区：</strong>
+        <ul>
+          <li>它用于<strong>两个独立组</strong>，不是前后配对数据。</li>
+          <li>它常被口语化描述为“比较中位数”，但更严格地说，它比较的是两组分布位置或秩次的整体差异。</li>
+        </ul>
+      </div>
+
+      <h3>参考文献</h3>
+      <ol class="refs">
+        <li>
+          Nahm FS. <em>Nonparametric statistical tests for the continuous data</em>.
+          <a href="https://pmc.ncbi.nlm.nih.gov/articles/PMC4754273/" target="_blank" rel="noopener noreferrer">PMC4754273</a>
+        </li>
+        <li>
+          Yang HJ, et al. <em>Common statistical methods used in medical research</em>.
+          <a href="https://www.kosinmedj.org/journal/view.php?number=1316" target="_blank" rel="noopener noreferrer">Kosin Medical Journal</a>
+        </li>
+      </ol>
+    </section>
+
+    <section id="part-3-5" class="card">
+      <h2>3.5 Wilcoxon 符号秩检验</h2>
+
+      <h3>严格定义</h3>
+      <p>
+        <strong>Wilcoxon 符号秩检验（Wilcoxon signed-rank test）</strong>
+        是比较两次相关测量或配对数据的非参数方法，
+        常被视为配对 t 检验的非参数对应方法。
+      </p>
+
+      <p>
+        它不仅考虑每对差值的方向（增加还是减少），也考虑差值大小对应的秩次，
+        因此通常比更简单的符号检验更有信息量。
+      </p>
+
+      <h3>通俗解释</h3>
+      <p>
+        如果配对 t 检验是比较“平均差值”，那么 Wilcoxon 符号秩检验更像是看：
+        “大多数人的变化方向是否一致，而且这种变化是否足够系统性地偏向一边？”
+      </p>
+
+      <div class="box example">
+        <strong>医学 toy example：</strong>
+        比较同一批糖尿病患者使用某种饮食干预前后的空腹血糖。
+        如果差值分布明显偏态，或者样本较小又不放心正态性，常可考虑 Wilcoxon 符号秩检验。
+      </div>
+
+      <div class="box warning">
+        <strong>常见误区：</strong>
+        <ul>
+          <li>它是针对<strong>配对/相关</strong>数据，不适合两个独立组。</li>
+          <li>不要和 Mann–Whitney U 检验混淆：一个是配对，一个是独立。</li>
+        </ul>
+      </div>
+
+      <h3>参考文献</h3>
+      <ol class="refs">
+        <li>
+          Najmi A, et al. <em>How to choose and interpret a statistical test? An update for budding researchers</em>.
+          <a href="https://pmc.ncbi.nlm.nih.gov/articles/PMC8483143/" target="_blank" rel="noopener noreferrer">PMC8483143</a>
+        </li>
+        <li>
+          Nahm FS. <em>Nonparametric statistical tests for the continuous data</em>.
+          <a href="https://pmc.ncbi.nlm.nih.gov/articles/PMC4754273/" target="_blank" rel="noopener noreferrer">PMC4754273</a>
+        </li>
+      </ol>
+    </section>
+
+    <section id="part-3-6" class="card">
+      <h2>3.6 Kruskal–Wallis 检验</h2>
+
+      <h3>严格定义</h3>
+      <p>
+        <strong>Kruskal–Wallis 检验</strong>是用于比较三个或以上独立组的非参数方法，
+        常被视为单因素 ANOVA 的非参数对应方法。
+      </p>
+
+      <p>
+        它把所有观测值合并排序后比较各组秩次分布是否存在差异，
+        因此适用于偏态连续变量、异常值较多的数据，或等级数据的三组及以上比较。
+      </p>
+
+      <h3>通俗解释</h3>
+      <p>
+        如果 ANOVA 是在比较“三组均值”，
+        那 Kruskal–Wallis 更像是在比较“三组谁整体排位更靠前”。
+      </p>
+
+      <div class="box example">
+        <strong>医学 toy example：</strong>
+        比较三种疼痛治疗方案后患者疼痛评分的差异。
+        如果评分偏态明显，或者你希望把评分当作等级数据来处理，就可以考虑 Kruskal–Wallis 检验。
+      </div>
+
+      <div class="box warning">
+        <strong>常见误区：</strong>
+        <ul>
+          <li>Kruskal–Wallis 显著只表示“至少有一组不同”，并不能直接告诉你哪两组不同。</li>
+          <li>如果总体检验显著，后续通常仍要做适当校正后的两两比较。</li>
+        </ul>
+      </div>
+
+      <h3>参考文献</h3>
+      <ol class="refs">
+        <li>
+          Nahm FS. <em>Nonparametric statistical tests for the continuous data</em>.
+          <a href="https://pmc.ncbi.nlm.nih.gov/articles/PMC4754273/" target="_blank" rel="noopener noreferrer">PMC4754273</a>
+        </li>
+        <li>
+          Chicco D, et al. <em>A simple guide to the use of Student’s t-test, Mann-Whitney U test, Chi-squared test, and Kruskal-Wallis test in biostatistics</em>.
+          <a href="https://pmc.ncbi.nlm.nih.gov/articles/PMC12366075/" target="_blank" rel="noopener noreferrer">PMC12366075</a>
+        </li>
+      </ol>
+    </section>
+
+    <section id="part-3-7" class="card">
+      <h2>3.7 多重比较校正</h2>
+
+      <h3>严格定义</h3>
+      <p>
+        当研究者在同一数据集上同时进行多个假设检验时，
+        至少出现一次假阳性（I 类错误）的概率会增加，这就是<strong>多重比较问题（multiple comparisons problem）</strong>。
+      </p>
+
+      <p>
+        因此，在做多次两两比较、多个终点分析、多个亚组分析或大量生物标志物筛选时，
+        往往需要进行<strong>多重比较校正</strong>。常见方法包括：
+        <strong>Bonferroni</strong>、<strong>Holm</strong>、<strong>Tukey</strong>、<strong>Dunnett</strong>，
+        以及高维研究中常见的 <strong>FDR</strong> 控制。
+      </p>
+
+      <h3>通俗解释</h3>
+      <p>
+        如果你只做 1 次检验，α=0.05 代表大约 5% 的假阳性风险；
+        但如果你做很多次检验，总体上“撞上一个显著结果”的概率会越来越高。
+        多重比较校正就是在提醒研究者：不能把每一次 p&lt;0.05 都当成同样可信。
+      </p>
+
+      <div class="box">
+        <strong>常见场景：</strong>
+        <ul>
+          <li>ANOVA 后做多组两两比较；</li>
+          <li>同一研究同时分析多个结局指标；</li>
+          <li>多个亚组分别做同样检验；</li>
+          <li>组学研究中成百上千个假设同时检验。</li>
+        </ul>
+      </div>
+
+      <table class="mini-table">
+        <thead>
+          <tr>
+            <th>方法</th>
+            <th>适用直觉</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>Bonferroni</td>
+            <td>最经典、最容易理解，较保守；适合预先计划且比较次数不太多时</td>
+          </tr>
+          <tr>
+            <td>Holm</td>
+            <td>通常比 Bonferroni 稍有更高功效，也控制家族错误率</td>
+          </tr>
+          <tr>
+            <td>Tukey HSD</td>
+            <td>常用于 ANOVA 后所有两两均值比较</td>
+          </tr>
+          <tr>
+            <td>Dunnett</td>
+            <td>常用于多个处理组都和同一个对照组比较</td>
+          </tr>
+          <tr>
+            <td>FDR</td>
+            <td>更常见于高维数据，如基因表达、蛋白组学</td>
+          </tr>
+        </tbody>
+      </table>
+
+      <div class="box example">
+        <strong>医学 toy example：</strong>
+        你比较四种治疗方案，若直接做 6 次两两比较而都用 0.05 作为阈值，
+        就会比只做一次检验时更容易出现“偶然显著”。
+        这时常要考虑 Tukey、Bonferroni 或 Holm 等校正方法。
+      </div>
+
+      <div class="box warning">
+        <strong>常见误区：</strong>
+        <ul>
+          <li>ANOVA 显著后直接做一堆未校正 t 检验，是很常见但不严谨的做法。</li>
+          <li>Bonferroni 不是唯一方法；不同研究目标下，合适的校正策略并不相同。</li>
+        </ul>
+      </div>
+
+      <h3>参考文献</h3>
+      <ol class="refs">
+        <li>
+          Bland JM, Altman DG. <em>Multiple significance tests: the Bonferroni method</em>.
+          <a href="https://pmc.ncbi.nlm.nih.gov/articles/PMC2548561/" target="_blank" rel="noopener noreferrer">PMC2548561</a>
+        </li>
+        <li>
+          Chen SY, et al. <em>A general introduction to adjustment for multiple comparisons</em>.
+          <a href="https://jtd.amegroups.org/article/view/13609/html" target="_blank" rel="noopener noreferrer">Journal of Thoracic Disease</a>
+        </li>
+        <li>
+          Lee S, Lee DK. <em>What is the proper way to apply the multiple comparison test?</em>
+          <a href="https://pmc.ncbi.nlm.nih.gov/articles/PMC6193594/" target="_blank" rel="noopener noreferrer">PMC6193594</a>
+        </li>
+      </ol>
+    </section>
+
+    <section id="summary" class="card">
+      <h2>本页最简记忆版</h2>
+      <ul class="summary-list">
+        <li><strong>正态分布：</strong>左右对称、单峰、钟形，很多参数方法与它有关。</li>
+        <li><strong>偏态分布：</strong>分布一侧尾巴更长，均值常受拉动更明显。</li>
+        <li><strong>异常值：</strong>可能是错误，也可能是真实而重要的极端病例。</li>
+        <li><strong>正态性检验：</strong>不要只看 p 值，要结合图形、样本量和后续分析目的。</li>
+        <li><strong>参数法：</strong>常基于原始数值，近似正态时效率高。</li>
+        <li><strong>非参数法：</strong>常基于秩次，偏态或等级数据时更稳健。</li>
+        <li><strong>独立样本 t 检验：</strong>比较两个独立组的均值。</li>
+        <li><strong>配对 t 检验：</strong>比较同一对象前后两次测量的平均差值。</li>
+        <li><strong>ANOVA：</strong>比较三个及以上独立组的均值总体差异。</li>
+        <li><strong>Mann–Whitney：</strong>独立两组的非参数比较。</li>
+        <li><strong>Wilcoxon 符号秩：</strong>配对两次测量的非参数比较。</li>
+        <li><strong>Kruskal–Wallis：</strong>三个及以上独立组的非参数比较。</li>
+        <li><strong>多重比较校正：</strong>检验做得越多，越要警惕假阳性累积。</li>
+      </ul>
+    </section>
+
+    <section id="self-test" class="card">
+      <h2>本页自测题（10 题）</h2>
+      <p>建议先独立作答，再看答案。</p>
+
+      <div class="quiz-item">
+        <p class="question">1. 正态分布最典型的图形特征是什么？</p>
+        <ol type="A">
+          <li>双峰且不对称</li>
+          <li>单峰、对称、钟形</li>
+          <li>只有整数取值</li>
+          <li>每个值出现概率都相同</li>
+        </ol>
+        <p class="answer"><strong>答案：</strong>B。</p>
+      </div>
+
+      <div class="quiz-item">
+        <p class="question">2. 某变量大多数值集中在较小范围，但少数特别大的值把右侧尾巴拉长。这更像哪种分布？</p>
+        <ol type="A">
+          <li>左偏</li>
+          <li>正态</li>
+          <li>右偏</li>
+          <li>双峰</li>
+        </ol>
+        <p class="answer"><strong>答案：</strong>C。右侧尾巴长，属于右偏。</p>
+      </div>	
+
+      <div class="quiz-item">
+        <p class="question">3. 正态性检验 p &gt; 0.05 的正确理解是什么？</p>
+        <ol type="A">
+          <li>数据被证明绝对正态</li>
+          <li>没有足够证据拒绝正态性</li>
+          <li>数据一定适合任何参数检验</li>
+          <li>样本量一定很大</li>
+        </ol>
+        <p class="answer"><strong>答案：</strong>B。</p>
+      </div>
+
+      <div class="quiz-item">
+        <p class="question">4. 比较两组互不重叠患者的平均血红蛋白水平，最先考虑哪种方法？</p>
+        <ol type="A">
+          <li>配对 t 检验</li>
+          <li>独立样本 t 检验</li>
+          <li>Wilcoxon 符号秩检验</li>
+          <li>Kruskal–Wallis 检验</li>
+        </ol>
+        <p class="answer"><strong>答案：</strong>B。前提是数据近似正态且设计满足独立。</p>
+      </div>
+
+      <div class="quiz-item">
+        <p class="question">5. 同一批患者治疗前后血压比较，若差值近似正态，最合适的方法是？</p>
+        <ol type="A">
+          <li>独立样本 t 检验</li>
+          <li>配对 t 检验</li>
+          <li>Mann–Whitney U 检验</li>
+          <li>单因素 ANOVA</li>
+        </ol>
+        <p class="answer"><strong>答案：</strong>B。</p>
+      </div>
+
+      <div class="quiz-item">
+        <p class="question">6. 三组独立患者的 LDL 均值比较，若数据近似正态，应优先考虑什么方法？</p>
+        <ol type="A">
+          <li>单因素 ANOVA</li>
+          <li>配对 t 检验</li>
+          <li>Wilcoxon 符号秩检验</li>
+          <li>McNemar 检验</li>
+        </ol>
+        <p class="answer"><strong>答案：</strong>A。</p>
+      </div>
+
+      <div class="quiz-item">
+        <p class="question">7. 两个独立组、数据明显偏态、并且有若干异常值时，哪种方法常比独立样本 t 检验更稳健？</p>
+        <ol type="A">
+          <li>Mann–Whitney U 检验</li>
+          <li>配对 t 检验</li>
+          <li>卡方检验</li>
+          <li>Fisher 精确检验</li>
+        </ol>
+        <p class="answer"><strong>答案：</strong>A。</p>
+      </div>
+
+      <div class="quiz-item">
+        <p class="question">8. Wilcoxon 符号秩检验与 Mann–Whitney U 检验最核心的区别是什么？</p>
+        <p class="answer"><strong>答案：</strong>Wilcoxon 符号秩检验用于配对/相关数据；Mann–Whitney U 检验用于两个独立组。</p>
+      </div>
+
+      <div class="quiz-item">
+        <p class="question">9. 为什么三组比较时，不建议直接做三次未校正 t 检验？</p>
+        <p class="answer"><strong>答案：</strong>因为会抬高总体 I 类错误率，增加假阳性风险，所以常应先做 ANOVA，再根据需要做多重比较校正后的事后分析。</p>
+      </div>
+
+      <div class="quiz-item">
+        <p class="question">10. Bonferroni 校正最主要是为了控制哪类风险？</p>
+        <ol type="A">
+          <li>II 类错误</li>
+          <li>测量误差</li>
+          <li>多次检验带来的 I 类错误膨胀</li>
+          <li>选择偏倚</li>
+        </ol>
+        <p class="answer"><strong>答案：</strong>C。</p>
+      </div>
+    </section>
+
+    <section id="references" class="card">
+      <h2>本页参考文献汇总</h2>
+      <ol class="refs">
+        <li>
+          Kim HY. <em>Assessing normal distribution in clinical research</em>.
+          <a href="https://pmc.ncbi.nlm.nih.gov/articles/PMC3568647/" target="_blank" rel="noopener noreferrer">https://pmc.ncbi.nlm.nih.gov/articles/PMC3568647/</a>
+        </li>
+        <li>
+          Ghasemi A, Zahediasl S. <em>Normality tests for statistical analysis: a guide for non-statisticians</em>.
+          <a href="https://pmc.ncbi.nlm.nih.gov/articles/PMC3693611/" target="_blank" rel="noopener noreferrer">https://pmc.ncbi.nlm.nih.gov/articles/PMC3693611/</a>
+        </li>
+        <li>
+          Mishra P, et al. <em>Descriptive statistics and normality tests for statistical data</em>.
+          <a href="https://pmc.ncbi.nlm.nih.gov/articles/PMC6350423/" target="_blank" rel="noopener noreferrer">https://pmc.ncbi.nlm.nih.gov/articles/PMC6350423/</a>
+        </li>
+        <li>
+          Vickers AJ. <em>Parametric versus non-parametric statistics in the analysis of randomized trials with non-normally distributed data</em>.
+          <a href="https://pmc.ncbi.nlm.nih.gov/articles/PMC1310536/" target="_blank" rel="noopener noreferrer">https://pmc.ncbi.nlm.nih.gov/articles/PMC1310536/</a>
+        </li>
+        <li>
+          Nahm FS. <em>Nonparametric statistical tests for the continuous data</em>.
+          <a href="https://pmc.ncbi.nlm.nih.gov/articles/PMC4754273/" target="_blank" rel="noopener noreferrer">https://pmc.ncbi.nlm.nih.gov/articles/PMC4754273/</a>
+        </li>
+        <li>
+          Statistics at Square One. <em>The t tests</em>.
+          <a href="https://www.bmj.com/about-bmj/resources-readers/publications/statistics-square-one/7-t-tests" target="_blank" rel="noopener noreferrer">https://www.bmj.com/about-bmj/resources-readers/publications/statistics-square-one/7-t-tests</a>
+        </li>
+        <li>
+          Statistics at Square One. <em>Study design and choosing a statistical test</em>.
+          <a href="https://www.bmj.com/about-bmj/resources-readers/publications/statistics-square-one/13-study-design-and-choosing-statisti" target="_blank" rel="noopener noreferrer">https://www.bmj.com/about-bmj/resources-readers/publications/statistics-square-one/13-study-design-and-choosing-statisti</a>
+        </li>
+        <li>
+          Mishra P, et al. <em>Application of Student’s t-test, analysis of variance, and covariance</em>.
+          <a href="https://pmc.ncbi.nlm.nih.gov/articles/PMC6813708/" target="_blank" rel="noopener noreferrer">https://pmc.ncbi.nlm.nih.gov/articles/PMC6813708/</a>
+        </li>
+        <li>
+          Bensken WP, et al. <em>Basic Introduction to Statistics in Medicine, Part 2: Comparing Groups</em>.
+          <a href="https://pmc.ncbi.nlm.nih.gov/articles/PMC8851223/" target="_blank" rel="noopener noreferrer">https://pmc.ncbi.nlm.nih.gov/articles/PMC8851223/</a>
+        </li>
+        <li>
+          Chicco D, et al. <em>A simple guide to the use of Student’s t-test, Mann-Whitney U test, Chi-squared test, and Kruskal-Wallis test in biostatistics</em>.
+          <a href="https://pmc.ncbi.nlm.nih.gov/articles/PMC12366075/" target="_blank" rel="noopener noreferrer">https://pmc.ncbi.nlm.nih.gov/articles/PMC12366075/</a>
+        </li>
+        <li>
+          Bland JM, Altman DG. <em>Multiple significance tests: the Bonferroni method</em>.
+          <a href="https://pmc.ncbi.nlm.nih.gov/articles/PMC2548561/" target="_blank" rel="noopener noreferrer">https://pmc.ncbi.nlm.nih.gov/articles/PMC2548561/</a>
+        </li>
+        <li>
+          Chen SY, Feng Z, Yi X. <em>A general introduction to adjustment for multiple comparisons</em>.
+          <a href="https://jtd.amegroups.org/article/view/13609/html" target="_blank" rel="noopener noreferrer">https://jtd.amegroups.org/article/view/13609/html</a>
+        </li>
+        <li>
+          Lee S, Lee DK. <em>What is the proper way to apply the multiple comparison test?</em>
+          <a href="https://pmc.ncbi.nlm.nih.gov/articles/PMC6193594/" target="_blank" rel="noopener noreferrer">https://pmc.ncbi.nlm.nih.gov/articles/PMC6193594/</a>
+        </li>
+      </ol>
+    </section>
+  </main>
+</body>
+</html>

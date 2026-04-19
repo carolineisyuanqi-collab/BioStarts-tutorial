@@ -1,0 +1,404 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>临床预测模型 | BioStarts</title>
+    <link rel="stylesheet" href="method-common.css" />
+  <script defer src="method-quiz.js"></script>
+</head>
+<body class="method-legacy-chapter">
+<nav class="method-topbar" style="background:#0f2940;color:#f8fafc;padding:12px 24px;font-family:Inter,'PingFang SC','Microsoft YaHei',sans-serif;font-size:13px;display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:8px;">
+  <a href="index.html" style="color:#fff;text-decoration:none;font-weight:600;">← BioStarts</a>
+  <span style="opacity:.85;">统计医学方法 · 第14章</span>
+</nav>
+
+
+  
+<main class="container">
+<h1>14. 临床预测模型</h1>
+
+  <section class="toc">
+    <h2 style="margin-top:0;border-bottom:none;padding-bottom:0;">本节目录</h2>
+    <ul>
+      <li><a href="#part-14-1">14.1 预测模型和病因研究的区别</a></li>
+      <li><a href="#part-14-2">14.2 Logistic 回归预测模型</a></li>
+      <li><a href="#part-14-3">14.3 列线图 Nomogram</a></li>
+      <li><a href="#part-14-4">14.4 模型区分度与校准度</a></li>
+      <li><a href="#part-14-5">14.5 内部验证与外部验证</a></li>
+      <li><a href="#part-14-6">14.6 决策曲线分析 DCA</a></li>
+      <li><a href="#summary">本节小结</a></li>
+      <li><a href="#references">延伸阅读参考文献</a></li>
+      <li><a href="#self-test">自测小题</a></li>
+    </ul>
+  </section>
+
+  <h2 id="part-14-1">14.1 预测模型和病因研究的区别</h2>
+
+  <h3>严格定义</h3>
+  <p>
+    临床预测模型（clinical prediction model）是利用多个预测因子来估计个体当前患病概率
+    或未来发生某结局概率的统计工具，其核心关注点是预测准确性。
+    病因研究（etiologic research）则主要探索暴露与疾病之间的因果关系，
+    核心关注点是因果解释。
+  </p>
+
+  <h3>通俗解释</h3>
+  <p>
+    病因研究回答“为什么会得病”，预测模型回答“谁更可能得病”。
+    因此，预测模型中纳入的变量不一定都具有因果意义，只要能提高预测性能，就可能有价值。
+  </p>
+
+  <div class="box example">
+    <strong>医学 toy example：</strong>
+    建立卒中后 90 天不良结局预测模型时，可纳入年龄、NIHSS 评分、血糖等变量。
+    这里的目标不是证明某变量导致预后变差，而是尽量准确地识别高风险患者。
+  </div>
+
+  <h3>参考文献</h3>
+  <ol class="ref">
+    <li>Steyerberg EW, et al. Assessing the performance of prediction models. 2010.</li>
+    <li>Efthimiou O, et al. Developing clinical prediction models: a step-by-step guide. 2024.</li>
+  </ol>
+
+  <h2 id="part-14-2">14.2 Logistic 回归预测模型</h2>
+
+  <h3>严格定义</h3>
+  <p>
+    当结局为二分类时，最常用的临床预测模型之一是 Logistic 回归。
+    它通过对结局发生的对数优势（log-odds）建模，得到个体结局发生的预测概率。
+  </p>
+
+  <div class="formula">
+    log(p / (1 - p)) = β0 + β1X1 + β2X2 + ... + βkXk
+  </div>
+
+  <h3>通俗解释</h3>
+  <p>
+    Logistic 回归可以理解为一个“风险打分器”，把年龄、症状、化验指标等信息合并起来，
+    最后输出某位患者发生结局的概率。
+  </p>
+
+  <div class="box warning">
+    <strong>初学者提醒：</strong>
+    用 Logistic 回归做预测时，重点不是某个变量的 P 值或 OR 是否显著，
+    而是整个模型的预测表现、稳定性与可推广性。
+  </div>
+
+  <div class="box example">
+    <strong>医学 toy example：</strong>
+    建立肺炎患者住院期间转入 ICU 的风险模型，可纳入年龄、氧饱和度、呼吸频率、CRP 等变量，
+    最终输出个体 ICU 转入风险。
+  </div>
+
+  <h3>参考文献</h3>
+  <ol class="ref">
+    <li>Efthimiou O, et al. 2024.</li>
+    <li>TRIPOD statement / explanation and elaboration. 2015.</li>
+  </ol>
+
+  <h2 id="part-14-3">14.3 列线图 Nomogram</h2>
+
+  <h3>严格定义</h3>
+  <p>
+    Nomogram（列线图）是将回归模型可视化表达的一种工具，
+    可通过给各预测因子分配分值并求总分，再映射到结局风险概率，
+    以便于临床使用。
+  </p>
+
+  <h3>通俗解释</h3>
+  <p>
+    你可以把列线图理解为“把回归公式画成一把尺子”。
+    医生不必手算复杂公式，只需在图上读取各变量对应分值并求和，即可得到预测风险。
+  </p>
+
+  <div class="box example">
+    <strong>医学 toy example：</strong>
+    肿瘤术后复发风险模型可做成列线图，医生根据年龄、肿瘤大小、淋巴结状态等变量累计总分，
+    再读取 3 年复发概率。
+  </div>
+
+  <div class="box warning">
+    <strong>注意：</strong>
+    列线图只是模型的展示形式，不等于模型一定质量高。
+    真正重要的仍然是区分度、校准度和验证情况。
+  </div>
+
+  <h3>参考文献</h3>
+  <ol class="ref">
+    <li>Gu HQ. Clinical prediction models: evaluation matters. 2020.</li>
+    <li>Efthimiou O, et al. 2024.</li>
+  </ol>
+
+  <h2 id="part-14-4">14.4 模型区分度与校准度</h2>
+
+  <h3>严格定义</h3>
+  <p>
+    区分度（discrimination）指模型区分不同结局个体的能力，
+    对二分类结局常用 AUC / C-statistic 表示。
+    校准度（calibration）指模型预测概率与实际观察到结局频率之间的一致程度。
+  </p>
+
+  <h3>通俗解释</h3>
+  <p>
+    区分度回答“模型会不会排序”，校准度回答“模型报出来的概率准不准”。
+    一个模型可能 AUC 很高，但如果系统性高估或低估风险，校准仍然不好。
+  </p>
+
+  <h3>常见评估方式</h3>
+  <ul>
+    <li>区分度：AUC / C-statistic</li>
+    <li>校准度：校准图、calibration intercept、calibration slope、O/E 比</li>
+  </ul>
+
+  <div class="box example">
+    <strong>医学 toy example：</strong>
+    某脓毒症死亡风险模型 AUC 为 0.84，但对所有患者风险都高估约两倍。
+    这说明模型会排序，但预测概率并不准确，临床直接使用可能导致过度干预。
+  </div>
+
+  <h3>参考文献</h3>
+  <ol class="ref">
+    <li>Steyerberg EW, et al. 2010.</li>
+    <li>Walsh CG, et al. Beyond Discrimination: calibration methods. 2017.</li>
+  </ol>
+
+  <h2 id="part-14-5">14.5 内部验证与外部验证</h2>
+
+  <h3>严格定义</h3>
+  <p>
+    内部验证（internal validation）是在模型开发数据框架内评估模型稳定性和过拟合程度，
+    常用 bootstrap 或交叉验证。
+    外部验证（external validation）是在不同于开发数据的新数据中评估模型表现，
+    主要判断模型是否具有可推广性。
+  </p>
+
+  <h3>通俗解释</h3>
+  <p>
+    内部验证是在问“模型是不是只会做原题”；
+    外部验证是在问“换一批新患者后，它还准不准”。
+  </p>
+
+  <div class="box example">
+    <strong>医学 toy example：</strong>
+    某医院开发胸痛患者 30 天 MACE 风险模型，在本院数据中表现很好，
+    但换到另一家医院后 AUC 降低且校准变差。
+    这说明模型可能存在可迁移性问题。
+  </div>
+
+  <div class="box warning">
+    <strong>最重要的实践认识：</strong>
+    没有外部验证的预测模型，通常还不足以轻易推广到广泛临床使用。
+  </div>
+
+  <h3>参考文献</h3>
+  <ol class="ref">
+    <li>Evaluation of clinical prediction models (part 3): external validation sample size. 2024.</li>
+    <li>Steyerberg EW, et al. 2010.</li>
+  </ol>
+
+  <h2 id="part-14-6">14.6 决策曲线分析 DCA</h2>
+
+  <h3>严格定义</h3>
+  <p>
+    决策曲线分析（decision curve analysis, DCA）是评价预测模型临床实用性的方法。
+    它通过不同阈值概率下的净获益（net benefit），比较“使用模型”“全部干预”“全部不干预”等策略的价值。
+  </p>
+
+  <h3>通俗解释</h3>
+  <p>
+    DCA 想回答的是：如果临床真的按照这个模型做决策，会不会比现有策略得到更多收益、减少更多伤害？
+    因此它比单纯 AUC 更贴近真实决策。
+  </p>
+
+  <h3>核心概念：阈值概率</h3>
+  <p>
+    阈值概率表示风险高到什么程度时，医生或患者愿意采取干预。
+    例如风险超过 10% 就建议活检，那么 10% 就是一个决策阈值。
+  </p>
+
+  <div class="box example">
+    <strong>医学 toy example：</strong>
+    某前列腺癌风险模型的 DCA 显示，在 10%–25% 的阈值概率范围内，
+    使用模型的净获益高于“全部穿刺”和“全部不穿刺”。
+    这提示模型在该风险区间内可能具有临床价值。
+  </div>
+
+  <h3>参考文献</h3>
+  <ol class="ref">
+    <li>Vickers AJ, Elkin EB. Decision curve analysis: a novel method for evaluating prediction models. 2006.</li>
+    <li>Vickers AJ, et al. Decision curve analysis to evaluate the clinical benefit of prediction models. 2021.</li>
+  </ol>
+
+  <h2 id="summary">本节小结</h2>
+  <div class="summary">
+    <p>
+      临床预测模型的目标是利用多个信息估计个体风险，从而辅助临床决策。
+      它不同于病因研究，重点不在因果解释，而在预测表现和临床应用价值。
+    </p>
+    <p>
+      Logistic 回归是最常见的预测建模方法之一，Nomogram 只是其可视化表达形式。
+      真正决定模型质量的，是区分度、校准度、验证结果以及临床净获益。
+    </p>
+    <p>
+      对医学生而言，最重要的不是记住几个术语，而是建立“开发—评估—验证—应用”的完整框架。
+      只有经过充分验证、且在临床阈值范围内显示净获益的模型，才更可能真正有用。
+    </p>
+  </div>
+
+  <h2 id="references">延伸阅读参考文献</h2>
+  <ol class="ref">
+    <li>Steyerberg EW, et al. Assessing the performance of prediction models. 2010.</li>
+    <li>Efthimiou O, et al. Developing clinical prediction models: a step-by-step guide. 2024.</li>
+    <li>Gu HQ. Clinical prediction models: evaluation matters. 2020.</li>
+    <li>Alba AC, et al. Discrimination and Calibration of Clinical Prediction Models. 2017.</li>
+    <li>Walsh CG, et al. Beyond Discrimination: calibration methods. 2017.</li>
+    <li>TRIPOD statement / explanation and elaboration. 2015.</li>
+    <li>TRIPOD+AI statement. 2024.</li>
+    <li>Evaluation of clinical prediction models (part 3): external validation. 2024.</li>
+    <li>Vickers AJ, Elkin EB. Decision curve analysis. 2006.</li>
+    <li>Vickers AJ, et al. Decision curve analysis to evaluate clinical benefit. 2021.</li>
+  </ol>
+
+  <section id="self-test" class="card">
+    <h2>自测小题</h2>
+    <p style="margin-top:0;font-size:0.9em;opacity:.85;">以下 10 题为临床预测模型思考题；每题含「核心答案」「展开讲解」「通俗例子」。先写要点，再点击「提交并显示参考答案」对照。</p>
+
+    <div class="quiz-item">
+      <p class="question">1. 预测模型研究和病因研究的核心目标分别是什么？</p>
+      <div class="answer">
+        <h4>核心答案</h4>
+        <p><strong>病因研究</strong>：估计暴露与结局的<strong>因果效应</strong>（X 是否导致 Y、效应多大），关心参数无偏性。<strong>预测模型研究</strong>：在给定变量下<strong>尽可能准确预测结局</strong>（个体发生 Y 的概率），关心<strong>预测准确性与临床可用性</strong>。变量可相同，但问题、建模逻辑与评价标准不同。</p>
+        <h4>展开讲解</h4>
+        <table class="mini-table">
+          <thead><tr><th>维度</th><th>病因研究</th><th>预测模型</th></tr></thead>
+          <tbody>
+            <tr><td>核心问题</td><td>X 是否导致 Y？</td><td>个体未来 Y 的概率？</td></tr>
+            <tr><td>关心量</td><td>调整效应 OR/RR/HR</td><td>P(Y|X)</td></tr>
+            <tr><td>变量选择</td><td>因果 DAG、控混杂</td><td>预测性能，不讲因果</td></tr>
+            <tr><td>评价</td><td>偏倚、混杂控制</td><td>AUC、校准、DCA、外部验证</td></tr>
+            <tr><td>报告</td><td>STROBE 等</td><td>TRIPOD+AI、PROBAST+AI</td></tr>
+          </tbody>
+        </table>
+        <p>病因问“为什么”；预测问“是什么样”。预测可纳入不可干预变量甚至代理变量，只要有助于预测。</p>
+        <h4>通俗例子</h4>
+        <p>同一批胸痛急诊数据：病因研究问“hs-troponin 是否因果增加 90 天心血管死亡风险”；预测研究问“这位新患者 90 天死亡概率是多少”——变量与模型结构可完全不同。<strong>混淆两类研究是常见方法学错误。</strong></p>
+      </div>
+    </div>
+    <div class="quiz-item">
+      <p class="question">2. 为什么一个变量即使没有明确因果意义，也可能被纳入预测模型？</p>
+      <div class="answer">
+        <h4>核心答案</h4>
+        <p>预测模型按“<strong>是否提高预测性能</strong>”选变量，不按“是否为因果因子”。变量可作为<strong>代理</strong>、反映未测混杂、严重度综合标志等而预测力强，却无直接因果作用。</p>
+        <h4>展开讲解</h4>
+        <p>常见类型：（1）代理变量（如邮编）；（2）共同结果标志（如就医次数）；（3）上游标志（如 CRP）；（4）严重度（如 GCS）；（5）行为/依从性。</p>
+        <p><strong>勿把预测系数当因果：</strong>“独立预测因子”≠“独立危险因素”；TRIPOD+AI 要求避免此类误读。</p>
+        <h4>通俗例子</h4>
+        <p>再入院模型可纳入年龄、上次住院日数、家到院距离、家属陪同、急诊次数等——病因研究可能慎用，但预测任务中常很有用。<strong>预测要猜得准，不是解释世界。</strong></p>
+      </div>
+    </div>
+    <div class="quiz-item">
+      <p class="question">3. Logistic 回归预测模型输出的核心临床信息是什么？</p>
+      <div class="answer">
+        <h4>核心答案</h4>
+        <p>最核心不是 OR，而是<strong>个体预测概率</strong> ŷ = P(Y=1|X)。OR 只是算概率的中间量；临床结合<strong>决策阈值</strong>判断是否干预。</p>
+        <div class="formula">ŷ = 1 / ( 1 + e<sup>−(β₀ + Σ βᵢXᵢ)</sup> )</div>
+        <h4>展开讲解</h4>
+        <p>病因用途强调 OR；预测用途强调 <strong>ŷ</strong>，配套 AUC、校准图、DCA。完整链条：X → 线性预测 η → ŷ → 阈值 → 决策。概率要可用需<strong>区分度</strong>（排得开）与<strong>校准度</strong>（数值对）兼备。</p>
+        <p>TRIPOD/TRIPOD+AI 要求：完整方程或工具（nomogram/计算器）、系数含截距、标准化说明、校准与 DCA 等。</p>
+        <h4>通俗例子</h4>
+        <p>应报告“该患者 5 年事件概率 <strong>18.5%</strong>（95% CI …），超过科室阈值则干预”，而非只罗列 OR——否则无法为具体病人决策。</p>
+      </div>
+    </div>
+    <div class="quiz-item">
+      <p class="question">4. Nomogram 和预测模型本身是什么关系？</p>
+      <div class="answer">
+        <h4>核心答案</h4>
+        <p>Nomogram 是<strong>预测模型的可视化工具</strong>，把 Logistic/Cox 公式变成可手工打分的图；<strong>不是独立模型</strong>。<strong>模型是发动机，Nomogram 是仪表盘。</strong></p>
+        <h4>展开讲解</h4>
+        <p>将各 βᵢXᵢ 缩放到分值尺度，加总得总分，再映射到概率。优点：无电脑也可用、直观、教学友好。局限：主要适用于线性/广义线性；树模型、RF、神经网络<strong>不能直接</strong>画传统 nomogram；变量过多难读；复杂非线性呈现麻烦。现代更常推<strong>在线计算器/Shiny</strong>与代码，TRIPOD+AI 亦支持。</p>
+        <h4>通俗例子</h4>
+        <p>医生把各变量读分、加总、在“总分→概率”轴上读 5 年风险——<strong>落地用模型</strong>，不改变模型本身性能。</p>
+      </div>
+    </div>
+    <div class="quiz-item">
+      <p class="question">5. 区分度和校准度分别回答什么问题？</p>
+      <div class="answer">
+        <h4>核心答案</h4>
+        <p><strong>区分度</strong>：能否把真阳性与真阴性<strong>排开</strong>（高危更可能真病）——常用 AUC/C。<strong>校准度</strong>：预测概率是否为“真概率”（预测 80% 发病者实际是否≈80%）——校准图、校准斜率/截距、Brier、H-L 等。二者<strong>独立</strong>；临床使用通常两者都要好。</p>
+        <h4>展开讲解</h4>
+        <p>区分关心<strong>排序</strong>；校准关心<strong>概率绝对值</strong>。可“好排序差校准”（可尝试重新校准）或“好校准差排序”（决策价值低）。</p>
+        <h4>通俗例子</h4>
+        <p>对所有天都预测 30% 下雨、而年均正是 30% → 校准完美但无法区分晴雨 → <strong>无决策价值</strong>。</p>
+      </div>
+    </div>
+    <div class="quiz-item">
+      <p class="question">6. 为什么说“AUC 高”并不等于“模型一定好”？</p>
+      <div class="answer">
+        <h4>核心答案</h4>
+        <p>AUC 只量<strong>区分度</strong>，不量校准、临床效用、公平性、泛化。高 AUC 仍可能：概率系统性偏（校准差）、亚组不公平、阈值下净获益差（DCA）、外部验证崩盘。AUC 是<strong>必要非充分</strong>。</p>
+        <h4>展开讲解</h4>
+        <p>局限：① 不反映概率准确性；② 不反映特定阈值下净获益；③ 罕见结局可看 AUPRC；④ 亚组 AUC 可差异大；⑤ 内部 AUC 易乐观。严谨报告：AUC+AUPRC、校准、DCA、内外验证、子群体。</p>
+        <h4>通俗例子</h4>
+        <p>宣称住院死亡 AUC=0.94，但“20% 死亡”组实际 45%、某族裔 AUC 很低、外院 AUC 骤降、DCA 不如全治——<strong>数字好看仍不可用</strong>。</p>
+      </div>
+    </div>
+    <div class="quiz-item">
+      <p class="question">7. 内部验证和外部验证分别解决什么问题？</p>
+      <div class="answer">
+        <h4>核心答案</h4>
+        <p><strong>内部验证</strong>：同一数据集内评估<strong>过拟合与乐观偏差</strong>（bootstrap、交叉验证、留出法等）。<strong>外部验证</strong>：在<strong>独立人群/医院/时段</strong>上评估<strong>泛化能力</strong>。二者不可互相替代。</p>
+        <h4>展开讲解</h4>
+        <p>内部：简单拆分、K 折、Bootstrap 乐观校正等。内部解决不了选择偏倚、时间漂移、地域与实验室差异——需<strong>外部验证</strong>。外推程度：时间 → 地域 → 完全独立。外推时常见 AUC 下降、校准恶化，常需<strong>重新校准</strong>。TRIPOD+AI 区分开发者与验证者清单。</p>
+        <h4>通俗例子</h4>
+        <p>美国 ICU 模型内部 CV 很好，换数据库/国家 AUC 逐步下降——<strong>验证才知真实面目</strong>；建模快、验证往往慢。</p>
+      </div>
+    </div>
+    <div class="quiz-item">
+      <p class="question">8. 为什么没有外部验证的模型通常不能轻易推广？</p>
+      <div class="answer">
+        <h4>核心答案</h4>
+        <p>内部验证<strong>几乎总高估</strong>真实泛化：模型适应了训练人群、时段与系统的“印记”。无外推时无法区分<strong>真预测能力</strong>与<strong>记忆数据特性</strong>；推广等于假设新数据同分布，医学里常不成立。</p>
+        <h4>展开讲解</h4>
+        <p>机制：过拟合、数据集特有捷径、数据泄漏、选择偏倚、标签偏倚、分布漂移。文献教训：部分商业脓毒症模型外验性能落差；COVID-19 早期大量模型 PROBAST 风险高。严谨做法：内部乐观校正、至少一项外部验证、诚实讨论性能下降与使用边界、必要时 recalibration。</p>
+        <h4>通俗例子</h4>
+        <p>只给家人做菜得好评≠对陌生食客也好——<strong>外验是“陌生顾客试吃”</strong>。</p>
+      </div>
+    </div>
+    <div class="quiz-item">
+      <p class="question">9. DCA 中阈值概率是什么意思？</p>
+      <div class="answer">
+        <h4>核心答案</h4>
+        <p><strong>阈值概率 p<sub>t</sub></strong>：认为“预测概率≥ p<sub>t</sub> 就值得干预”的<strong>决策边界</strong>；隐含假阴性与假阳性<strong>相对代价</strong>比 ≈ (1−p<sub>t</sub>) : p<sub>t</sub>。DCA 在各 p<sub>t</sub> 下画<strong>净获益</strong>曲线。</p>
+        <h4>展开讲解</h4>
+        <div class="formula">NB = (TP/N) − (FP/N) × p<sub>t</sub> / (1 − p<sub>t</sub>)</div>
+        <p>图上比较<strong>按模型干预</strong> vs <strong>全治</strong> vs <strong>全不治</strong>。筛查常 p<sub>t</sub> 低；高代价干预常 p<sub>t</sub> 高。合理区间应报告一段阈值范围。</p>
+        <h4>通俗例子</h4>
+        <p>同一模型在 p<sub>t</sub>=5% 与 30% 下净获益可完全不同——DCA 让医生<strong>按自己的阈值</strong>看价值。</p>
+      </div>
+    </div>
+    <div class="quiz-item">
+      <p class="question">10. 为什么 DCA 比单纯 AUC 更接近临床决策？</p>
+      <div class="answer">
+        <h4>核心答案</h4>
+        <p>AUC 只答“排序好不好”；DCA 答“在<strong>实际使用的阈值</strong>下，按模型决策比全治/全不治<strong>净获益多多少</strong>”。AUC 是方法学指标；DCA 把性能、阈值与代价统一到<strong>净获益</strong>，更贴近决策。</p>
+        <h4>展开讲解</h4>
+        <table class="mini-table">
+          <thead><tr><th>维度</th><th>AUC</th><th>DCA</th></tr></thead>
+          <tbody>
+            <tr><td>问题</td><td>排序</td><td>阈值下净获益</td></tr>
+            <tr><td>阈值</td><td>不依赖</td><td>显式扫描</td></tr>
+            <tr><td>基准</td><td>无</td><td>对比全治/全不治</td></tr>
+          </tbody>
+        </table>
+        <p>DCA 可暴露“AUC 高但在合理阈值无额外价值”的模型；局限包括阈值主观性、需结合成本效益、校准影响曲线、生存结局需 time-dependent DCA。</p>
+        <p><strong>心法：</strong>AUC→区分；校准→概率诚实；DCA→阈值下临床价值；外部验证→现实泛化——合格研究宜<strong>四门俱备</strong>（TRIPOD+AI、PROBAST+AI 导向）。</p>
+        <h4>通俗例子</h4>
+        <p>术后 PE 模型 AUC=0.87；看 DCA 可知在哪些 p<sub>t</sub> 区间优于全抗凝或全不抗凝——<strong>直接回答“该不该按模型抗凝”</strong>。</p>
+      </div>
+    </div>
+  </section>
+</main>
+
+</body>
+</html>

@@ -1,0 +1,405 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>缺失值处理 | BioStarts</title>
+    <link rel="stylesheet" href="method-common.css" />
+  <script defer src="method-quiz.js"></script>
+</head>
+<body class="method-legacy-chapter">
+<nav class="method-topbar" style="background:#0f2940;color:#f8fafc;padding:12px 24px;font-family:Inter,'PingFang SC','Microsoft YaHei',sans-serif;font-size:13px;display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:8px;">
+  <a href="index.html" style="color:#fff;text-decoration:none;font-weight:600;">← BioStarts</a>
+  <span style="opacity:.85;">统计医学方法 · 第16章</span>
+</nav>
+
+
+  
+<main class="container">
+<h1>16. 缺失值处理</h1>
+
+  <section class="toc">
+    <h2 style="margin-top:0;border-bottom:none;padding-bottom:0;">本节目录</h2>
+    <ul>
+      <li><a href="#part-16-1">16.1 缺失数据为什么是问题</a></li>
+      <li><a href="#part-16-2">16.2 完全病例分析</a></li>
+      <li><a href="#part-16-3">16.3 缺失机制：MCAR / MAR / MNAR</a></li>
+      <li><a href="#part-16-4">16.4 多重插补 Multiple Imputation</a></li>
+      <li><a href="#part-16-5">16.5 缺失值分析的报告方式</a></li>
+      <li><a href="#summary">本节小结</a></li>
+      <li><a href="#references">延伸阅读参考文献</a></li>
+      <li><a href="#self-test">自测小题</a></li>
+    </ul>
+  </section>
+
+  <h2 id="part-16-1">16.1 缺失数据为什么是问题</h2>
+
+  <h3>严格定义</h3>
+  <p>
+    缺失数据是指研究中本应观测到的变量值没有被记录下来。
+    缺失可以发生在基线协变量、暴露变量、结局变量或随访测量中。
+    它会导致信息损失，并可能引入系统偏倚。
+  </p>
+
+  <h3>通俗解释</h3>
+  <p>
+    缺失值的问题不只是“样本少了一些”，更大的问题是：缺失往往不是随机发生的。
+    如果缺失更多地出现在某类患者身上，最后分析结果就可能被扭曲。
+  </p>
+
+  <div class="box example">
+    <strong>医学 toy example：</strong>
+    糖尿病随访研究中，控制不好的患者更容易中途失访。
+    若最后只分析完成随访者，就可能高估治疗效果。
+  </div>
+
+  <h3>参考文献</h3>
+  <ol class="ref">
+    <li>Sterne JAC, et al. Multiple imputation for missing data in epidemiological and clinical research. BMJ. 2009.</li>
+    <li>Carpenter JR, et al. Missing data: A statistical framework for practice. 2021.</li>
+  </ol>
+
+  <h2 id="part-16-2">16.2 完全病例分析</h2>
+
+  <h3>严格定义</h3>
+  <p>
+    完全病例分析（complete-case analysis, CCA）是仅使用在分析所需全部变量上都无缺失的个体进行分析，
+    含有任何缺失值的个体都被排除。
+  </p>
+
+  <h3>通俗解释</h3>
+  <p>
+    谁的数据不完整，就不分析谁。这种方法最简单，但不一定合理。
+  </p>
+
+  <h3>优点与局限</h3>
+  <ul>
+    <li>优点：简单、直接、容易操作；</li>
+    <li>局限：会丢失样本，降低效能；若缺失不是完全随机，可能产生偏倚。</li>
+  </ul>
+
+  <div class="box example">
+    <strong>医学 toy example：</strong>
+    若吸烟史缺失更多地发生在吸烟者本人身上，
+    完全病例分析后留下的样本就可能系统性低估吸烟比例。
+  </div>
+
+  <div class="box warning">
+    <strong>提醒：</strong>
+    论文中若写“删除缺失病例后分析”，不能默认这样做没有问题，
+    还要看缺失比例和缺失原因。
+  </div>
+
+  <h3>参考文献</h3>
+  <ol class="ref">
+    <li>Sterne JAC, et al. 2009.</li>
+    <li>Pedersen AB, et al. Missing data and multiple imputation in clinical epidemiological research. 2017.</li>
+  </ol>
+
+  <h2 id="part-16-3">16.3 缺失机制：MCAR / MAR / MNAR</h2>
+
+  <h3>严格定义</h3>
+  <ul>
+    <li><strong>MCAR</strong>：缺失与任何已观测或未观测数据都无关；</li>
+    <li><strong>MAR</strong>：给定已观测数据后，缺失不再依赖未观测值本身；</li>
+    <li><strong>MNAR</strong>：即使给定已观测数据，缺失仍依赖未观测值本身。</li>
+  </ul>
+
+  <h3>通俗解释</h3>
+  <p>
+    MCAR 像随机丢失；MAR 是“虽然不完全随机，但可由已知信息解释”；
+    MNAR 则是“缺失与真正没测到的值本身有关”，最难处理。
+  </p>
+
+  <div class="box example">
+    <strong>医学 toy example：</strong>
+    若老年患者更容易漏填问卷，而年龄是已知的，这更接近 MAR；
+    若抑郁越严重的人越不愿填写抑郁评分，而严重程度正是未观测结果本身，则更接近 MNAR。
+  </div>
+
+  <div class="box warning">
+    <strong>注意：</strong>
+    真实研究中严格的 MCAR 并不常见。
+    多重插补通常基于 MAR 作为工作假设。
+  </div>
+
+  <h3>参考文献</h3>
+  <ol class="ref">
+    <li>Carpenter JR, et al. 2021.</li>
+    <li>Pedersen AB, et al. 2017.</li>
+  </ol>
+
+  <h2 id="part-16-4">16.4 多重插补 Multiple Imputation</h2>
+
+  <h3>严格定义</h3>
+  <p>
+    多重插补（multiple imputation, MI）通过建立插补模型，为每个缺失值生成多个合理可能的替代值，
+    形成多个完整数据集；在每个数据集上重复相同分析后，再按 Rubin 规则合并结果。
+  </p>
+
+  <h3>通俗解释</h3>
+  <p>
+    多重插补不是只填一个“最可能”的数，而是生成多个可能版本，
+    让最终分析结果能反映“我们其实并不确定真实缺失值是什么”。
+  </p>
+
+  <h3>为什么比单次填补更好</h3>
+  <ul>
+    <li>能更充分利用样本信息；</li>
+    <li>通常比完全病例分析偏倚更小；</li>
+    <li>能够把缺失引起的不确定性纳入标准误和置信区间。</li>
+  </ul>
+
+  <div class="box example">
+    <strong>医学 toy example：</strong>
+    ICU 预后研究中，BMI、乳酸等基线指标有缺失。
+    研究者可用年龄、性别、严重度评分、其他实验室指标和结局变量做多重插补，
+    生成多个完整数据集后再做 Logistic 回归分析。
+  </div>
+
+  <div class="box warning">
+    <strong>最重要的一句：</strong>
+    多重插补不是“把空白补满”，而是在合理假设下减少偏倚并保留不确定性。
+  </div>
+
+  <h3>参考文献</h3>
+  <ol class="ref">
+    <li>Austin PC, van Buuren S. Missing Data in Clinical Research: A Tutorial on Multiple Imputation. 2021.</li>
+    <li>Li P, et al. Multiple Imputation: A Flexible Tool for Handling Missing Data. 2015.</li>
+  </ol>
+
+  <h2 id="part-16-5">16.5 缺失值分析的报告方式</h2>
+
+  <h3>严格定义</h3>
+  <p>
+    高质量研究应透明报告缺失数据的规模、模式、处理方法、关键假设及其对结果的影响。
+    仅写“采用多重插补处理缺失值”通常是不够的。
+  </p>
+
+  <h3>至少应报告哪些内容</h3>
+  <ul>
+    <li>各关键变量缺失的人数和比例；</li>
+    <li>缺失的可能原因和模式；</li>
+    <li>采用的处理方法（如 CCA、MI）；</li>
+    <li>该方法依赖的假设（如 MAR）；</li>
+    <li>若做 MI，应报告插补模型、插补次数、软件和关键设置；</li>
+    <li>是否做了敏感性分析。</li>
+  </ul>
+
+  <div class="box example">
+    <strong>医学 toy example：</strong>
+    一篇论文若明确写出 BMI 缺失 12%、CRP 缺失 8%、结局失访 6%，
+    并报告采用链式方程法生成 20 个插补数据集，且主要结果与完全病例分析方向一致，
+    这种报告就明显比只写“采用 MI 处理缺失值”更透明。
+  </div>
+
+  <h3>通俗解释</h3>
+  <p>
+    缺失值处理不只是“做了什么”，还要“说清楚怎么做的、为什么这样做、结果是否稳健”。
+  </p>
+
+  <h3>参考文献</h3>
+  <ol class="ref">
+    <li>STROBE Statement / EQUATOR guidance.</li>
+    <li>Karahalios A, et al. Reporting and handling of missing data in observational studies. 2012.</li>
+  </ol>
+
+  <h2 id="summary">本节小结</h2>
+  <div class="summary">
+    <p>
+      缺失值处理之所以重要，是因为它不仅会减少样本量，更可能改变研究对象构成并引入偏倚。
+      对医学研究而言，缺失值绝不是一个可以轻描淡写带过的技术细节。
+    </p>
+    <p>
+      完全病例分析虽然简单，但往往代价较大。
+      MCAR、MAR、MNAR 框架帮助我们理解“数据是怎么缺的”，也决定了不同方法是否合理。
+      在 MAR 假设下，多重插补通常是较常用且较推荐的方法。
+    </p>
+    <p>
+      对医学生最重要的实践认识是：
+      缺失值可能带来偏倚；多重插补不是随便填数；评价论文时应同时关注缺失机制、处理方法、报告透明度和敏感性分析。
+    </p>
+  </div>
+
+  <h2 id="references">延伸阅读参考文献</h2>
+  <ol class="ref">
+    <li>Sterne JAC, et al. Multiple imputation for missing data in epidemiological and clinical research. BMJ. 2009.</li>
+    <li>Austin PC, van Buuren S. Missing Data in Clinical Research: A Tutorial on Multiple Imputation. 2021.</li>
+    <li>Carpenter JR, et al. Missing data: A statistical framework for practice. 2021.</li>
+    <li>Pedersen AB, et al. Missing data and multiple imputation in clinical epidemiological research. 2017.</li>
+    <li>Li P, et al. Multiple Imputation: A Flexible Tool for Handling Missing Data. 2015.</li>
+    <li>Tan PT, et al. Controlled multiple imputation in randomized trials. 2021.</li>
+    <li>Mainzer R, et al. MI in observational studies that address causal questions. 2023.</li>
+    <li>Rezvan PH, et al. Review of reporting and implementation of MI. 2015.</li>
+    <li>STROBE Statement / EQUATOR Network.</li>
+    <li>Karahalios A, et al. Reporting and handling of missing data in observational studies. 2012.</li>
+  </ol>
+
+  <section id="self-test" class="card">
+    <h2>自测小题</h2>
+    <p style="margin-top:0;font-size:0.9em;opacity:.85;">第 1–8 题为课程给定「要点 + 完整严谨答案」；第 9–10 题为补充小题。先自答，再点击「提交并显示参考答案」核对。</p>
+
+    <div class="quiz-item">
+      <p class="question">1. 为什么说缺失值不仅会降低样本量，还可能带来偏倚？</p>
+      <div class="answer">
+        <h4>要点</h4>
+        <ul>
+          <li>缺失值会减少可用于分析的观测数，降低统计效能。</li>
+          <li>更重要的是，缺失往往不是随机发生的。</li>
+          <li>如果“谁更容易缺失”与暴露、结局或重要协变量有关，分析样本就不再代表原始目标人群。</li>
+          <li>这种系统性差异会导致参数估计偏离真实值，形成偏倚。</li>
+        </ul>
+        <h4>完整严谨答案</h4>
+        <p>缺失值的直接后果之一是<strong>有效样本量减少</strong>。样本量变小会导致标准误增大、置信区间变宽、检验效能下降，因此研究更难发现真实存在的效应。</p>
+        <p>但缺失值的问题并不止于“样本变少”。更关键的是，缺失常常具有<strong>系统性</strong>。也就是说，发生缺失的个体与未缺失个体可能在疾病严重程度、依从性、社会经济特征、治疗反应、预后风险等方面存在差异。如果这种差异又与研究中的暴露或结局有关，那么最终进入分析的数据就不再是目标总体的一个无偏代表，所得结果可能偏离真实关联或真实效应。</p>
+        <p>例如，在随访研究中，病情较重的患者更容易失访；如果研究只分析完成随访者，就可能低估不良结局发生率，或扭曲暴露与结局之间的关系。因此，缺失值既会带来<strong>精度损失</strong>，也会带来<strong>选择性偏差或估计偏倚</strong>。这就是为什么处理缺失值不能只把它看成“样本量问题”，而应把它视为一个潜在的<strong>内部真实性问题</strong>。</p>
+      </div>
+    </div>
+    <div class="quiz-item">
+      <p class="question">2. 完全病例分析的基本做法是什么？</p>
+      <div class="answer">
+        <h4>要点</h4>
+        <ul>
+          <li>只保留所有分析所需变量都完整的个体。</li>
+          <li>含任一关键变量缺失的个体被排除。</li>
+          <li>实现简单，但可能浪费信息并引入偏倚。</li>
+          <li>只有在较强条件下才较合理。</li>
+        </ul>
+        <h4>完整严谨答案</h4>
+        <p>完全病例分析（complete-case analysis, CCA）的基本做法是：<strong>仅纳入在所有进入分析模型的变量上都没有缺失值的研究对象</strong>，而将任何一个所需变量缺失的个体全部排除。</p>
+        <p>例如，若一个回归模型需要年龄、性别、BMI、血压和结局变量，那么只要某位受试者在这几个变量中的任意一个上缺失，该受试者就不会进入最终分析。换言之，CCA 分析的是“观测信息完整的一组子样本”。</p>
+        <p>这种方法的优点是概念直观、实施方便，许多统计软件默认也容易完成；但缺点同样明显：第一，它常常会显著减少样本量；第二，如果缺失并非完全随机，完整病例样本可能与原始样本存在系统差异，从而带来偏倚。因此，CCA 并不是“天然正确”的默认方法，而只是缺失数据处理的一种特殊策略，其合理性取决于缺失机制和研究场景。</p>
+      </div>
+    </div>
+    <div class="quiz-item">
+      <p class="question">3. MCAR、MAR、MNAR 三种缺失机制最核心的区别是什么？</p>
+      <div class="answer">
+        <h4>要点</h4>
+        <ul>
+          <li>核心区别在于：缺失概率依赖于什么信息。</li>
+          <li>MCAR：缺失与任何已观测或未观测数据都无关。</li>
+          <li>MAR：缺失可由已观测信息解释，但在给定这些已观测信息后，不再依赖未观测值本身。</li>
+          <li>MNAR：即使控制已观测信息后，缺失仍与未观测值本身有关。</li>
+        </ul>
+        <h4>完整严谨答案</h4>
+        <p>MCAR、MAR 和 MNAR 的最核心区别在于：<strong>一个观测值发生缺失的概率，到底依赖哪些因素</strong>。</p>
+        <p><strong>（1）MCAR：Missing Completely At Random</strong> — 在<strong>完全随机缺失</strong>下，缺失的发生与任何变量都无关，不论是已观测到的数据，还是未观测到的数据本身，都不影响缺失概率。这意味着缺失就像“纯随机事件”，例如实验室机器偶发故障导致部分样本检测失败，且故障与受试者特征和真实结果都无关。</p>
+        <p><strong>（2）MAR：Missing At Random</strong> — 在<strong>随机缺失</strong>下，缺失的发生可以与已观测到的信息有关，但在给定这些已观测信息后，缺失不再额外依赖于该变量未观测到的真实值本身。例如，老年患者更可能漏填问卷；如果年龄已被完整记录，那么在控制年龄后，问卷是否缺失不再取决于问卷中未填写的真实答案。</p>
+        <p><strong>（3）MNAR：Missing Not At Random</strong> — 在<strong>非随机缺失</strong>下，即使已经考虑了所有已观测变量，缺失的发生仍然依赖于未观测值本身，或依赖于某些未被记录的重要因素。例如，抑郁程度越高的患者越不愿意填写心理量表，而“抑郁程度”本身恰恰就是缺失的内容；这时缺失概率直接依赖于未观测值本身，属于典型 MNAR。</p>
+        <p>因此，这三者的区别并不在于“缺失多不多”，而在于<strong>缺失机制是否能由已观测数据充分解释</strong>。</p>
+      </div>
+    </div>
+    <div class="quiz-item">
+      <p class="question">4. 为什么真实医学研究中严格的 MCAR 往往并不常见？</p>
+      <div class="answer">
+        <h4>要点</h4>
+        <ul>
+          <li>医学研究中的缺失常与患者特征、病情、依从性、失访倾向、医疗流程等有关。</li>
+          <li>这些因素通常与暴露、结局或协变量相关。</li>
+          <li>因而缺失很少是“完全与任何信息无关”的纯随机事件。</li>
+          <li>所以严格 MCAR 在现实中通常较少见。</li>
+        </ul>
+        <h4>完整严谨答案</h4>
+        <p>在真实医学研究中，严格意义上的 MCAR 往往并不常见，原因在于医学数据的缺失通常并不是“无缘无故”发生的，而是与研究对象本身或研究实施过程中的某些因素相关。</p>
+        <p>例如，病情更严重的患者可能更容易失访；症状较重者可能更不愿填写生活质量问卷；老年患者或教育程度较低者可能更容易漏答调查项目；某些检查项目可能因为医生判断“没必要”而未做，而这种判断又常与患者临床状态有关。可见，缺失通常与年龄、疾病严重程度、治疗依从性、经济状况、医疗资源可及性等因素相关，而这些因素往往又与研究中的暴露和结局密切相关。</p>
+        <p>因此，在医学研究中，缺失更常见的情况是：它至少与某些<strong>已观测特征</strong>相关，即更接近 MAR；或者甚至与未观测值本身相关，即可能接近 MNAR。真正意义上“既不依赖已观测信息，也不依赖未观测信息”的 MCAR，在实际中通常只出现在少数技术性、偶发性、与个体特征无关的场景中，因此并不常见。</p>
+      </div>
+    </div>
+    <div class="quiz-item">
+      <p class="question">5. 多重插补与“单次填补一个值”最本质的区别是什么？</p>
+      <div class="answer">
+        <h4>要点</h4>
+        <ul>
+          <li>单次填补只生成一个“确定”的填充值，常低估不确定性。</li>
+          <li>多重插补会生成多个合理版本的数据集。</li>
+          <li>它把“缺失值的不确定性”纳入最终推断。</li>
+          <li>核心差异在于是否正确传播插补不确定性。</li>
+        </ul>
+        <h4>完整严谨答案</h4>
+        <p>多重插补（multiple imputation, MI）与“单次填补一个值”最本质的区别在于：<strong>多重插补不仅填补缺失值，还显式保留并传播了因缺失带来的不确定性；而单次填补通常把填补结果当作确定值处理，从而低估不确定性。</strong></p>
+        <p>单次填补的例子包括用均值、中位数、回归预测值或最近邻值对每个缺失点只填一次。这种方法会产生一个“完整数据集”，但它隐含地把填入的数值当成真实值来看待，忽略了“这个缺失值本来可能有多种合理取值”的事实。因此，单次填补往往导致方差被低估、标准误偏小、置信区间过窄，甚至使显著性检验看起来比实际更“显著”。</p>
+        <p>而多重插补的思想是：根据统计模型，从缺失值的条件分布中反复抽样，生成多个彼此略有差异但都合理的完整数据集；然后对每个数据集分别分析，最后按 Rubin’s rules 合并结果。这样得到的最终估计同时反映了：(1) 每个完整数据集内部的抽样变异；(2) 不同插补数据集之间的差异，即缺失带来的额外不确定性。</p>
+        <p>因此，多重插补的本质不只是“多填几次”，而是<strong>在统计推断中保留插补不确定性</strong>。</p>
+      </div>
+    </div>
+    <div class="quiz-item">
+      <p class="question">6. 多重插补通常依赖哪种缺失机制假设？</p>
+      <div class="answer">
+        <h4>要点</h4>
+        <ul>
+          <li>通常依赖 MAR 假设。</li>
+          <li>即缺失概率可由已观测变量解释。</li>
+          <li>不要求 MCAR。</li>
+          <li>若实际更接近 MNAR，MI 结果可能仍有偏倚。</li>
+        </ul>
+        <h4>完整严谨答案</h4>
+        <p>多重插补通常依赖的核心缺失机制假设是 <strong>MAR（Missing At Random，随机缺失）</strong>。也就是说，在给定模型中纳入的已观测变量后，缺失的发生不再额外依赖于未观测值本身。</p>
+        <p>这意味着 MI 不要求缺失必须是 MCAR；相反，它正是为了在比 MCAR 更现实的情形下使用。如果研究者在插补模型中纳入了与缺失发生机制和缺失变量本身都相关的重要辅助变量，那么在 MAR 假设下，多重插补往往能够给出较合理的估计。</p>
+        <p>但要注意，MI 的有效性依赖于两个条件：第一，MAR 假设大体成立；第二，插补模型指定得足够合理。如果真实缺失机制更接近 MNAR，而研究者又没有进行适当的敏感性分析，那么即使使用了 MI，结果仍然可能存在偏倚。因此，MI 不是对所有缺失问题都“自动有效”的万能方法。</p>
+      </div>
+    </div>
+    <div class="quiz-item">
+      <p class="question">7. 为什么说多重插补不是“随便填数”？</p>
+      <div class="answer">
+        <h4>要点</h4>
+        <ul>
+          <li>MI 基于统计模型和变量关系进行插补。</li>
+          <li>插补不是拍脑袋填，而是从条件分布中抽取合理值。</li>
+          <li>会利用暴露、结局、协变量及辅助变量的信息。</li>
+          <li>目的是恢复数据结构并保留不确定性，而不是“凑完整表”。</li>
+        </ul>
+        <h4>完整严谨答案</h4>
+        <p>说多重插补不是“随便填数”，是因为它并不是主观地给缺失位置任意塞入一个看起来合理的数字，而是<strong>基于数据中已存在的统计关系，在明确的插补模型下生成多个可能值</strong>。</p>
+        <p>具体来说，多重插补会利用样本中已观测到的变量信息，例如年龄、性别、疾病严重程度、既往史、暴露、结局以及其他辅助变量，去刻画缺失变量的条件分布。然后不是简单地填入一个固定预测值，而是从这个条件分布中抽样，生成多个合理但不完全相同的填补值。这样做既尽量保持变量间原有的相关结构，也承认我们对缺失值并不确定。</p>
+        <p>因此，MI 的本质是一种<strong>模型化的数据重建与不确定性传播方法</strong>，而不是“为了让表格没有空格而胡乱补齐”。如果插补模型构建得合理，它可以比简单删除样本或单次填补更充分地利用已有信息，并给出更可信的统计推断。</p>
+      </div>
+    </div>
+    <div class="quiz-item">
+      <p class="question">8. 为什么不能只看作者写了“采用 MI”，还要看插补模型和敏感性分析？</p>
+      <div class="answer">
+        <h4>要点</h4>
+        <ul>
+          <li>“用了 MI”不代表一定做得对。</li>
+          <li>关键要看插补模型是否纳入重要变量、是否与分析模型相容。</li>
+          <li>还要看变量类型、非线性、交互项、结局变量是否合理处理。</li>
+          <li>若缺失机制可能偏离 MAR，需要敏感性分析评估结论稳健性。</li>
+        </ul>
+        <h4>完整严谨答案</h4>
+        <p>不能只因为作者写了“采用多重插补（MI）”就默认研究结果可靠，因为 <strong>MI 的质量高度依赖于插补模型是否合理，以及研究者是否检验结论对缺失机制假设的敏感性</strong>。</p>
+        <p>首先，插补模型本身很关键。研究者需要说明：插补模型中纳入了哪些变量；是否包含与缺失发生有关的重要预测因子；是否纳入暴露和结局变量；是否考虑了变量分布特征、分类变量与连续变量的区别、非线性项和交互项；插补模型是否与最终分析模型相协调。如果这些关键成分遗漏，MI 即使形式上做了，也可能产生偏差或失真。</p>
+        <p>其次，MI 通常建立在 MAR 假设上，而这一假设无法仅靠数据本身被完全验证。医学研究中经常存在 MNAR 的可能性，例如病情越差越不愿复查、症状越严重越不愿填报等。因此，需要做敏感性分析，例如改变插补模型、纳入不同辅助变量、比较完全病例分析与 MI 结果、进行 delta-adjustment 或其他 MNAR 假设下的分析，以考察主要结论是否稳健。</p>
+        <p>所以，评价一项研究的缺失数据处理质量，不能停留在“作者写了 MI”这一表面层面，而必须进一步看：(1) <strong>插补模型是否科学、充分、透明</strong>；(2) <strong>结果对关键假设是否稳健</strong>。只有这样，才能真正判断缺失数据处理是否可信。</p>
+      </div>
+    </div>
+    <div class="quiz-item">
+      <p class="question">9. 若病情越重越容易失访，这更接近哪种缺失机制？</p>
+      <div class="answer">
+        <h4>要点</h4>
+        <ul>
+          <li>失访与病情（常与预后、结局相关）相连时，缺失往往非“完全随机”。</li>
+          <li>若结局或反映病情的关键信息因失访而未观测，缺失可依赖未观测值本身。</li>
+        </ul>
+        <h4>完整严谨答案</h4>
+        <p>在典型叙述“越重越容易失访”且结局或严重度未完全观测时，更接近 <strong>MNAR（非随机缺失）</strong>：缺失概率与<strong>未观测或仅部分观测的结局/病情信息</strong>有关，仅用已完整观测的协变量未必能消除这种依赖。若病情严重度在数据中已充分测量且纳入分析，机制也可能在形式上更接近 MAR；答题时强调<strong>与未观测结局相关的失访 → MNAR 风险</strong>即可。</p>
+      </div>
+    </div>
+    <div class="quiz-item">
+      <p class="question">10. 一篇论文在缺失值处理部分至少应报告哪些关键信息？</p>
+      <div class="answer">
+        <h4>要点</h4>
+        <ul>
+          <li>各变量缺失比例与缺失模式（单调/任意等）。</li>
+          <li>对缺失机制的说明或假设（如 MAR 作为工作假设）。</li>
+          <li>所用方法（如 CCA、MI、极大似然等）及软件/实现要点。</li>
+          <li>若用 MI：插补模型中的变量、插补次数、与分析模型的相容性。</li>
+          <li>敏感性分析或多种方法比较。</li>
+        </ul>
+        <h4>完整严谨答案</h4>
+        <p>至少应报告：<strong>各主要分析变量的缺失比例</strong>；作者对缺失机制的<strong>假设或讨论</strong>；采用的<strong>处理方法</strong>（完全病例、单次填补、多重插补等）；若多重插补，应说明<strong>插补模型包含哪些变量</strong>、插补数据集个数、是否包含结局与与缺失相关的辅助变量、是否与主分析模型<strong>相容</strong>；以及<strong>敏感性分析</strong>（如与完全病例结果对比、不同假设下的分析）。符合 STROBE 等对观察性研究报告缺失数据的要求，便于读者判断结论是否稳健。</p>
+      </div>
+    </div>
+  </section>
+</main>
+
+</body>
+</html>

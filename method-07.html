@@ -1,0 +1,243 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>7. 回归模型基础 | BioStarts</title>
+    <link rel="stylesheet" href="method-common.css" />
+  <script defer src="method-quiz.js"></script>
+</head>
+<body>
+<nav class="method-topbar" style="background:#0f2940;color:#f8fafc;padding:12px 24px;font-family:Inter,'PingFang SC','Microsoft YaHei',sans-serif;font-size:13px;display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:8px;">
+  <a href="index.html" style="color:#fff;text-decoration:none;font-weight:600;">← BioStarts</a>
+  <span style="opacity:.85;">统计医学方法 · 第7章</span>
+</nav>
+
+  <div class="container">
+    <h1 class="page-title">7. 回归模型基础</h1>
+
+    <div class="intro">
+      <p>在医学研究中，很多问题都不是“一个因素对应一个结果”这么简单。真实世界中的结局通常会同时受到多个变量影响，例如年龄、性别、疾病严重程度、治疗方案、生活方式等。回归分析的核心价值，就是在这种多因素背景下研究结局与各变量之间的关系，并帮助研究者进行调整和解释。</p>
+    </div>
+
+    <section class="toc">
+      <h2 style="margin-top:0;border-bottom:none;padding-bottom:0;">本节目录</h2>
+      <ul>
+        <li><a href="#part-7-1">7.1 回归分析在医学研究中的作用</a></li>
+        <li><a href="#part-7-2">7.2 自变量、因变量、协变量</a></li>
+        <li><a href="#part-7-3">7.3 混杂因素与调整</a></li>
+        <li><a href="#part-7-4">7.4 单因素分析与多因素分析</a></li>
+        <li><a href="#summary">本节小结</a></li>
+        <li><a href="#self-test">自测小题</a></li>
+      </ul>
+    </section>
+
+    <section class="section">
+      <h2 id="part-7-1">7.1 回归分析在医学研究中的作用</h2>
+
+      <h3>严格定义</h3>
+      <p>回归分析是一类统计建模方法，用于研究一个因变量与一个或多个自变量之间的关系。常见模型包括线性回归、Logistic 回归和 Cox 回归，分别适用于连续型、二分类和时间到事件型结局。</p>
+
+      <h3>通俗解释</h3>
+      <p>回归分析可以理解为：把多个可能影响结局的因素放在一起看，判断某个变量在其他变量都考虑进去后，是否仍与结局有关。</p>
+
+      <div class="box">
+        <strong>医学研究中的常见作用：</strong>
+        <ul>
+          <li>描述结局与某变量之间的关系大小和方向；</li>
+          <li>比较组间差异并同时控制其他变量；</li>
+          <li>控制混杂因素；</li>
+          <li>建立风险预测模型。</li>
+        </ul>
+      </div>
+
+      <div class="box toy">
+        <h3>医学 toy example</h3>
+        <p>研究空腹血糖是否与住院天数有关。如果只做简单相关分析，不能控制年龄和病情严重程度等因素；若采用回归分析，就可以在同时考虑这些因素后，再看血糖与住院天数是否仍有关。</p>
+      </div>
+
+      <div class="box warn">
+        <strong>初学者注意：</strong>
+        <ul>
+          <li>回归分析不只是“高级版相关分析”。</li>
+          <li>做了回归，并不等于自动得出因果结论。</li>
+        </ul>
+      </div>
+
+      <h3>推荐阅读</h3>
+      <ul class="refs">
+        <li>Alexopoulos EC. <em>Introduction to Multivariate Regression Analysis</em>. Hippokratia, 2010.</li>
+        <li>Sperandei S. <em>Understanding logistic regression analysis</em>. Biochemia Medica, 2014.</li>
+      </ul>
+    </section>
+
+    <section class="section">
+      <h2 id="part-7-2">7.2 自变量、因变量、协变量</h2>
+
+      <h3>严格定义</h3>
+      <ul>
+        <li><strong>因变量</strong>：研究者要解释或预测的结局变量；</li>
+        <li><strong>自变量</strong>：研究者最关心其与结局关系的变量；</li>
+        <li><strong>协变量</strong>：一并纳入模型、可能影响结局的其他变量。</li>
+      </ul>
+
+      <h3>通俗解释</h3>
+      <p>因变量是主角，自变量是你最关注的核心因素，协变量则是背景角色，它们虽然不是主角，但可能影响故事结局，所以也要一起考虑。</p>
+
+      <div class="box toy">
+        <h3>医学 toy example</h3>
+        <p>研究“BMI 是否与收缩压有关”时：</p>
+        <ul>
+          <li>因变量：收缩压</li>
+          <li>主要自变量：BMI</li>
+          <li>协变量：年龄、性别、降压药使用、糖尿病病史</li>
+        </ul>
+      </div>
+
+      <div class="box warn">
+        <strong>初学者注意：</strong>
+        <ul>
+          <li>因变量和自变量首先由研究问题决定，不是软件自动决定的。</li>
+          <li>协变量不一定都是混杂因素。</li>
+          <li>不能把所有变量都机械塞进模型。</li>
+        </ul>
+      </div>
+
+      <h3>推荐阅读</h3>
+      <ul class="refs">
+        <li>Dwivedi AK, et al. <em>How to write statistical analysis section in medical research</em>. Journal of Translational Internal Medicine, 2022.</li>
+        <li>Alexopoulos EC. <em>Introduction to Multivariate Regression Analysis</em>. Hippokratia, 2010.</li>
+      </ul>
+    </section>
+
+    <section class="section">
+      <h2 id="part-7-3">7.3 混杂因素与调整</h2>
+
+      <h3>严格定义</h3>
+      <p>混杂因素是指同时与暴露和结局有关、且不在二者因果路径上的变量，它会扭曲暴露与结局之间的真实关系。调整指的是通过统计分析控制这些变量的影响，以减少这种扭曲。</p>
+
+      <h3>通俗解释</h3>
+      <p>混杂因素就像一个“同时推着两边走的第三者”，让你误以为暴露和结局之间有很强关系，但实际上其中一部分是它造成的。</p>
+
+      <div class="box toy">
+        <h3>医学 toy example</h3>
+        <p>研究“运动量是否降低心血管事件风险”时，年龄、BMI、吸烟等都可能既影响运动量，也影响心血管事件风险，因此它们可能是混杂因素，需要在分析中调整。</p>
+      </div>
+
+      <div class="box">
+        <strong>常见调整方法：</strong>
+        <ul>
+          <li>分层分析</li>
+          <li>标准化</li>
+          <li>多变量回归</li>
+          <li>倾向评分方法</li>
+          <li>逆概率加权</li>
+        </ul>
+      </div>
+
+      <div class="box warn">
+        <strong>初学者注意：</strong>
+        <ul>
+          <li>把变量放进模型，不等于一定成功控制了混杂。</li>
+          <li>调整并不是越多越好，错误调整也会引入偏倚。</li>
+        </ul>
+      </div>
+
+      <h3>推荐阅读</h3>
+      <ul class="refs">
+        <li>Pourhoseingholi MA, et al. <em>How to control confounding effects by statistical analysis</em>. Gastroenterology and Hepatology From Bed to Bench, 2012.</li>
+        <li>Kahlert J. <em>Control of confounding in the analysis phase – an overview for clinicians</em>. Clinical Epidemiology, 2017.</li>
+      </ul>
+    </section>
+
+    <section class="section">
+      <h2 id="part-7-4">7.4 单因素分析与多因素分析</h2>
+
+      <h3>严格定义</h3>
+      <p>单因素分析通常指一次只考察一个自变量与结局之间的关系；多因素分析指在同一个模型中同时纳入多个自变量，以评估每个变量在控制其他变量后的独立关联。</p>
+
+      <h3>通俗解释</h3>
+      <p>单因素分析像“一个一个单独问”，多因素分析像“把所有重要角色放进同一个房间里一起问”。</p>
+
+      <div class="box toy">
+        <h3>医学 toy example</h3>
+        <p>研究住院肺炎患者死亡风险时，单因素分析可能发现年龄、CRP、ICU 入院、糖尿病都显著；但在多因素 Logistic 回归中，可能只剩年龄和 ICU 入院仍显著。这说明有些单因素结果可能受其他变量影响。</p>
+      </div>
+
+      <div class="box warn">
+        <strong>初学者注意：</strong>
+        <ul>
+          <li>不是只有单因素显著的变量才能进入多因素模型。</li>
+          <li>多因素分析的目的不只是找“显著变量”，更重要的是控制混杂、得到更合理的效应估计。</li>
+          <li>术语上，严格说“一个结局 + 多个自变量”更准确叫 multivariable，而不是 multivariate。</li>
+        </ul>
+      </div>
+
+      <h3>推荐阅读</h3>
+      <ul class="refs">
+        <li>Hidalgo B, Goodman M. <em>Multivariate or Multivariable Regression?</em> American Journal of Public Health, 2013.</li>
+        <li>Heinze G, Wallisch C, Dunkler D. <em>Variable selection – A review and recommendations for the practicing statistician</em>. Biometrical Journal, 2018.</li>
+      </ul>
+    </section>
+
+    <section class="section">
+      <h2 id="summary">本节小结</h2>
+      <div class="summary">
+        <ul>
+          <li>回归分析用来研究结局与一个或多个变量之间的关系。</li>
+          <li>因变量是结局，自变量是核心暴露，协变量是一起纳入模型考虑的其他变量。</li>
+          <li>混杂因素会扭曲暴露与结局的关系，因此常需要调整。</li>
+          <li>单因素分析更多用于初步观察，多因素分析更接近“控制其他变量后的独立关联”。</li>
+        </ul>
+        <p>对医学生来说，最重要的思维是：当结局受多个因素共同影响时，要想到回归；当你担心混杂时，要想到调整。</p>
+      </div>
+    </section>
+
+    <section class="section">
+      <h2 id="self-test">自测小题</h2>
+
+      <div class="quiz-item">
+        <strong>1.</strong> 回归分析在医学研究中最核心的作用是什么？
+        <div class="answer">答案：研究结局与一个或多个变量之间的关系，并允许同时考虑多个因素。</div>
+      </div>
+
+      <div class="quiz-item">
+        <strong>2.</strong> 在“BMI 是否与收缩压有关”的研究中，哪个通常是因变量？
+        <div class="answer">答案：收缩压。</div>
+      </div>
+
+      <div class="quiz-item">
+        <strong>3.</strong> 协变量是否一定等于混杂因素？
+        <div class="answer">答案：不一定。</div>
+      </div>
+
+      <div class="quiz-item">
+        <strong>4.</strong> 混杂因素为什么会造成问题？
+        <div class="answer">答案：因为它会同时影响暴露和结局，从而扭曲两者真实关系。</div>
+      </div>
+
+      <div class="quiz-item">
+        <strong>5.</strong> 在观察性研究中，为什么常常需要“调整”？
+        <div class="answer">答案：因为不同暴露组往往在基线特征上本来就不同，需要尽量减少混杂影响。</div>
+      </div>
+
+      <div class="quiz-item">
+        <strong>6.</strong> 单因素分析和多因素分析最大的区别是什么？
+        <div class="answer">答案：单因素一次只看一个变量，多因素在同一模型中同时看多个变量。</div>
+      </div>
+
+      <div class="quiz-item">
+        <strong>7.</strong> 一个变量单因素显著、多因素不显著，可能说明什么？
+        <div class="answer">答案：可能提示其表面关联受其他变量影响，存在混杂或变量间相关。</div>
+      </div>
+
+      <div class="quiz-item">
+        <strong>8.</strong> 多因素分析是否等于自动得出因果结论？
+        <div class="answer">答案：不等于。</div>
+      </div>
+    </section>
+
+  </div>
+</body>
+</html>
+
